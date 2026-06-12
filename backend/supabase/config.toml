@@ -1,0 +1,5 @@
+# Supabase CLI project config. The authoritative project settings (auth
+# providers, redirect URLs, email templates) live in the hosted dashboard,
+# managed by the developer. This file identifies the project for `supabase`
+# CLI commands such as `supabase db push`.
+project_id = "influency"

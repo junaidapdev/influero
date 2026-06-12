@@ -1,0 +1,133 @@
+/* Inter for Latin; Tajawal for Arabic. Tajawal pairs cleanly with Inter at the
+   same metrics. The font @import must precede the Tailwind import: CSS requires
+   all @import rules to come before any other rules, and `@import "tailwindcss"`
+   expands into rules. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", "Tajawal", system-ui, sans-serif;
+  --font-arabic: "Tajawal", "Inter", system-ui, sans-serif;
+
+  /* Type scale — the ui-tokens.md §Typography sizes that Tailwind's default
+     scale (12/14/16/18/20…) doesn't cover, tokenized so components stop
+     inlining `text-[NNpx]`. Font-size only (line-heights stay inherited, so
+     rendering is unchanged) EXCEPT --text-hero, which carries its spec 34px
+     leading. --text-micro (11px) is an addition below the 12px floor for the
+     smallest chips/labels already in use. The 16/18/24px tiers keep using
+     Tailwind's matching text-base/text-lg/text-2xl. */
+  --text-hero: 28px;            /* hero metric (SAR 220,500) */
+  --text-hero--line-height: 34px;
+  --text-row: 15px;             /* row title (deal / meeting) */
+  --text-body: 13px;            /* row subtitle, amount/time pill */
+  --text-caption: 12px;         /* status pill, Hijri date, muted caption */
+  --text-micro: 11px;           /* smallest chips / ring percent */
+
+  /* Page and surface backgrounds */
+  --color-background: #f4f4f8;        /* lavender-tinted page background from the mocks */
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f9fafb;
+  --color-surface-tertiary: #f2f5f7;
+  --color-surface-muted: #f4f5fb;
+
+  /* Borders */
+  --color-border: #e7eaf3;
+  --color-border-light: #eceef5;
+  --color-border-muted: #dfe1e7;
+
+  /* Text */
+  --color-text-primary: #101828;
+  --color-text-secondary: #6a7282;
+  --color-text-muted: #99a1af;
+  --color-text-dark: #364153;
+  --color-text-darker: #36394a;
+  --color-text-darkest: #111827;
+  --color-text-on-accent: #ffffff;     /* text on top of the violet hero card */
+
+  /* Primary accent — Influency violet (slightly cooler than JobPilot's purple) */
+  --color-accent: #6e56f5;
+  --color-accent-dark: #5340e6;
+  --color-accent-darker: #3f2cc7;
+  --color-accent-light: #ede9ff;       /* "In progress" pill bg, primary button hover surface */
+  --color-accent-muted: #f6f3ff;       /* very faint violet wash */
+  --color-accent-foreground: #ffffff;
+
+  /* Hero gradient stops (used by the "This Month" card on Home) */
+  --color-hero-from: #7a63ff;
+  --color-hero-via:  #6e56f5;
+  --color-hero-to:   #5340e6;
+
+  /* Success — green (Paid, Posted, Collected, collection-rate bars) */
+  --color-success: #10b981;
+  --color-success-dark: #007a55;
+  --color-success-light: #d0fae5;
+  --color-success-lightest: #ecfdf5;
+  --color-success-foreground: #007a55;
+
+  /* Warning — amber/orange (Pending deals, Outstanding money, Total-pending strip) */
+  --color-warning: #f59e0b;
+  --color-warning-dark: #b45309;
+  --color-warning-light: #fef3c7;
+  --color-warning-lightest: #fffbeb;
+  --color-warning-foreground: #b45309;
+
+  /* Info — blue (Meeting time pills in violet/blue family, Snap Analytics tab) */
+  --color-info: #3b82f6;
+  --color-info-dark: #1d4ed8;
+  --color-info-light: #dbeafe;
+  --color-info-lightest: #eff6ff;
+  --color-info-foreground: #1d4ed8;
+
+  /* Error — red (Overdue, the "Needs attention" card stripe, the Unboxing-shoot pill) */
+  --color-error: #ef4444;
+  --color-error-dark: #b91c1c;
+  --color-error-light: #fee2e2;
+  --color-error-lightest: #fef2f2;
+  --color-error-foreground: #b91c1c;
+
+  /* Brand-avatar tints (used by BrandAvatar — soft pastel with deeper-tone glyph) */
+  --color-brand-tint-violet: #ede9ff;
+  --color-brand-tint-amber:  #fde9c8;
+  --color-brand-tint-green:  #d8efe3;
+  --color-brand-tint-blue:   #dce8f7;
+  --color-brand-tint-pink:   #f7dde2;
+  --color-brand-tint-neutral:#eceef5;
+
+  /* Border radius — Influency leans larger than JobPilot */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Elevation — flat by default, very subtle when needed */
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-hero: 0 8px 24px rgba(110, 86, 245, 0.25);
+  --shadow-fab:  0 6px 16px rgba(110, 86, 245, 0.35);
+
+  /* Overlay scrim behind the bottom sheet / dialog (value from ui-rules) */
+  --color-scrim: rgba(0, 0, 0, 0.45);
+}
+
+/* The active font family follows <html lang>. */
+:root {
+  font-family: var(--font-sans);
+}
+
+:root[lang="ar"] {
+  font-family: var(--font-arabic);
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Money always renders with tabular figures so columns align. */
+.money {
+  font-variant-numeric: tabular-nums;
+}

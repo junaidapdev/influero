@@ -1,0 +1,561 @@
+{
+  "app": {
+    "name": "Influency"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to manage your deals"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "subtitle": "Start tracking your brand deals"
+    },
+    "fields": {
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••"
+    },
+    "actions": {
+      "signIn": "Sign in",
+      "signUp": "Sign up",
+      "google": "Continue with Google",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "toggle": {
+      "noAccount": "Don't have an account?",
+      "haveAccount": "Already have an account?",
+      "toSignUp": "Sign up",
+      "toSignIn": "Sign in"
+    },
+    "divider": "or",
+    "verify": {
+      "title": "Check your email",
+      "body": "We sent a confirmation link to {{email}}. Open it on this device to finish creating your account.",
+      "backToSignIn": "Back to sign in"
+    },
+    "callback": {
+      "loading": "Signing you in…"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "invalidCredentials": "Wrong email or password",
+      "emailNotConfirmed": "Please confirm your email first — check your inbox",
+      "emailTaken": "An account with this email already exists",
+      "oauth": "Could not sign in with Google. Please try again.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "help": "Switches the app language and layout direction."
+    },
+    "reminders": {
+      "title": "Reminders",
+      "label": "Default reminder lead time",
+      "unit": "minutes",
+      "help": "Affects future reminders only."
+    },
+    "profile": {
+      "title": "Profile",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "avatar": "Profile photo",
+      "avatarPrompt": "Click to upload or drag and drop",
+      "avatarHint": "PNG, JPG, or WebP · under 2 MB",
+      "avatarTypeError": "Use a PNG, JPG, or WebP image",
+      "avatarSizeError": "Image must be under 2 MB"
+    },
+    "actions": {
+      "signOut": "Sign out",
+      "save": "Save changes"
+    },
+    "toast": {
+      "saved": "Saved",
+      "error": "Couldn't save your changes. Please try again."
+    },
+    "loadError": "Couldn't load your settings. Please refresh the page.",
+    "errors": {
+      "displayNameMax": "Display name is too long",
+      "reminderInvalid": "Enter a valid number of minutes",
+      "reminderMin": "Must be 0 or more",
+      "reminderMax": "Reminder lead time is too large"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "quickLinks": "Quick links",
+    "loadError": "Couldn't load this month's numbers. Please refresh the page.",
+    "greeting": "Hi,",
+    "greetingFallback": "there",
+    "hero": {
+      "label": "This month",
+      "collectionRate": "Collection rate",
+      "invoiced": "Total invoiced",
+      "dealsLine": "Posted {{posted}} · Pending {{pending}}",
+      "trend": "Invoiced over the last 12 months"
+    },
+    "tiles": {
+      "collected": "Collected",
+      "outstanding": "Outstanding",
+      "posted": "Posted"
+    },
+    "today": {
+      "title": "Today",
+      "empty": "All clear — nothing due in the next 24 hours",
+      "loadError": "Couldn't load today's items. Please refresh the page.",
+      "meetingsLoadError": "Couldn't load today's meetings.",
+      "remindersLoadError": "Couldn't load today's reminders.",
+      "overdue": "Overdue",
+      "tomorrowTime": "Tomorrow, {{time}}",
+      "openReminderAria": "Open reminder: {{title}}",
+      "doneAria": "Mark done: {{title}}",
+      "type": {
+        "meeting": "Meeting",
+        "payment": "Payment",
+        "deliverable": "Deliverable",
+        "custom": "Reminder"
+      }
+    },
+    "attention": {
+      "title": "Needs attention",
+      "empty": "All clear — nothing needs attention",
+      "loadError": "Couldn't load this section. Please refresh the page.",
+      "paymentsLoadError": "Couldn't load overdue payments.",
+      "dealsLoadError": "Couldn't load past-deadline deals.",
+      "overduePayment": "Overdue",
+      "pastDeadline": "Past deadline"
+    },
+    "toast": {
+      "dismissError": "Couldn't mark the reminder as done. Please try again."
+    },
+    "profileBanner": {
+      "title": "Finish setting up your profile",
+      "description": "Add these to complete your profile:",
+      "cta": "Go to settings",
+      "missing": {
+        "displayName": "Display name",
+        "avatar": "Avatar"
+      }
+    }
+  },
+  "deals": {
+    "title": "Deals",
+    "count": "{{total}} deals",
+    "addDeal": "Add deal",
+    "noDeadline": "No deadline",
+    "progress": "{{posted}}/{{total}}",
+    "rollup": "{{posted}} posted · {{amount}} pending",
+    "loadError": "Couldn't load your deals. Please refresh the page.",
+    "filtersUnavailable": "Some filters couldn't load.",
+    "brandsLoadError": "Couldn't load your brands. Please try again.",
+    "needBrandFirst": "A deal belongs to a brand — add your first brand to get started.",
+    "goToBrands": "Go to brands",
+    "empty": {
+      "message": "No deals yet",
+      "cta": "Add your first deal",
+      "noMatches": "No deals match these filters"
+    },
+    "status": {
+      "pending": "Pending",
+      "in_progress": "In progress",
+      "posted": "Posted",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "deliverableType": {
+      "story": "Story",
+      "post": "Post",
+      "reel": "Reel"
+    },
+    "filters": {
+      "statusLabel": "Filter by status",
+      "allStatuses": "See all",
+      "brand": "Brand",
+      "allBrands": "All brands",
+      "month": "Month",
+      "allMonths": "All months"
+    },
+    "fields": {
+      "brand": "Brand",
+      "brandPlaceholder": "Select a brand",
+      "title": "Title",
+      "titlePlaceholder": "e.g. Ramadan campaign",
+      "deliverables": "Deliverables",
+      "deliverableType": "Deliverable type",
+      "deliverableCount": "Count",
+      "amount": "Agreed amount (SAR)",
+      "amountPlaceholder": "19000",
+      "deadline": "Deadline",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything worth remembering about this deal"
+    },
+    "expanded": {
+      "deliverables": "Deliverables",
+      "deliverableLine": "{{total}} × {{type}}",
+      "payments": "Payments",
+      "paymentsSummary_one": "{{received}} of {{total}} payment received · {{outstanding}} outstanding",
+      "paymentsSummary_other": "{{received}} of {{total}} payments received · {{outstanding}} outstanding",
+      "paymentsAllReceived": "All payments received",
+      "noPayments": "No payments for this deal yet",
+      "paymentsError": "Couldn't load this deal's payments",
+      "snapReport": "Snap report",
+      "snapSummary": "{{date}} · {{views}} views",
+      "noSnapReport": "No Snap report linked to this deal yet",
+      "snapError": "Couldn't load this deal's Snap report"
+    },
+    "actions": {
+      "add": "Add deal",
+      "addDeliverable": "Add deliverable",
+      "removeDeliverable": "Remove deliverable",
+      "cancelDeal": "Cancel deal",
+      "confirmCancel": "Yes, cancel it",
+      "keepDeal": "Keep deal"
+    },
+    "toast": {
+      "created": "Deal added",
+      "cancelled": "Deal cancelled",
+      "error": "Couldn't save the deal. Please try again."
+    },
+    "errors": {
+      "brandRequired": "Pick a brand",
+      "titleRequired": "Title is required",
+      "titleMax": "Title is too long",
+      "deliverablesRequired": "Add at least one deliverable",
+      "countInvalid": "Enter a whole number",
+      "countRange": "Count must be between 1 and 99",
+      "amountRequired": "Amount is required",
+      "amountInvalid": "Enter a valid amount",
+      "deadlineInvalid": "Enter a valid date",
+      "notesMax": "Notes are too long"
+    }
+  },
+  "payments": {
+    "title": "Payments",
+    "count": "{{total}} payments",
+    "addPayment": "Add payment",
+    "totalPending": "Total pending",
+    "loadError": "Couldn't load your payments. Please refresh the page.",
+    "needDealFirst": "A payment belongs to a deal — add an active deal to get started.",
+    "goToDeals": "Go to deals",
+    "noExpectedDate": "No expected date",
+    "tabs": {
+      "label": "Filter payments",
+      "pending": "Pending",
+      "received": "Received"
+    },
+    "empty": {
+      "pending": "No pending payments",
+      "pendingCta": "Add your first payment",
+      "received": "Nothing received yet"
+    },
+    "status": {
+      "pending": "Pending",
+      "received": "Received",
+      "overdue": "Overdue"
+    },
+    "fields": {
+      "deal": "Deal",
+      "dealPlaceholder": "Select a deal",
+      "amount": "Amount (SAR)",
+      "amountPlaceholder": "9500",
+      "expectedDate": "Expected date",
+      "method": "Method",
+      "methodNone": "Not set",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything worth remembering about this payment"
+    },
+    "method": {
+      "bank": "Bank transfer",
+      "cash": "Cash",
+      "other": "Other"
+    },
+    "actions": {
+      "add": "Add payment",
+      "markReceived": "Mark received",
+      "sendReminder": "Send reminder"
+    },
+    "toast": {
+      "created": "Payment added",
+      "received": "Payment received",
+      "dealPaid": "Payment received — deal fully paid",
+      "error": "Couldn't save the payment. Please try again.",
+      "receiveError": "Couldn't mark as received. Please try again.",
+      "reminderSet": "Reminder set",
+      "reminderError": "Couldn't set the reminder. Please try again."
+    },
+    "errors": {
+      "dealRequired": "Pick a deal",
+      "amountRequired": "Amount is required",
+      "amountInvalid": "Enter a valid amount",
+      "expectedDateInvalid": "Enter a valid date",
+      "notesMax": "Notes are too long"
+    }
+  },
+  "meetings": {
+    "title": "Meetings",
+    "count_one": "{{total}} meeting",
+    "count_other": "{{total}} meetings",
+    "addMeeting": "Add meeting",
+    "editMeeting": "Edit meeting",
+    "calendarLabel": "Meetings calendar",
+    "loadError": "Couldn't load your meetings. Please refresh the page.",
+    "monthNav": {
+      "prev": "Previous month",
+      "next": "Next month"
+    },
+    "view": {
+      "label": "Switch view",
+      "list": "List",
+      "calendar": "Month"
+    },
+    "empty": {
+      "list": "No meetings this month",
+      "listCta": "Add your first meeting",
+      "day": "No meetings on this day"
+    },
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "What is this meeting about?",
+      "scheduledAt": "Date & time",
+      "location": "Location or link",
+      "locationPlaceholder": "Cafe, office, or a meeting link",
+      "attendees": "Attendees",
+      "attendeeName": "Attendee name",
+      "attendeeNamePlaceholder": "Name",
+      "attendeeContact": "Attendee contact",
+      "attendeeContactPlaceholder": "Phone or email (optional)",
+      "brand": "Brand",
+      "brandPlaceholder": "Not linked to a brand",
+      "deal": "Deal",
+      "dealPlaceholder": "Not linked to a deal",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything worth remembering about this meeting"
+    },
+    "actions": {
+      "add": "Add meeting",
+      "save": "Save changes",
+      "addAttendee": "Add attendee",
+      "removeAttendee": "Remove attendee",
+      "editAria": "Edit meeting: {{title}}",
+      "cancelMeeting": "Cancel meeting",
+      "confirmCancel": "Yes, cancel it",
+      "keepMeeting": "Keep meeting"
+    },
+    "toast": {
+      "created": "Meeting added — reminder set",
+      "updated": "Meeting updated — reminder moved",
+      "cancelled": "Meeting cancelled",
+      "error": "Couldn't save the meeting. Please try again.",
+      "cancelError": "Couldn't cancel the meeting. Please try again.",
+      "reminderFailed": "Meeting saved, but the reminder couldn't be set. Edit the meeting to retry."
+    },
+    "errors": {
+      "titleRequired": "Title is required",
+      "titleMax": "Title is too long",
+      "scheduledAtRequired": "Date and time are required",
+      "scheduledAtInvalid": "Enter a valid date and time",
+      "locationMax": "Location or link is too long",
+      "attendeeNameRequired": "Attendee name is required",
+      "attendeeNameMax": "Attendee name is too long",
+      "attendeeContactMax": "Contact is too long",
+      "attendeesMax": "Too many attendees",
+      "notesMax": "Notes are too long"
+    }
+  },
+  "brands": {
+    "title": "Brands",
+    "count": "{{total}} brands",
+    "dealCount": "{{total}} deals",
+    "addBrand": "Add brand",
+    "editBrand": "Edit brand",
+    "empty": {
+      "message": "No brands yet",
+      "cta": "Add your first brand"
+    },
+    "loadError": "Couldn't load your brands. Please refresh the page.",
+    "dealCountsUnavailable": "Deal counts couldn't load.",
+    "fields": {
+      "nameEn": "Name (English)",
+      "nameEnPlaceholder": "Brand name in English",
+      "nameAr": "Name (Arabic)",
+      "nameArPlaceholder": "اسم العلامة بالعربية",
+      "contactName": "Contact name",
+      "contactNamePlaceholder": "Who you deal with",
+      "contactEmail": "Contact email",
+      "contactEmailPlaceholder": "name@example.com",
+      "contactPhone": "Contact phone",
+      "contactPhonePlaceholder": "+966 5X XXX XXXX",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything worth remembering about this brand"
+    },
+    "actions": {
+      "add": "Add brand",
+      "edit": "Edit",
+      "save": "Save changes"
+    },
+    "toast": {
+      "created": "Brand added",
+      "updated": "Brand updated",
+      "error": "Couldn't save the brand. Please try again."
+    },
+    "detail": {
+      "back": "Brands",
+      "notFound": "This brand doesn't exist or isn't yours.",
+      "backToList": "Back to brands",
+      "deals": "Deals",
+      "noDeals": "No deals with this brand yet — they appear here once you add them.",
+      "lifetimeTotal": "Lifetime total",
+      "avgDealSize": "Avg deal size",
+      "lastEngagement": "Last engagement"
+    },
+    "errors": {
+      "nameRequired": "Name is required",
+      "nameMax": "Name is too long",
+      "contactNameMax": "Contact name is too long",
+      "emailInvalid": "Enter a valid email address",
+      "emailMax": "Email is too long",
+      "phoneInvalid": "Enter a valid phone number",
+      "phoneMax": "Phone number is too long",
+      "notesMax": "Notes are too long"
+    }
+  },
+  "snap": {
+    "title": "Snap analytics",
+    "type": {
+      "post": "24h post",
+      "monthly": "Monthly"
+    },
+    "count_one": "{{total}} report",
+    "count_other": "{{total}} reports",
+    "loadError": "Couldn't load your Snap reports",
+    "empty": "No Snap reports yet — upload your first Insights screenshot",
+    "upload": {
+      "heading": "Upload Snap Insights",
+      "prompt": "Click to upload or drag and drop",
+      "busy": "Uploading…",
+      "hint": "PNG, JPEG, or WebP up to 5 MB · PDF up to 10 MB (first page only)",
+      "typeLabel": "Report type",
+      "postHint": "One story or post's Insights, captured about 24 hours after posting",
+      "monthlyHint": "Your account's monthly Insights page — one screenshot covers the whole month"
+    },
+    "status": {
+      "pending": "Extracting",
+      "extracted": "Extracted",
+      "failed": "Failed",
+      "manual": "Manual"
+    },
+    "list": {
+      "untitled": "Snap report",
+      "extracting": "Reading the numbers…",
+      "metrics": "Views {{views}} · Reach {{reach}}",
+      "noNumbers": "No numbers yet — enter them manually",
+      "openAria": "Open Snap report",
+      "untitledMonthly": "Monthly Snap report"
+    },
+    "detail": {
+      "title": "Snap report",
+      "imageAlt": "Uploaded Snap Insights screenshot",
+      "failedNotice": "Couldn't read this screenshot — enter the numbers manually below.",
+      "previewError": "Couldn't load the screenshot preview.",
+      "extracting": "Extracting the numbers — this updates automatically…",
+      "editAria": "Edit {{field}}",
+      "linkToDeal": "Linked deal",
+      "notLinked": "Not linked to a deal"
+    },
+    "fields": {
+      "views": "Views",
+      "reach": "Reach",
+      "storyViews": "Story views",
+      "screenshotCount": "Screenshots",
+      "swipeUps": "Swipe-ups",
+      "reportDate": "Snap date",
+      "profileViews": "Profile views",
+      "newFollowers": "New followers",
+      "watchTimeMinutes": "Watch time (minutes)",
+      "month": "Month"
+    },
+    "actions": {
+      "save": "Save changes",
+      "cancel": "Discard",
+      "export": "Download report"
+    },
+    "errors": {
+      "fileType": "Use a PNG, JPEG, WebP, or PDF file",
+      "imageSize": "Image must be 5 MB or smaller",
+      "pdfSize": "PDF must be 10 MB or smaller",
+      "fileContent": "This file doesn't match its type — try exporting it again",
+      "pdfConvert": "Couldn't read this PDF — try a screenshot instead",
+      "countInvalid": "Enter a whole number",
+      "dateInvalid": "Enter a valid date"
+    },
+    "toast": {
+      "uploaded": "Uploaded — extracting the numbers",
+      "uploadError": "Couldn't upload the file",
+      "saved": "Report updated",
+      "saveError": "Couldn't save the report",
+      "linked": "Deal link updated",
+      "linkError": "Couldn't update the deal link",
+      "exported": "Report image downloaded",
+      "exportError": "Couldn't export the report"
+    },
+    "card": {
+      "titlePost": "24-hour Snap report",
+      "titleMonthly": "Monthly Snap report",
+      "previewHeading": "Report preview",
+      "footer": "Generated with {{app}}"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "period": "Last 12 months",
+    "loadError": "Couldn't load your reports. Please refresh the page.",
+    "monthly": {
+      "title": "Monthly total",
+      "invoiced": "Invoiced",
+      "collected": "Collected",
+      "empty": "No invoiced or collected totals yet"
+    },
+    "perBrand": {
+      "title": "Per brand",
+      "summary": "{{deals}} deals · {{amount}} invoiced",
+      "rateAria": "Collection rate {{rate}}",
+      "empty": "No brand performance yet",
+      "emptyCta": "Go to deals"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "deals": "Deals",
+    "calendar": "Calendar",
+    "insights": "Insights",
+    "quickAdd": "Quick add",
+    "openMenu": "Open menu",
+    "search": "Search",
+    "notifications": "Notifications",
+    "menuTitle": "Menu",
+    "barLabel": "Primary"
+  },
+  "quickAdd": {
+    "deal": "Deal",
+    "meeting": "Meeting",
+    "payment": "Payment",
+    "snap": "Snap report"
+  },
+  "locale": {
+    "ar": "العربية",
+    "en": "English",
+    "switch": "Language"
+  },
+  "common": {
+    "dismiss": "Dismiss",
+    "close": "Close"
+  }
+}

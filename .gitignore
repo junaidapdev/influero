@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+
+# env / secrets — the developer manages all keys
+.env
+.env.*
+!.env.example
+
+# editor / OS
+.cursor/
+.DS_Store
+
+# logs
+*.log
+npm-debug.log*
+
+# Supabase CLI temp
+backend/supabase/.temp/
+
+# scratch notes
+*Fix.md

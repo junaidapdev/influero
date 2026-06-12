@@ -1,0 +1,239 @@
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+import { SettingsSection } from "@/components/settings/SettingsSection";
+import { AvatarDropzone } from "@/components/settings/AvatarDropzone";
+import { LocaleToggle } from "@/components/ui/LocaleToggle";
+import { Card } from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
+import { FieldError } from "@/components/ui/FieldError";
+import { Button } from "@/components/ui/Button";
+import { useSignOut } from "@/hooks/useAuth";
+import { useAppUser } from "@/hooks/useAppUser";
+import { useUpdateAppUser } from "@/hooks/useUpdateAppUser";
+import { useToast } from "@/hooks/useToast";
+import { validateAvatarFile } from "@/features/settings/avatar";
+import { settingsSchema, type SettingsInput } from "@/features/settings/settings.schema";
+import { ROUTES } from "@/constants/routes";
+import { APP_USER_DEFAULTS } from "@/constants/appUser";
+import type { Locale } from "@/constants/locale";
+import { logger } from "@/lib/logger";
+
+function SettingsSkeleton() {
+  return (
+    <div className="flex flex-col gap-6" role="status" aria-busy="true">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="h-32 animate-pulse rounded-lg bg-border motion-reduce:animate-none"
+        />
+      ))}
+    </div>
+  );
+}
+
+export function SettingsRoute() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const showToast = useToast();
+
+  const appUserQuery = useAppUser();
+  const updateAppUser = useUpdateAppUser();
+  const signOut = useSignOut();
+
+  const appUser = appUserQuery.data;
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | undefined>(undefined);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SettingsInput>({
+    resolver: zodResolver(settingsSchema),
+    // `values` (not defaultValues) re-syncs the form once the query resolves and
+    // after a successful save invalidates + refetches.
+    values: {
+      displayName: appUser?.display_name ?? "",
+      reminderLeadMinutes:
+        appUser?.reminder_lead_minutes ?? APP_USER_DEFAULTS.reminderLeadMinutes,
+    },
+  });
+
+  // Revoke the previous object URL when the preview changes or on unmount.
+  useEffect(() => {
+    if (!avatarPreview) return;
+    return () => URL.revokeObjectURL(avatarPreview);
+  }, [avatarPreview]);
+
+  function handleAvatarSelect(file: File): void {
+    const error = validateAvatarFile(file);
+    if (error) {
+      setAvatarError(error);
+      return;
+    }
+    setAvatarError(undefined);
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
+
+  function onSubmit(data: SettingsInput): void {
+    updateAppUser.mutate(
+      {
+        patch: {
+          display_name: data.displayName === "" ? null : data.displayName,
+          reminder_lead_minutes: data.reminderLeadMinutes,
+        },
+        avatarFile,
+      },
+      {
+        onSuccess: () => {
+          showToast("settings.toast.saved", "success");
+          // The refetched avatar_url now drives the dropzone; drop the staged file.
+          setAvatarFile(null);
+        },
+        onError: (error) => {
+          logger.error("SettingsRoute.save", error);
+          showToast("settings.toast.error", "error");
+        },
+      },
+    );
+  }
+
+  // Locale already switched live (i18n + <html dir>); here we persist it. UI
+  // stays in the new locale even on failure — the error toast is the signal.
+  function handleLocaleChange(next: Locale): void {
+    updateAppUser.mutate(
+      { patch: { locale: next } },
+      {
+        onSuccess: () => showToast("settings.toast.saved", "success"),
+        onError: (error) => {
+          logger.error("SettingsRoute.locale", error);
+          showToast("settings.toast.error", "error");
+        },
+      },
+    );
+  }
+
+  function handleSignOut(): void {
+    signOut.mutate(undefined, {
+      onSuccess: () => navigate(ROUTES.LOGIN, { replace: true }),
+      onError: (error) => logger.error("SettingsRoute.signOut", error),
+    });
+  }
+
+  return (
+    <main className="min-h-dvh bg-background px-4 py-8">
+      <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+        <h1 className="text-2xl font-bold text-text-primary">
+          {t("settings.title")}
+        </h1>
+
+        {appUserQuery.isLoading ? (
+          <SettingsSkeleton />
+        ) : appUserQuery.isError ? (
+          <Card>
+            <p className="text-sm text-error-foreground">{t("settings.loadError")}</p>
+          </Card>
+        ) : (
+          <>
+            <SettingsSection
+              title={t("settings.language.title")}
+              description={t("settings.language.help")}
+            >
+              <LocaleToggle onLocaleChange={handleLocaleChange} />
+            </SettingsSection>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
+              <SettingsSection
+                title={t("settings.reminders.title")}
+                description={t("settings.reminders.help")}
+              >
+                <Label htmlFor="reminderLead">{t("settings.reminders.label")}</Label>
+                <div className="flex items-center gap-2">
+                  <div className="w-32">
+                    <Input
+                      id="reminderLead"
+                      type="number"
+                      min={0}
+                      dir="ltr"
+                      hasError={Boolean(errors.reminderLeadMinutes)}
+                      {...register("reminderLeadMinutes", { valueAsNumber: true })}
+                    />
+                  </div>
+                  <span className="text-sm text-text-secondary">
+                    {t("settings.reminders.unit")}
+                  </span>
+                </div>
+                <FieldError
+                  message={
+                    errors.reminderLeadMinutes?.message
+                      ? t(errors.reminderLeadMinutes.message)
+                      : undefined
+                  }
+                />
+              </SettingsSection>
+
+              <SettingsSection title={t("settings.profile.title")}>
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <Label htmlFor="displayName">
+                      {t("settings.profile.displayName")}
+                    </Label>
+                    <Input
+                      id="displayName"
+                      placeholder={t("settings.profile.displayNamePlaceholder")}
+                      hasError={Boolean(errors.displayName)}
+                      {...register("displayName")}
+                    />
+                    <FieldError
+                      message={
+                        errors.displayName?.message
+                          ? t(errors.displayName.message)
+                          : undefined
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>{t("settings.profile.avatar")}</Label>
+                    <AvatarDropzone
+                      name={appUser?.display_name}
+                      currentUrl={appUser?.avatar_url}
+                      previewUrl={avatarPreview}
+                      onSelect={handleAvatarSelect}
+                      errorKey={avatarError}
+                      disabled={updateAppUser.isPending}
+                    />
+                  </div>
+                </div>
+              </SettingsSection>
+
+              <Button
+                type="submit"
+                className="w-full"
+                isLoading={updateAppUser.isPending}
+              >
+                {t("settings.actions.save")}
+              </Button>
+            </form>
+          </>
+        )}
+
+        <Button
+          variant="destructive"
+          className="w-full"
+          onClick={handleSignOut}
+          isLoading={signOut.isPending}
+        >
+          {t("settings.actions.signOut")}
+        </Button>
+      </div>
+    </main>
+  );
+}
