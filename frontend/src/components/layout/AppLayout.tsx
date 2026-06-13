@@ -46,14 +46,14 @@ export function AppLayout({ children }: Props) {
           >
             <ProfileAvatar
               appUser={appUserQuery.data}
-              size={isDashboard ? "xl" : "lg"}
+              size="lg"
               shape="square"
               solid
             />
           </button>
 
           {isDashboard ? (
-            <div className="min-w-0">
+            <div className="min-w-0 leading-tight">
               <p className="text-body text-text-secondary">
                 {t("dashboard.greeting")}
               </p>
