@@ -1,6 +1,6 @@
 # UI Rules
 
-Concise rules for building Influency UI. Design assets are available — use them as the source of truth for visual decisions. These rules cover the most important patterns and constraints to keep the UI consistent without over-specifying every detail. For tokens (every hex, every size), see `ui-tokens.md`.
+Concise rules for building Influero UI. Design assets are available — use them as the source of truth for visual decisions. These rules cover the most important patterns and constraints to keep the UI consistent without over-specifying every detail. For tokens (every hex, every size), see `ui-tokens.md`.
 
 ---
 
@@ -15,7 +15,7 @@ Inter for Latin, Tajawal for Arabic. Both load via one Google Fonts `@import` in
 
 Never use system fonts as the primary font. Never substitute a different sans for either family.
 
-> **Adaptation from the JobPilot reference:** the reference uses Next.js's `next/font/google`. Influency is Vite + React, so the font loads via a Google Fonts `@import` in the global stylesheet. Same outcome, different mechanism.
+> **Adaptation from the JobPilot reference:** the reference uses Next.js's `next/font/google`. Influero is Vite + React, so the font loads via a Google Fonts `@import` in the global stylesheet. Same outcome, different mechanism.
 
 ---
 
@@ -31,7 +31,7 @@ Mobile-first. The mocks are iPhone-sized (≤ 414px). Every page must be fully u
 - Bottom safe area: respect `env(safe-area-inset-bottom)` on the bottom tab bar.
 - Every page has a sticky page title row at the top (e.g. "Meetings", "All Deals") with the date or count in muted text immediately above it (e.g. "June 2026", "8 deals").
 
-> **Adaptation:** JobPilot's `max-width: 1440px` desktop rule doesn't apply — Influency has no desktop layout in v1.
+> **Adaptation:** JobPilot's `max-width: 1440px` desktop rule doesn't apply — Influero has no desktop layout in v1.
 
 ---
 
@@ -45,13 +45,13 @@ Mobile-first. The mocks are iPhone-sized (≤ 414px). Every page must be fully u
 - The tab bar is `bg-surface` with a 1px top border, height 64px + bottom safe area.
 - **Brands**, **Payments**, and **Settings** are not in the tab bar. They're reached from cards on Home, from a deal row, from the profile menu (top-trailing-edge avatar), or via Quick Add. This is intentional — five slots is the ceiling.
 
-> **Adaptation:** JobPilot has a desktop top-navbar with three items. Influency has none of that — bottom tabs only.
+> **Adaptation:** JobPilot has a desktop top-navbar with three items. Influero has none of that — bottom tabs only.
 
 ---
 
 ## Direction (RTL / LTR)
 
-Influency is Arabic-first. **Every layout decision is direction-aware from day one.**
+Influero is Arabic-first. **Every layout decision is direction-aware from day one.**
 
 - The root sets `<html lang="ar" dir="rtl">` when locale is Arabic and `lang="en" dir="ltr"` for English.
 - Use **logical Tailwind utilities only** for spacing and borders: `ps-*` / `pe-*` / `ms-*` / `me-*` / `border-s-*` / `border-e-*`. Never `pl-*` / `pr-*` / `border-l-*` / `border-r-*`.
@@ -191,7 +191,7 @@ min-height: 44px
 
 ## Lists & Empty States
 
-Influency has no `<table>`. Every "list" in the app is a vertical stack of row cards (see Row Cards). Separation is by gap, not by row borders.
+Influero has no `<table>`. Every "list" in the app is a vertical stack of row cards (see Row Cards). Separation is by gap, not by row borders.
 
 **Every list that can be empty must have an empty state.** Keep it minimal:
 
@@ -200,7 +200,7 @@ Influency has no `<table>`. Every "list" in the app is a vertical stack of row c
 - One CTA button that performs the obvious next action (e.g. "Add your first brand").
 - Never show a blank panel.
 
-> **Adaptation:** JobPilot's "Table (Jobs List)" rules don't apply — no tables in Influency.
+> **Adaptation:** JobPilot's "Table (Jobs List)" rules don't apply — no tables in Influero.
 
 ---
 

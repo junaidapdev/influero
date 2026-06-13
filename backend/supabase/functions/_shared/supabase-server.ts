@@ -6,7 +6,7 @@
 //
 // createSupabaseAdmin (service_role): BYPASSES RLS. Only for system-level work
 // that genuinely needs cross-user access, only after explicit ownership checks
-// in code, and only with a comment explaining why. Influency v1 needs it
+// in code, and only with a comment explaining why. Influero v1 needs it
 // nowhere. NOTE for any future admin-path activity write: with no JWT,
 // auth.uid() is null, so activity_log's user_id default does not fill —
 // pass userId explicitly to logActivity.

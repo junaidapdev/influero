@@ -2,7 +2,7 @@
 
 ## About the Project
 
-Influency is a full-stack, multi-tenant web app that runs the operational side of a Saudi influencer's brand-deal business in one place. Each influencer signs up, sets their language (Arabic or English) and currency (SAR), and works out of five connected views: ad deals, meetings & reminders, payment collection, Snapchat analytics, and reports.
+Influero is a full-stack, multi-tenant web app that runs the operational side of a Saudi influencer's brand-deal business in one place. Each influencer signs up, sets their language (Arabic or English) and currency (SAR), and works out of five connected views: ad deals, meetings & reminders, payment collection, Snapchat analytics, and reports.
 
 The influencer tracks every deal end to end — from agreeing deliverables with a brand, to marking each story/post as posted, to collecting payment in installments, to proving performance with Snap Insights numbers extracted automatically by GPT-4o vision. The whole picture rolls up onto a dashboard: money this month, what's due today, and what needs attention.
 
@@ -14,7 +14,7 @@ Arabic-first and bilingual from day one, with full RTL support and Hijri + Grego
 
 Running brand deals is death by a thousand scattered places. Agreements live in WhatsApp threads, deliverables in the notes app, payment promises in screenshots, meeting times in your head, and performance numbers buried in Snap Insights. It is easy to forget a story you owe, lose track of who has actually paid, miss a meeting, or never get around to invoicing a brand.
 
-Influency consolidates all of it. Deals, deliverables, payments, meetings, reminders, and Snap performance live in one system that knows what is overdue, what is unpaid, and how each brand has performed — so the influencer spends time creating, not chasing.
+Influero consolidates all of it. Deals, deliverables, payments, meetings, reminders, and Snap performance live in one system that knows what is overdue, what is unpaid, and how each brand has performed — so the influencer spends time creating, not chasing.
 
 ---
 
@@ -183,7 +183,7 @@ Settings, profile, and sign-out live in a profile menu at the trailing edge of t
 
 ## Activity & Events
 
-Influency tracks key actions internally in an `activity_log` table that powers the dashboard's recent-activity feed and an audit trail. (Unlike the reference project, Influency does not ship a third-party product-analytics SDK in v1; adding one such as PostHog is an optional future choice.)
+Influero tracks key actions internally in an `activity_log` table that powers the dashboard's recent-activity feed and an audit trail. (Unlike the reference project, Influero does not ship a third-party product-analytics SDK in v1; adding one such as PostHog is an optional future choice.)
 
 ```typescript
 deal_created;        // { userId, dealId, brandId }

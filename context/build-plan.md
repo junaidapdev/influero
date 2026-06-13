@@ -17,7 +17,7 @@ Everywhere else, the JobPilot pattern holds: UI mock → verify visually → wir
 
 ### 01 Homepage / Entry
 
-Build the entry behavior. No marketing site in v1 — Influency is an authed app for one specific user type.
+Build the entry behavior. No marketing site in v1 — Influero is an authed app for one specific user type.
 
 **UI:**
 
@@ -135,7 +135,7 @@ Surface incomplete profiles on the dashboard.
 
 ### 08 Activity Log
 
-Internal event tracking that powers the dashboard's recent-activity feed and the audit trail. Influency does not ship a third-party analytics SDK in v1 — this is an in-DB log.
+Internal event tracking that powers the dashboard's recent-activity feed and the audit trail. Influero does not ship a third-party analytics SDK in v1 — this is an in-DB log.
 
 **Logic:**
 

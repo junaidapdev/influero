@@ -1,6 +1,6 @@
 # UI Tokens
 
-Design tokens for Influency. All colors, typography, spacing, and component values extracted from the delivered mobile mocks. Use these exact values throughout the codebase — never hardcode colors or use raw Tailwind color classes in components.
+Design tokens for Influero. All colors, typography, spacing, and component values extracted from the delivered mobile mocks. Use these exact values throughout the codebase — never hardcode colors or use raw Tailwind color classes in components.
 
 ---
 
@@ -8,7 +8,7 @@ Design tokens for Influency. All colors, typography, spacing, and component valu
 
 This project uses **Tailwind CSS v4** with Vite. All design tokens are defined using the `@theme` directive in `src/index.css`. No `tailwind.config.ts` needed for colors or tokens — v4 reads them from CSS.
 
-> **Adaptation from the JobPilot reference:** the reference puts tokens in `app/globals.css` and loads the font with `next/font/google`. Influency is Vite + React, so tokens live in `src/index.css` and the font is loaded via Google Fonts `@import`. The `@theme` mechanism is identical.
+> **Adaptation from the JobPilot reference:** the reference puts tokens in `app/globals.css` and loads the font with `next/font/google`. Influero is Vite + React, so tokens live in `src/index.css` and the font is loaded via Google Fonts `@import`. The `@theme` mechanism is identical.
 
 Tailwind v4 automatically generates utility classes from `@theme` variables:
 
@@ -78,7 +78,7 @@ className="bg-purple-500 text-gray-600"
   --color-text-darkest: #111827;
   --color-text-on-accent: #ffffff;     /* text on top of the violet hero card */
 
-  /* Primary accent — Influency violet (slightly cooler than JobPilot's purple) */
+  /* Primary accent — Influero violet (slightly cooler than JobPilot's purple) */
   --color-accent: #6e56f5;
   --color-accent-dark: #5340e6;
   --color-accent-darker: #3f2cc7;
@@ -127,7 +127,7 @@ className="bg-purple-500 text-gray-600"
   --color-brand-tint-pink:   #f7dde2;
   --color-brand-tint-neutral:#eceef5;
 
-  /* Border radius — Influency leans larger than JobPilot */
+  /* Border radius — Influero leans larger than JobPilot */
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  16px;
@@ -337,7 +337,7 @@ All sizes except `text-hero` are font-size only — line-height stays inherited.
 
 ## Direction (RTL / LTR)
 
-Influency is Arabic-first. **All layout uses logical Tailwind utilities** — never `left-*` / `right-*` for spacing or positioning. The `<html dir>` attribute switches at the root:
+Influero is Arabic-first. **All layout uses logical Tailwind utilities** — never `left-*` / `right-*` for spacing or positioning. The `<html dir>` attribute switches at the root:
 
 ```html
 <html lang="ar" dir="rtl">  <!-- Arabic -->

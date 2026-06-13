@@ -46,7 +46,7 @@
   --color-text-darkest: #111827;
   --color-text-on-accent: #ffffff;     /* text on top of the violet hero card */
 
-  /* Primary accent — Influency violet (slightly cooler than JobPilot's purple) */
+  /* Primary accent — Influero violet (slightly cooler than JobPilot's purple) */
   --color-accent: #6e56f5;
   --color-accent-dark: #5340e6;
   --color-accent-darker: #3f2cc7;
@@ -95,7 +95,7 @@
   --color-brand-tint-pink:   #f7dde2;
   --color-brand-tint-neutral:#eceef5;
 
-  /* Border radius — Influency leans larger than JobPilot */
+  /* Border radius — Influero leans larger than JobPilot */
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  16px;
