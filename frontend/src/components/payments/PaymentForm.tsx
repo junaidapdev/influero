@@ -16,7 +16,7 @@ import { PAYMENT_METHOD } from "@shared/types/payment.types";
 import type { Deal } from "@shared/types/deal.types";
 
 type Props = {
-  // ACTIVE deals only (pending / in_progress / posted) — the parent filters;
+  // ACTIVE deals only (pending / shot / posted) — the parent filters;
   // cancelled and paid deals don't take new installments (Decision 3).
   deals: Deal[];
   defaultValues: PaymentFormInput;

@@ -40,9 +40,13 @@ export function useOverduePayments() {
   });
 }
 
-// Deals past their deadline and still un-posted (pending | in_progress) —
-// posted/paid deals met the deadline's point, cancelled ones are out of play.
-export function usePastDeadlineDeals() {
+// Deals behind schedule: past their post_date and still un-posted
+// (status pending | shot), OR past their shoot_date and still un-shot
+// (status pending). One row per deal even if it matches both halves; the panel
+// labels it by the overdue half (post takes precedence). Paid/posted deals met
+// their point; cancelled ones are out of play (the status predicates exclude
+// both). RLS scopes the read; the user_id filter is convenience.
+export function useBehindScheduleDeals() {
   const { session } = useSession();
   const userId = session?.user.id;
 
@@ -50,15 +54,19 @@ export function usePastDeadlineDeals() {
     queryKey: [...QUERY_KEYS.DEALS, "attention"],
     enabled: Boolean(userId),
     queryFn: async (): Promise<Deal[]> => {
-      if (!userId) throw new Error("[usePastDeadlineDeals] No authenticated user");
+      if (!userId) throw new Error("[useBehindScheduleDeals] No authenticated user");
 
+      const today = todayIsoLocal();
       const { data, error } = await supabase
         .from("ad_deals")
         .select("*")
         .eq("user_id", userId)
-        .in("status", [DEAL_STATUS.PENDING, DEAL_STATUS.IN_PROGRESS])
-        .lt("deadline", todayIsoLocal())
-        .order("deadline", { ascending: true });
+        .or(
+          `and(status.in.(${DEAL_STATUS.PENDING},${DEAL_STATUS.SHOT}),post_date.lt.${today}),` +
+            `and(status.eq.${DEAL_STATUS.PENDING},shoot_date.lt.${today})`,
+        )
+        .order("post_date", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
       if (error) throw error;
 
       return (data ?? []) as Deal[];

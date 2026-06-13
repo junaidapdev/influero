@@ -5,14 +5,19 @@
 // constraints in 0008_meetings_reminders.sql.
 //
 // v1 only ever writes channel 'in_app'; 'whatsapp' + is_sent_at exist so v2
-// delivery is purely additive. 'deliverable' and 'custom' kinds are in the
-// closed set but have no writer yet.
+// delivery is purely additive. 'custom' is in the closed set but has no writer.
+// 'shoot' / 'post' are the deal-lifecycle date reminders (due shoot_date /
+// post_date); 'deliverable' is the +24h Snap-analytics nudge, armed when a deal
+// is marked Posted. All three can coexist on one deal — the reminders unique
+// index keys on (user_id, kind, ref_id), so distinct kinds never collide.
 
 export const REMINDER_KIND = {
   MEETING: "meeting",
   PAYMENT: "payment",
   DELIVERABLE: "deliverable",
   CUSTOM: "custom",
+  SHOOT: "shoot",
+  POST: "post",
 } as const;
 
 export type ReminderKind = (typeof REMINDER_KIND)[keyof typeof REMINDER_KIND];

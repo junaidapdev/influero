@@ -82,7 +82,7 @@ className="bg-purple-500 text-gray-600"
   --color-accent: #6e56f5;
   --color-accent-dark: #5340e6;
   --color-accent-darker: #3f2cc7;
-  --color-accent-light: #ede9ff;       /* "In progress" pill bg, primary button hover surface */
+  --color-accent-light: #ede9ff;       /* "Shot" pill bg, primary button hover surface */
   --color-accent-muted: #f6f3ff;       /* very faint violet wash */
   --color-accent-foreground: #ffffff;
 
@@ -181,7 +181,7 @@ Tailwind v4 generates utility classes automatically from every `--color-*` token
 
 ### Accent (Primary Violet)
 
-Used for: the FAB, primary buttons, active bottom-tab label + icon, hero "This Month" card, progress fills, "In progress" pill, segmented-control active tab, focus rings.
+Used for: the FAB, primary buttons, active bottom-tab label + icon, hero "This Month" card, progress fills, "Shot" pill, segmented-control active tab, focus rings.
 
 | Element                       | Token                    |
 | ----------------------------- | ------------------------ |
@@ -195,10 +195,12 @@ Used for: the FAB, primary buttons, active bottom-tab label + icon, hero "This M
 
 The deal-status pill is the small dot + label at the top-right of every deal card. Same control reused across All Deals, Home Today, brand detail.
 
+Statuses follow the pipeline To-do → Shot → Posted → Paid (`shot` replaced `in_progress` in the deal-lifecycle redesign; it reuses the same accent tokens).
+
 | Status         | Background          | Text                       | Dot                |
 | -------------- | ------------------- | -------------------------- | ------------------ |
-| In progress    | `bg-accent-light`   | `text-accent`              | `bg-accent`        |
-| Pending        | `bg-warning-light`  | `text-warning-foreground`  | `bg-warning`       |
+| To-do (pending)| `bg-warning-light`  | `text-warning-foreground`  | `bg-warning`       |
+| Shot           | `bg-accent-light`   | `text-accent`              | `bg-accent`        |
 | Posted         | `bg-info-light`     | `text-info-foreground`    | `bg-info`          |
 | Paid           | `bg-success-light`  | `text-success-foreground`  | `bg-success`       |
 | Cancelled      | `bg-surface-tertiary` | `text-text-muted`       | `bg-text-muted`    |

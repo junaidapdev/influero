@@ -272,10 +272,13 @@ Every user-owned row carries `user_id` (the Supabase `auth.users.id`) and is gat
 | user_id           | uuid        | FK to auth.users.id                                                         |
 | brand_id          | uuid        | FK to brands                                                                |
 | title             | text        | NOT NULL                                                                    |
-| deliverables      | jsonb       | `[{ type: 'story'|'post'|'reel', count: int, posted_at?: timestamptz }]` (zod-validated on write) |
+| deliverables      | jsonb       | `[{ type: 'story'|'post'|'reel', count: int }]` — read-only "what's owed" descriptor (zod-validated on write) |
 | agreed_amount_sar | numeric     | NOT NULL                                                                    |
-| deadline          | date        |                                                                             |
-| status            | text        | check in ('pending','in_progress','posted','paid','cancelled') · default 'pending' |
+| shoot_date        | date        | planned shoot date · nullable · arms the `shoot` reminder                   |
+| post_date         | date        | planned publish date (was `deadline`) · nullable · arms the `post` reminder |
+| shot_at           | timestamptz | actual completion stamp · set when ☐ Shot is ticked · nullable              |
+| posted_at         | timestamptz | actual completion stamp · set when ☐ Posted is ticked · nullable            |
+| status            | text        | check in ('pending','shot','posted','paid','cancelled') · default 'pending' · DERIVED from the two stamps (posted_at→posted, else shot_at→shot, else pending; paid/cancelled terminal) |
 | notes             | text        |                                                                             |
 | created_at        | timestamptz | default now()                                                               |
 | updated_at        | timestamptz | default now()                                                               |
@@ -317,7 +320,7 @@ Every user-owned row carries `user_id` (the Supabase `auth.users.id`) and is gat
 | ----------- | ----------- | -------------------------------------------------------------------------------------- |
 | id          | uuid        | PK                                                                                     |
 | user_id     | uuid        | FK to auth.users.id                                                                    |
-| kind        | text        | check in ('meeting','payment','deliverable','custom')                                  |
+| kind        | text        | check in ('meeting','payment','deliverable','custom','shoot','post') — `shoot`/`post` are the deal-lifecycle date reminders; `deliverable` is the +24h Snap-analytics nudge |
 | ref_id      | text        | Id of the meeting/payment/deal this points to                                          |
 | ref_table   | text        | 'meetings' | 'payments' | 'ad_deals'                                                  |
 | due_at      | timestamptz | NOT NULL                                                                               |
@@ -352,7 +355,7 @@ Every user-owned row carries `user_id` (the Supabase `auth.users.id`) and is gat
 | ---------- | ----------- | ---------------------------------------------------------------------- |
 | id         | uuid        | PK                                                                     |
 | user_id    | uuid        | FK to auth.users.id                                                    |
-| kind       | text        | `deal_created`, `deliverable_posted`, `deal_posted`, `payment_received`, `deal_paid`, `meeting_scheduled`, `snap_extracted` |
+| kind       | text        | `deal_created`, `deliverable_posted` (retired — historical only), `deal_shot`, `deal_posted`, `payment_received`, `deal_paid`, `meeting_scheduled`, `snap_extracted` |
 | summary    | text        | Human-readable summary for the recent-activity feed                    |
 | ref_id     | text        | Optional — id of the related row                                       |
 | ref_table  | text        | Optional — name of the related table                                   |
@@ -360,7 +363,7 @@ Every user-owned row carries `user_id` (the Supabase `auth.users.id`) and is gat
 
 ### Indexes (covered earlier in `01-project-overview.md`; restated for completeness)
 
-- `ad_deals (user_id, status, deadline)`
+- `ad_deals (user_id, status, post_date)` (renamed from `…, deadline` in 0013)
 - `payments (user_id, status, expected_date)`
 - `meetings (user_id, scheduled_at)`
 - `reminders (user_id, due_at, is_done)`

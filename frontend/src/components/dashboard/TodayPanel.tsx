@@ -28,14 +28,20 @@ const MIN_CLOCK_DELAY_MS = 1 * 1000;
 const CLOCK_SETTLE_MS = 100;
 
 // Leading-edge stripe per row kind — the ui-tokens "Row-Card Left Stripe"
-// table: meeting=accent, payment due=warning, overdue payment=error,
-// deliverable due=info. A custom reminder has no table row; it rides the
-// meeting/default accent.
+// table: meeting=accent, payment due=warning, overdue payment=error, deal
+// reminders (deliverable/shoot/post)=info. A custom reminder has no table row;
+// it rides the meeting/default accent.
 function reminderStripe(reminder: Reminder, overdue: boolean): string {
   if (reminder.kind === REMINDER_KIND.PAYMENT) {
     return overdue ? "border-s-error" : "border-s-warning";
   }
-  if (reminder.kind === REMINDER_KIND.DELIVERABLE) return "border-s-info";
+  if (
+    reminder.kind === REMINDER_KIND.DELIVERABLE ||
+    reminder.kind === REMINDER_KIND.SHOOT ||
+    reminder.kind === REMINDER_KIND.POST
+  ) {
+    return "border-s-info";
+  }
   return "border-s-accent";
 }
 
@@ -72,6 +78,8 @@ const REMINDER_TYPE_KEY: Record<Reminder["kind"], string> = {
   payment: "dashboard.today.type.payment",
   deliverable: "dashboard.today.type.deliverable",
   custom: "dashboard.today.type.custom",
+  shoot: "dashboard.today.type.shoot",
+  post: "dashboard.today.type.post",
 };
 
 function TodaySkeleton() {
@@ -132,6 +140,8 @@ function reminderRoute(reminder: Reminder): string | null {
   }
   if (
     reminder.kind === REMINDER_KIND.DELIVERABLE ||
+    reminder.kind === REMINDER_KIND.SHOOT ||
+    reminder.kind === REMINDER_KIND.POST ||
     reminder.ref_table === REMINDER_REF_TABLE.AD_DEALS
   ) {
     return ROUTES.DEALS;

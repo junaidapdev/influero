@@ -44,7 +44,7 @@ const EMPTY_PAYMENT_FORM: PaymentFormInput = {
 // paid only became paid because every payment was received.
 const ACTIVE_DEAL_STATUSES: ReadonlySet<Deal["status"]> = new Set([
   DEAL_STATUS.PENDING,
-  DEAL_STATUS.IN_PROGRESS,
+  DEAL_STATUS.SHOT,
   DEAL_STATUS.POSTED,
 ]);
 

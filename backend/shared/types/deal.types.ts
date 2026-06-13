@@ -1,12 +1,18 @@
 // Shared deal types — the canonical shape of an ad_deals row, its status set,
-// and the deliverables checklist line. Framework-agnostic (no React, Vite, or
+// and the deliverables descriptor line. Framework-agnostic (no React, Vite, or
 // Deno imports) so the web app now, Feature 11's edge function/RPC ('paid'), and
 // the future React Native app all reuse them untouched. Keep DEAL_STATUS in sync
-// with the CHECK constraint in 0005_ad_deals.sql.
+// with the CHECK constraint in 0013_deal_lifecycle.sql.
+//
+// The deal is a pipeline To-do → Shot → Posted → Paid (+ Cancelled). Status is
+// derived from the two completion stamps (see features/deals/status.ts):
+//   posted_at set → 'posted'; else shot_at set → 'shot'; else 'pending'.
+// 'paid' (Feature 11's RPC, once all payments land) and 'cancelled' (manual) are
+// terminal. The deliverables list is a READ-ONLY "what's owed" descriptor.
 
 export const DEAL_STATUS = {
   PENDING: "pending",
-  IN_PROGRESS: "in_progress",
+  SHOT: "shot",
   POSTED: "posted",
   PAID: "paid",
   CANCELLED: "cancelled",
@@ -23,16 +29,19 @@ export const DELIVERABLE_TYPE = {
 export type DeliverableType =
   (typeof DELIVERABLE_TYPE)[keyof typeof DELIVERABLE_TYPE];
 
-// One checklist line: `count` units of `type`, posted as a whole (one checkbox).
-// `posted_at` present = the line is posted; absent/null = not yet.
+// One descriptor line: `count` units of `type` (e.g. "2 × story"). Purely
+// "what's owed" now — the per-line posted_at checkbox is gone (the deal's single
+// posted_at stamp carries posting state). Historical rows may still carry a
+// posted_at key in the jsonb; it is no longer read or written.
 export type Deliverable = {
   type: DeliverableType;
   count: number;
-  posted_at?: string | null;
 };
 
 // The canonical shape of an ad_deals row. `deliverables` is the jsonb column,
 // zod-validated on every write so no arbitrary shapes reach the DB.
+//   shoot_date / post_date — PLANNED dates (drive the shoot/post reminders).
+//   shot_at / posted_at    — ACTUAL completion stamps (set when the boxes tick).
 export type Deal = {
   id: string;
   user_id: string;
@@ -40,7 +49,10 @@ export type Deal = {
   title: string;
   deliverables: Deliverable[];
   agreed_amount_sar: number;
-  deadline: string | null;
+  shoot_date: string | null;
+  post_date: string | null;
+  shot_at: string | null;
+  posted_at: string | null;
   status: DealStatus;
   notes: string | null;
   created_at: string;

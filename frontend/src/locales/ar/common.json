@@ -92,6 +92,8 @@
   "dashboard": {
     "title": "لوحة التحكم",
     "quickLinks": "روابط سريعة",
+    "viewPayments": "عرض المدفوعات",
+    "viewDeals": "عرض الصفقات",
     "loadError": "تعذّر تحميل أرقام هذا الشهر. يرجى تحديث الصفحة.",
     "greeting": "مرحبًا،",
     "greetingFallback": "بك",
@@ -121,7 +123,9 @@
         "meeting": "اجتماع",
         "payment": "دفعة",
         "deliverable": "تسليم",
-        "custom": "تذكير"
+        "custom": "تذكير",
+        "shoot": "تصوير",
+        "post": "نشر"
       }
     },
     "attention": {
@@ -129,9 +133,10 @@
       "empty": "كل شيء على ما يرام — لا شيء يحتاج انتباهك",
       "loadError": "تعذّر تحميل هذا القسم. يرجى تحديث الصفحة.",
       "paymentsLoadError": "تعذّر تحميل الدفعات المتأخرة.",
-      "dealsLoadError": "تعذّر تحميل الصفقات التي تجاوزت موعدها.",
+      "dealsLoadError": "تعذّر تحميل الصفقات المتأخرة.",
       "overduePayment": "متأخرة",
-      "pastDeadline": "تجاوز الموعد النهائي"
+      "postOverdue": "تأخّر النشر",
+      "shootOverdue": "تأخّر التصوير"
     },
     "toast": {
       "dismissError": "تعذّر وضع علامة تم على التذكير. يرجى المحاولة مرة أخرى."
@@ -150,8 +155,7 @@
     "title": "الصفقات",
     "count": "{{total}} صفقة",
     "addDeal": "إضافة صفقة",
-    "noDeadline": "بدون موعد نهائي",
-    "progress": "{{posted}}/{{total}}",
+    "noPostDate": "بدون تاريخ نشر",
     "rollup": "{{posted}} منشورة · {{amount}} قيد الانتظار",
     "loadError": "تعذّر تحميل صفقاتك. يرجى تحديث الصفحة.",
     "filtersUnavailable": "تعذّر تحميل بعض عوامل التصفية.",
@@ -164,8 +168,8 @@
       "noMatches": "لا توجد صفقات تطابق هذه التصفية"
     },
     "status": {
-      "pending": "قيد الانتظار",
-      "in_progress": "قيد التنفيذ",
+      "pending": "للتنفيذ",
+      "shot": "تم التصوير",
       "posted": "منشورة",
       "paid": "مدفوعة",
       "cancelled": "ملغاة"
@@ -193,13 +197,18 @@
       "deliverableCount": "العدد",
       "amount": "المبلغ المتفق عليه (ريال)",
       "amountPlaceholder": "19000",
-      "deadline": "الموعد النهائي",
+      "shootDate": "تاريخ التصوير",
+      "postDate": "تاريخ النشر",
       "notes": "ملاحظات",
       "notesPlaceholder": "أي شيء يستحقّ التذكّر عن هذه الصفقة"
     },
     "expanded": {
       "deliverables": "التسليمات",
       "deliverableLine": "{{total}} × {{type}}",
+      "progress": "التقدّم",
+      "shot": "التصوير",
+      "posted": "النشر",
+      "planned": "مُخطّط {{date}}",
       "payments": "المدفوعات",
       "paymentsSummary_zero": "لا توجد دفعات لهذه الصفقة بعد",
       "paymentsSummary_one": "تم استلام {{received}} من دفعة واحدة · المتبقي {{outstanding}}",
@@ -217,6 +226,9 @@
     },
     "actions": {
       "add": "إضافة صفقة",
+      "edit": "تعديل",
+      "editDeal": "تعديل الصفقة",
+      "saveDeal": "حفظ التغييرات",
       "addDeliverable": "إضافة تسليم",
       "removeDeliverable": "إزالة التسليم",
       "cancelDeal": "إلغاء الصفقة",
@@ -225,6 +237,9 @@
     },
     "toast": {
       "created": "تمت إضافة الصفقة",
+      "createdReminderFailed": "تمت إضافة الصفقة، لكن تعذّر ضبط أحد التذكيرات.",
+      "saved": "تم تحديث الصفقة",
+      "savedReminderFailed": "تم تحديث الصفقة، لكن تعذّر ضبط أحد التذكيرات.",
       "cancelled": "تم إلغاء الصفقة",
       "error": "تعذّر حفظ الصفقة. حاول مرة أخرى."
     },
@@ -237,7 +252,7 @@
       "countRange": "يجب أن يكون العدد بين 1 و99",
       "amountRequired": "المبلغ مطلوب",
       "amountInvalid": "أدخل مبلغًا صحيحًا",
-      "deadlineInvalid": "أدخل تاريخًا صحيحًا",
+      "dateInvalid": "أدخل تاريخًا صحيحًا",
       "notesMax": "الملاحظات طويلة جدًا"
     }
   },
@@ -551,7 +566,6 @@
     "quickAdd": "إضافة سريعة",
     "openMenu": "فتح القائمة",
     "search": "بحث",
-    "notifications": "الإشعارات",
     "menuTitle": "القائمة",
     "barLabel": "التنقل الرئيسي"
   },

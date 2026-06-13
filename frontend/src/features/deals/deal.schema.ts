@@ -58,14 +58,23 @@ export const dealSchema = z.object({
       const amount = Number(value);
       return amount > 0 && amount <= MAX_AMOUNT_SAR;
     }, "deals.errors.amountInvalid"),
-  // Optional — empty string means "no deadline". A native date input yields
-  // YYYY-MM-DD; the format check guards manual/unsupported-browser entry.
-  deadline: z
+  // Both dates optional — empty string means "not set". A native date input
+  // yields YYYY-MM-DD; the format check guards manual/unsupported-browser entry.
+  // shoot_date drives the shoot reminder; post_date (the publish date) drives
+  // the post reminder + Needs-attention.
+  shootDate: z
     .string()
     .trim()
     .refine(
       (value) => value === "" || DATE_PATTERN.test(value),
-      "deals.errors.deadlineInvalid",
+      "deals.errors.dateInvalid",
+    ),
+  postDate: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || DATE_PATTERN.test(value),
+      "deals.errors.dateInvalid",
     ),
   notes: z.string().trim().max(1000, "deals.errors.notesMax"),
 });

@@ -169,18 +169,37 @@ export function DealForm({
         />
       </div>
 
-      <div>
-        <Label htmlFor="deal-deadline">{t("deals.fields.deadline")}</Label>
-        <Input
-          id="deal-deadline"
-          type="date"
-          dir="ltr"
-          hasError={Boolean(errors.deadline)}
-          {...register("deadline")}
-        />
-        <FieldError
-          message={errors.deadline?.message ? t(errors.deadline.message) : undefined}
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label htmlFor="deal-shoot-date">{t("deals.fields.shootDate")}</Label>
+          <Input
+            id="deal-shoot-date"
+            type="date"
+            dir="ltr"
+            hasError={Boolean(errors.shootDate)}
+            {...register("shootDate")}
+          />
+          <FieldError
+            message={
+              errors.shootDate?.message ? t(errors.shootDate.message) : undefined
+            }
+          />
+        </div>
+        <div>
+          <Label htmlFor="deal-post-date">{t("deals.fields.postDate")}</Label>
+          <Input
+            id="deal-post-date"
+            type="date"
+            dir="ltr"
+            hasError={Boolean(errors.postDate)}
+            {...register("postDate")}
+          />
+          <FieldError
+            message={
+              errors.postDate?.message ? t(errors.postDate.message) : undefined
+            }
+          />
+        </div>
       </div>
 
       <div>

@@ -107,7 +107,7 @@ Pull every pill (deal status, payment status) from the tables in `ui-tokens.md`.
 
 ## Segmented Control (tabs)
 
-Used for Pending/Received, List/Month, Reports/Snap Analytics, and the filter chips at the top of All Deals (See all · In progress · Pending · Posted · Paid). One control, everywhere.
+Used for Pending/Received, List/Month, Reports/Snap Analytics, and the filter chips at the top of All Deals (See all · To-do · Shot · Posted · Paid). One control, everywhere.
 
 ```
 container: bg-surface-muted, p-1, rounded var(--radius-md)
@@ -206,16 +206,6 @@ Influency has no `<table>`. Every "list" in the app is a vertical stack of row c
 
 ## Progress Indicators
 
-Two distinct kinds; do not confuse them visually.
-
-**Deliverable progress** (on a deal row card) — how far along the deliverables are.
-
-```
-track: bg-border-light, height: 6px, rounded-full
-fill:  bg-accent
-label: "2/4" in 12px text-text-secondary
-```
-
 **Collection rate** (on the Per-brand report) — collected ÷ invoiced.
 
 ```
@@ -225,7 +215,7 @@ label: "32%" in 13px text-text-primary
 zero-invoiced: render an em dash (—), never NaN/Infinity/0% as an error
 ```
 
-The same physical bar component renders both, but the fill color tells the user which one they're looking at — accent = activity progress, green = money realized.
+> The accent-fill "deliverable progress" bar that used to sit on the deal row was retired in the deal-lifecycle redesign — a deal's progress now reads from its **status pill** + the two ☐ Shot / ☐ Posted checkmarks in the expanded row, not a fractional bar. `ProgressBar`'s `accent` fill stays in the component for any future activity-progress use; green = money realized remains the collection-rate convention.
 
 ---
 

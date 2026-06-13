@@ -49,7 +49,7 @@ const EMPTY_MEETING_FORM: MeetingFormInput = {
 // (second copy; extract to constants on the third, per the review convention).
 const ACTIVE_DEAL_STATUSES: ReadonlySet<Deal["status"]> = new Set([
   DEAL_STATUS.PENDING,
-  DEAL_STATUS.IN_PROGRESS,
+  DEAL_STATUS.SHOT,
   DEAL_STATUS.POSTED,
 ]);
 

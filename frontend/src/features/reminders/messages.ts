@@ -17,6 +17,23 @@ export function buildMeetingReminderMessages(title: string): ReminderMessages {
   };
 }
 
+// The deal-lifecycle worklist nudges: shoot-day and post-day reminders that
+// surface in the dashboard Today panel and clear when the matching checkmark
+// is ticked.
+export function buildShootReminderMessages(title: string): ReminderMessages {
+  return {
+    messageEn: `Shoot — ${title}`,
+    messageAr: `تصوير — ${title}`,
+  };
+}
+
+export function buildPostReminderMessages(title: string): ReminderMessages {
+  return {
+    messageEn: `Post — ${title}`,
+    messageAr: `نشر — ${title}`,
+  };
+}
+
 export function buildPaymentReminderMessages(input: {
   dealTitle: string | undefined;
   amountEn: string;

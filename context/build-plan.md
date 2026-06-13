@@ -76,7 +76,7 @@ All Supabase tables and storage bucket created before any data is written. Row-l
 - Create `app_users` table with all columns from `02-architecture.md`
 - Create `brands`, `ad_deals`, `payments`, `meetings`, `reminders`, `snap_reports`, `activity_log` tables with all columns from `02-architecture.md`
 - Create indexes:
-  - `ad_deals (user_id, status, deadline)`
+  - `ad_deals (user_id, status, deadline)` — renamed `…, post_date` in the post-v1 deal-lifecycle redesign (0013)
   - `payments (user_id, status, expected_date)`
   - `meetings (user_id, scheduled_at)`
   - `reminders (user_id, due_at, is_done)`
@@ -141,7 +141,7 @@ Internal event tracking that powers the dashboard's recent-activity feed and the
 
 - Create `logActivity(kind, summary, refId?, refTable?)` helper that writes to `activity_log` scoped to the current user
 - Wire log writes at the points named in `01-project-overview.md`:
-  - `deal_created`, `deliverable_posted`, `deal_posted`, `payment_received`, `deal_paid`, `meeting_scheduled`, `snap_extracted`
+  - `deal_created`, `deliverable_posted`, `deal_posted`, `payment_received`, `deal_paid`, `meeting_scheduled`, `snap_extracted` (post-v1: `deal_shot` added, `deliverable_posted` retired — see Post-v1 Features below)
 - Helper called from edge functions and mutation hooks — never from UI components directly
 - Errors in `logActivity` are caught and swallowed (logging must never break the user's action)
 
@@ -374,3 +374,17 @@ Final pass before shipping. This is the gate that catches everything the per-chu
 | Phase 4 — Money & Time               | 4        |
 | Phase 5 — Snap Analytics & Reports   | 3        |
 | **Total**                            | **17**   |
+
+---
+
+## Post-v1 Features
+
+Shipped after the v1 launch (2026-06-13). Each was planned via `/architect` before code.
+
+### Deal Lifecycle Redesign (2026-06-13)
+
+Replaces the single-`deadline` + per-deliverable-"posted"-checkbox model with a legible pipeline **To-do → Shot → Posted → Paid** (+ Cancelled).
+
+- **Schema (migration `0013_deal_lifecycle.sql`):** `ad_deals.deadline` → `post_date`; new `shoot_date` (date), `shot_at` / `posted_at` (timestamptz); status set `in_progress` → `shot`; status DERIVED from the two stamps (posted_at→posted, else shot_at→shot, else pending; paid/cancelled terminal). Deliverables jsonb becomes a read-only `{type,count}` descriptor. Backfill maps old rows; CHECK swap ordered drop→convert→add. `reminders.kind` gains `shoot`/`post`; `activity_log.kind` gains `deal_shot` (`deliverable_posted` retired). Recreates `get_dashboard_stats` + `get_monthly_totals` for the column rename (numbers unchanged).
+- **Logic:** two checkmarks (☐ Shot / ☐ Posted) drive status (`useMarkShot` / `useMarkPosted`); Posted implies Shot. Two date-driven reminders (`shoot`/`post`) feed the dashboard Today **worklist**; ticking a box clears that reminder, unticking/edit re-arms it; Posted arms the +24h snap-analytics reminder. Deal **edit** flow added (reuses `DealForm`). Needs-attention = past-shoot-unshot OR past-post-unposted.
+- **UI:** expanded row shows read-only deliverables + the two checkmarks + Edit; list/pill/filters use `shot` + `post_date`. Full EN+AR i18n.

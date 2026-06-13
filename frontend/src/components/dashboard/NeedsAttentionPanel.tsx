@@ -6,13 +6,13 @@ import { CheckCircle2, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import {
+  useBehindScheduleDeals,
   useOverduePayments,
-  usePastDeadlineDeals,
 } from "@/hooks/useNeedsAttention";
 import { useDeals } from "@/hooks/useDeals";
 import { useLocale } from "@/hooks/useLocale";
 import { formatSar } from "@/lib/currency";
-import { formatDualDate } from "@/lib/date";
+import { formatDualDate, todayIsoLocal } from "@/lib/date";
 import { ROUTES } from "@/constants/routes";
 import type { Deal } from "@shared/types/deal.types";
 import type { Payment } from "@shared/types/payment.types";
@@ -34,18 +34,18 @@ const ROW_CLASSES =
   "flex min-h-16 items-center gap-3 rounded-lg border border-border border-s-4 bg-surface px-4 py-3.5 shadow-card transition-colors hover:bg-surface-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
 // The dashboard Needs-attention panel: overdue payments (past expected_date,
-// not received — error stripe per the token table) and deals past their
-// deadline still un-posted (the deliverables are what's late — the
-// deliverable-due info stripe). Rows link to the page where the fix happens.
-// Deal titles for payment rows resolve from the shared cached deals list (the
-// /payments pattern — no join, no N+1). Self-contained: owns its queries and
-// loading/error/empty states.
+// not received — error stripe per the token table) and deals behind schedule
+// (past post_date and un-posted, or past shoot_date and un-shot — the deal
+// info stripe). Rows link to the page where the fix happens. Deal titles for
+// payment rows resolve from the shared cached deals list (the /payments pattern
+// — no join, no N+1). Self-contained: owns its queries and states.
 export function NeedsAttentionPanel() {
   const { t } = useTranslation();
   const { locale } = useLocale();
+  const today = todayIsoLocal();
 
   const overduePaymentsQuery = useOverduePayments();
-  const pastDeadlineDealsQuery = usePastDeadlineDeals();
+  const behindDealsQuery = useBehindScheduleDeals();
   const dealsQuery = useDeals({});
 
   const dealTitlesById = useMemo(() => {
@@ -57,17 +57,17 @@ export function NeedsAttentionPanel() {
   }, [dealsQuery.data]);
 
   const isInitialLoading =
-    overduePaymentsQuery.isLoading || pastDeadlineDealsQuery.isLoading;
+    overduePaymentsQuery.isLoading || behindDealsQuery.isLoading;
   const isAnyLoading =
-    overduePaymentsQuery.isLoading || pastDeadlineDealsQuery.isLoading;
+    overduePaymentsQuery.isLoading || behindDealsQuery.isLoading;
   const isAnyError =
-    overduePaymentsQuery.isError || pastDeadlineDealsQuery.isError;
+    overduePaymentsQuery.isError || behindDealsQuery.isError;
   const isAllError =
-    overduePaymentsQuery.isError && pastDeadlineDealsQuery.isError;
+    overduePaymentsQuery.isError && behindDealsQuery.isError;
 
   const overduePayments = overduePaymentsQuery.data ?? [];
-  const pastDeadlineDeals = pastDeadlineDealsQuery.data ?? [];
-  const hasRows = overduePayments.length > 0 || pastDeadlineDeals.length > 0;
+  const behindDeals = behindDealsQuery.data ?? [];
+  const hasRows = overduePayments.length > 0 || behindDeals.length > 0;
 
   function renderPayment(payment: Payment) {
     // The query filters expected_date < today, so it's never null here; the
@@ -98,21 +98,27 @@ export function NeedsAttentionPanel() {
   }
 
   function renderDeal(deal: Deal) {
-    const deadline = deal.deadline ? formatDualDate(deal.deadline, locale) : null;
+    // Post overdue takes precedence over shoot overdue when both apply.
+    const postOverdue = deal.post_date !== null && deal.post_date < today;
+    const overdueDate = postOverdue ? deal.post_date : deal.shoot_date;
+    const formatted = overdueDate ? formatDualDate(overdueDate, locale) : null;
+    const labelKey = postOverdue
+      ? "dashboard.attention.postOverdue"
+      : "dashboard.attention.shootOverdue";
     return (
       <Link key={`deal-${deal.id}`} to={ROUTES.DEALS} className={`${ROW_CLASSES} border-s-info`}>
         <div className="min-w-0 flex-1">
           <p className="truncate text-row font-semibold text-text-primary">
             {deal.title}
           </p>
-          {deadline ? (
+          {formatted ? (
             <p className="truncate text-body text-text-secondary">
-              {deadline.primary}
+              {formatted.primary}
             </p>
           ) : null}
         </div>
         <span className="shrink-0 text-caption font-medium text-info-foreground">
-          {t("dashboard.attention.pastDeadline")}
+          {t(labelKey)}
         </span>
         <ChevronRight
           className="size-5 shrink-0 text-text-muted rtl:-scale-x-100"
@@ -154,14 +160,14 @@ export function NeedsAttentionPanel() {
           ) : (
             overduePayments.map(renderPayment)
           )}
-          {pastDeadlineDealsQuery.isError ? (
+          {behindDealsQuery.isError ? (
             <Card>
               <p className="text-sm text-error-foreground">
                 {t("dashboard.attention.dealsLoadError")}
               </p>
             </Card>
           ) : (
-            pastDeadlineDeals.map(renderDeal)
+            behindDeals.map(renderDeal)
           )}
           {isAnyLoading ? <AttentionSkeleton /> : null}
         </>

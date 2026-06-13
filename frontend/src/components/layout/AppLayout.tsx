@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { QuickAddSheet } from "@/components/layout/QuickAddSheet";
@@ -16,10 +16,11 @@ type Props = {
 
 // The in-app shell wrapping every protected page (App.tsx mounts it as the
 // layout route's element around the page Outlet): a sticky greeting header
-// (avatar → profile menu, leading; search + bell, trailing; the "Hi, {name}"
-// greeting only on the dashboard — F17 design), the page content with bottom
-// clearance for the fixed bar, the bottom tab bar, and the Quick Add + profile
-// menu sheets it owns. Other pages keep their own title rows.
+// (avatar → profile menu, leading; a presentational search button, trailing;
+// the "Hi, {name}" greeting only on the dashboard — F17 design), the page
+// content with bottom clearance for the fixed bar, the bottom tab bar, and the
+// Quick Add + profile menu sheets it owns. Other pages keep their own title
+// rows. (Payments is reached from the dashboard money tiles, not the header.)
 export function AppLayout({ children }: Props) {
   const { t } = useTranslation();
   const location = useLocation();
@@ -62,8 +63,9 @@ export function AppLayout({ children }: Props) {
             </div>
           ) : null}
 
-          {/* Search stays presentational (no search feature in v1); the bell
-              links to /payments — the page where due money gets handled. */}
+          {/* Search stays presentational (no search feature in v1). Payments now
+              has a labelled home on the dashboard (the money tiles + a "View
+              payments" link), so the header no longer carries a payments entry. */}
           <div className="ms-auto flex items-center gap-2">
             <button
               type="button"
@@ -72,17 +74,6 @@ export function AppLayout({ children }: Props) {
             >
               <Search className="size-5" aria-hidden="true" />
             </button>
-            <Link
-              to={ROUTES.PAYMENTS}
-              aria-label={t("nav.notifications")}
-              className="relative grid size-12 place-items-center rounded-2xl border border-border bg-surface text-text-secondary shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <Bell className="size-5" aria-hidden="true" />
-              <span
-                className="absolute end-3 top-3 size-2.5 rounded-full bg-error ring-2 ring-surface"
-                aria-hidden="true"
-              />
-            </Link>
           </div>
         </div>
       </header>

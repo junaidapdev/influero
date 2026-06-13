@@ -92,6 +92,8 @@
   "dashboard": {
     "title": "Dashboard",
     "quickLinks": "Quick links",
+    "viewPayments": "View payments",
+    "viewDeals": "View deals",
     "loadError": "Couldn't load this month's numbers. Please refresh the page.",
     "greeting": "Hi,",
     "greetingFallback": "there",
@@ -121,7 +123,9 @@
         "meeting": "Meeting",
         "payment": "Payment",
         "deliverable": "Deliverable",
-        "custom": "Reminder"
+        "custom": "Reminder",
+        "shoot": "Shoot",
+        "post": "Post"
       }
     },
     "attention": {
@@ -129,9 +133,10 @@
       "empty": "All clear — nothing needs attention",
       "loadError": "Couldn't load this section. Please refresh the page.",
       "paymentsLoadError": "Couldn't load overdue payments.",
-      "dealsLoadError": "Couldn't load past-deadline deals.",
+      "dealsLoadError": "Couldn't load deals behind schedule.",
       "overduePayment": "Overdue",
-      "pastDeadline": "Past deadline"
+      "postOverdue": "Post overdue",
+      "shootOverdue": "Shoot overdue"
     },
     "toast": {
       "dismissError": "Couldn't mark the reminder as done. Please try again."
@@ -150,8 +155,7 @@
     "title": "Deals",
     "count": "{{total}} deals",
     "addDeal": "Add deal",
-    "noDeadline": "No deadline",
-    "progress": "{{posted}}/{{total}}",
+    "noPostDate": "No post date",
     "rollup": "{{posted}} posted · {{amount}} pending",
     "loadError": "Couldn't load your deals. Please refresh the page.",
     "filtersUnavailable": "Some filters couldn't load.",
@@ -164,8 +168,8 @@
       "noMatches": "No deals match these filters"
     },
     "status": {
-      "pending": "Pending",
-      "in_progress": "In progress",
+      "pending": "To-do",
+      "shot": "Shot",
       "posted": "Posted",
       "paid": "Paid",
       "cancelled": "Cancelled"
@@ -193,13 +197,18 @@
       "deliverableCount": "Count",
       "amount": "Agreed amount (SAR)",
       "amountPlaceholder": "19000",
-      "deadline": "Deadline",
+      "shootDate": "Shoot date",
+      "postDate": "Post date",
       "notes": "Notes",
       "notesPlaceholder": "Anything worth remembering about this deal"
     },
     "expanded": {
       "deliverables": "Deliverables",
       "deliverableLine": "{{total}} × {{type}}",
+      "progress": "Progress",
+      "shot": "Shot",
+      "posted": "Posted",
+      "planned": "Planned {{date}}",
       "payments": "Payments",
       "paymentsSummary_one": "{{received}} of {{total}} payment received · {{outstanding}} outstanding",
       "paymentsSummary_other": "{{received}} of {{total}} payments received · {{outstanding}} outstanding",
@@ -213,6 +222,9 @@
     },
     "actions": {
       "add": "Add deal",
+      "edit": "Edit",
+      "editDeal": "Edit deal",
+      "saveDeal": "Save changes",
       "addDeliverable": "Add deliverable",
       "removeDeliverable": "Remove deliverable",
       "cancelDeal": "Cancel deal",
@@ -221,6 +233,9 @@
     },
     "toast": {
       "created": "Deal added",
+      "createdReminderFailed": "Deal added, but a reminder couldn't be set.",
+      "saved": "Deal updated",
+      "savedReminderFailed": "Deal updated, but a reminder couldn't be set.",
       "cancelled": "Deal cancelled",
       "error": "Couldn't save the deal. Please try again."
     },
@@ -233,7 +248,7 @@
       "countRange": "Count must be between 1 and 99",
       "amountRequired": "Amount is required",
       "amountInvalid": "Enter a valid amount",
-      "deadlineInvalid": "Enter a valid date",
+      "dateInvalid": "Enter a valid date",
       "notesMax": "Notes are too long"
     }
   },
@@ -539,7 +554,6 @@
     "quickAdd": "Quick add",
     "openMenu": "Open menu",
     "search": "Search",
-    "notifications": "Notifications",
     "menuTitle": "Menu",
     "barLabel": "Primary"
   },

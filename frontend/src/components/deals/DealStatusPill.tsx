@@ -13,7 +13,7 @@ const PILL_CLASS: Record<DealStatus, { pill: string; dot: string }> = {
     pill: "bg-warning-light text-warning-foreground",
     dot: "bg-warning",
   },
-  [DEAL_STATUS.IN_PROGRESS]: {
+  [DEAL_STATUS.SHOT]: {
     pill: "bg-accent-light text-accent",
     dot: "bg-accent",
   },

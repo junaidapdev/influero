@@ -19,12 +19,12 @@ type Props = {
   onChange: (next: DealFilters) => void;
 };
 
-// Status chips per ui-rules' All Deals row: See all · In progress · Pending ·
-// Posted · Paid. No Cancelled chip — cancelled deals surface under "See all".
+// Status chips in pipeline order: See all · To-do · Shot · Posted · Paid. No
+// Cancelled chip — cancelled deals surface under "See all".
 const STATUS_CHIPS = [
   "all",
-  DEAL_STATUS.IN_PROGRESS,
   DEAL_STATUS.PENDING,
+  DEAL_STATUS.SHOT,
   DEAL_STATUS.POSTED,
   DEAL_STATUS.PAID,
 ] as const;

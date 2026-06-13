@@ -32,7 +32,8 @@ const EMPTY_DEAL_FORM: DealFormInput = {
   title: "",
   deliverables: [{ type: DELIVERABLE_TYPE.STORY, count: "1" }],
   agreedAmount: "",
-  deadline: "",
+  shootDate: "",
+  postDate: "",
   notes: "",
 };
 
@@ -51,8 +52,8 @@ function DealsSkeleton() {
 
 // "How many done / how much pending" over the FILTERED result — filtering by a
 // brand makes the rollup that brand's rollup, which is the useful reading.
-// Done = deliverables complete (posted or paid); pending money = agreed amounts
-// still being worked (pending / in_progress).
+// Done = posted or paid; pending money = agreed amounts not yet posted
+// (pending / shot).
 function getRollup(deals: Deal[]): { posted: number; pendingSar: number } {
   let posted = 0;
   let pendingSar = 0;
@@ -62,7 +63,7 @@ function getRollup(deals: Deal[]): { posted: number; pendingSar: number } {
     }
     if (
       deal.status === DEAL_STATUS.PENDING ||
-      deal.status === DEAL_STATUS.IN_PROGRESS
+      deal.status === DEAL_STATUS.SHOT
     ) {
       pendingSar += deal.agreed_amount_sar;
     }
@@ -102,7 +103,7 @@ export function DealsRoute() {
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
     for (const row of indexQuery.data ?? []) {
-      if (row.deadline) months.add(row.deadline.slice(0, 7));
+      if (row.post_date) months.add(row.post_date.slice(0, 7));
     }
     return [...months].sort((a, b) => b.localeCompare(a));
   }, [indexQuery.data]);
@@ -111,8 +112,11 @@ export function DealsRoute() {
 
   function handleCreate(data: DealFormInput): void {
     createDeal.mutate(data, {
-      onSuccess: () => {
-        showToast("deals.toast.created", "success");
+      onSuccess: (result) => {
+        showToast(
+          result.reminderFailed ? "deals.toast.createdReminderFailed" : "deals.toast.created",
+          result.reminderFailed ? "error" : "success",
+        );
         setSheetOpen(false);
       },
       onError: (error) => {

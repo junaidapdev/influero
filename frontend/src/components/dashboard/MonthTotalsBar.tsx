@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 import { CompletionRing } from "@/components/dashboard/CompletionRing";
 import { Sparkline } from "@/components/dashboard/Sparkline";
@@ -10,6 +12,7 @@ import { formatSar } from "@/lib/currency";
 import { formatNumber, formatPercent } from "@/lib/numbers";
 import { formatMonthYear } from "@/lib/date";
 import { collectionRate } from "@/features/dashboard/stats";
+import { ROUTES } from "@/constants/routes";
 
 type Props = {
   // Local YYYY-MM (features/meetings/calendar.currentMonth) — the route owns
@@ -29,19 +32,27 @@ type TileProps = {
   stripe: string;
   caption: string;
   value: string;
+  // The page where this number is managed — money tiles go to /payments, the
+  // posted-deals count to /deals. Makes each tile a labelled entry point.
+  to: string;
+  ariaLabel: string;
 };
 
 // One stat tile under the hero — ui-tokens "Stat Tiles": a 2px colored top
-// stripe + a single bold number + a muted caption.
-function StatTile({ stripe, caption, value }: TileProps) {
+// stripe + a single bold number + a muted caption. The whole tile is a link.
+function StatTile({ stripe, caption, value, to, ariaLabel }: TileProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-card">
+    <Link
+      to={to}
+      aria-label={ariaLabel}
+      className="block overflow-hidden rounded-lg border border-border bg-surface shadow-card transition-colors hover:bg-surface-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
       <div className={`h-0.5 ${stripe}`} aria-hidden="true" />
       <div className="p-3">
         <p className="money truncate text-lg font-bold text-text-primary">{value}</p>
         <p className="text-xs text-text-secondary">{caption}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -149,22 +160,38 @@ export function MonthTotalsBar({ month }: Props) {
         </div>
       </section>
 
-      <div className="grid grid-cols-3 gap-3">
-        <StatTile
-          stripe="bg-success"
-          caption={t("dashboard.tiles.collected")}
-          value={formatSar(stats.total_collected, locale)}
-        />
-        <StatTile
-          stripe="bg-warning"
-          caption={t("dashboard.tiles.outstanding")}
-          value={formatSar(stats.outstanding, locale)}
-        />
-        <StatTile
-          stripe="bg-accent"
-          caption={t("dashboard.tiles.posted")}
-          value={formatNumber(stats.deals_posted, locale)}
-        />
+      <div className="flex flex-col gap-2">
+        <Link
+          to={ROUTES.PAYMENTS}
+          className="inline-flex items-center gap-1 self-end rounded text-caption font-semibold text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          {t("dashboard.viewPayments")}
+          <ChevronRight className="size-4 rtl:-scale-x-100" aria-hidden="true" />
+        </Link>
+
+        <div className="grid grid-cols-3 gap-3">
+          <StatTile
+            stripe="bg-success"
+            caption={t("dashboard.tiles.collected")}
+            value={formatSar(stats.total_collected, locale)}
+            to={ROUTES.PAYMENTS}
+            ariaLabel={`${t("dashboard.tiles.collected")} · ${t("dashboard.viewPayments")}`}
+          />
+          <StatTile
+            stripe="bg-warning"
+            caption={t("dashboard.tiles.outstanding")}
+            value={formatSar(stats.outstanding, locale)}
+            to={ROUTES.PAYMENTS}
+            ariaLabel={`${t("dashboard.tiles.outstanding")} · ${t("dashboard.viewPayments")}`}
+          />
+          <StatTile
+            stripe="bg-accent"
+            caption={t("dashboard.tiles.posted")}
+            value={formatNumber(stats.deals_posted, locale)}
+            to={ROUTES.DEALS}
+            ariaLabel={`${t("dashboard.tiles.posted")} · ${t("dashboard.viewDeals")}`}
+          />
+        </div>
       </div>
     </div>
   );

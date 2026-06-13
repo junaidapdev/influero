@@ -257,14 +257,15 @@ All `activity_log` writes use these exact event kinds. Never invent new kinds wi
 | Event                | When                                        | Key Properties                    |
 | -------------------- | ------------------------------------------- | --------------------------------- |
 | `deal_created`       | Deal saved for the first time               | userId, dealId, brandId           |
-| `deliverable_posted` | A deliverable is marked posted              | userId, dealId, deliverableType   |
-| `deal_posted`        | All deliverables for a deal are posted      | userId, dealId                    |
+| `deliverable_posted` | RETIRED (deal-lifecycle redesign) — historical rows only, no longer written | userId, dealId, deliverableType   |
+| `deal_shot`          | A deal is marked Shot (☐ Shot ticked, or back-stamped when Posted is ticked) | userId, dealId          |
+| `deal_posted`        | A deal is marked Posted (☐ Posted ticked)   | userId, dealId                    |
 | `payment_received`   | A payment is marked received                | userId, paymentId, dealId, amount |
 | `deal_paid`          | All payments for a deal are received        | userId, dealId                    |
 | `meeting_scheduled`  | A meeting is created                        | userId, meetingId, scheduledAt    |
 | `snap_extracted`     | Snap report extraction completes            | userId, snapReportId, dealId?     |
 
-These are the only event kinds in v1. `logActivity` writes are non-blocking — wrap in try/catch and swallow errors. The dashboard's recent-activity feed reads from this table directly.
+These are the only event kinds. `deliverable_posted` stays in the DB CHECK so historical rows remain valid but is no longer written. `logActivity` writes are non-blocking — wrap in try/catch and swallow errors. The dashboard's recent-activity feed reads from this table directly.
 
 ---
 
@@ -316,10 +317,10 @@ export const ERROR_CODE = {
   INTERNAL: "INTERNAL",
 } as const;
 
-// constants/deals.ts
+// @shared/types/deal.types.ts
 export const DEAL_STATUS = {
-  PENDING: "pending",
-  IN_PROGRESS: "in_progress",
+  PENDING: "pending", // UI label "To-do"
+  SHOT: "shot",
   POSTED: "posted",
   PAID: "paid",
   CANCELLED: "cancelled",
@@ -337,7 +338,7 @@ export const QUERY_KEYS = {
 };
 ```
 
-Status strings in particular — `'pending'`, `'paid'`, `'in_progress'` — never appear as literals in components or hooks. They come from the constants module.
+Status strings in particular — `'pending'`, `'paid'`, `'shot'` — never appear as literals in components or hooks. They come from the constants module.
 
 ---
 
