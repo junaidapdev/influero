@@ -544,6 +544,7 @@
     "barLabel": "Primary"
   },
   "quickAdd": {
+    "brand": "Brand",
     "deal": "Deal",
     "meeting": "Meeting",
     "payment": "Payment",

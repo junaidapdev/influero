@@ -39,7 +39,7 @@ Mobile-first. The mocks are iPhone-sized (≤ 414px). Every page must be fully u
 
 **Bottom tab bar** with five slots: Home · Deals · [+ FAB] · Calendar · Insights. **No top navbar, no sidebar.**
 
-- The center `+` is a Floating Action Button — **not a tab**. It opens the Quick Add sheet (Deal · Meeting · Payment · Snap report). It floats 8px above the bar baseline and uses `shadow-fab`.
+- The center `+` is a Floating Action Button — **not a tab**. It opens the Quick Add sheet (Brand · Deal · Meeting · Payment · Snap report). It floats 8px above the bar baseline and uses `shadow-fab`.
 - Active tab: `text-accent`, icon filled, label weight 600, 12px.
 - Inactive tab: `text-text-secondary`, icon outline, label weight 500, 12px.
 - The tab bar is `bg-surface` with a 1px top border, height 64px + bottom safe area.
@@ -253,7 +253,7 @@ The FAB opens a sheet, not a modal page.
 
 - Slides up from the bottom edge, full width, rounded top corners (`var(--radius-2xl)`).
 - 36×4px handle bar at the top, centered.
-- 2×2 grid of tiles: Deal · Meeting · Payment · Snap report. Each tile = colored circle icon + label.
+- Two-column grid of tiles: Brand · Deal · Meeting · Payment · Snap report (five tiles; Snap spans the full width of the last row so the grid stays balanced). Brand leads — a deal requires a brand, so the prerequisite sits one tap from the thing that needs it. Each tile = colored circle icon + label.
 - Dismiss by tapping the scrim, dragging down, or tapping outside.
 - Backdrop is `rgba(0,0,0,0.45)`.
 

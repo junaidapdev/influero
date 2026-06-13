@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Store } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useBrands, useCreateBrand } from "@/hooks/useBrands";
 import { useDealsIndex } from "@/hooks/useDeals";
+import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { formatNumber } from "@/lib/numbers";
@@ -47,6 +48,10 @@ export function BrandsRoute() {
   const dealsIndexQuery = useDealsIndex();
   const createBrand = useCreateBrand();
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // Open the Add sheet when reached via the FAB Quick Add → Brand tile (the
+  // pattern Deals/Meetings/Payments use). Stable callback — it's an effect dep.
+  useQuickAddOpen(useCallback(() => setSheetOpen(true), []));
 
   const brands = brandsQuery.data ?? [];
   const ready = !brandsQuery.isLoading && !brandsQuery.isError;

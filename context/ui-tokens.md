@@ -282,7 +282,7 @@ border-radius: rounded-full
 box-shadow: var(--shadow-fab)
 ```
 
-Opens the **Quick Add** bottom sheet (Deal · Meeting · Payment · Snap report).
+Opens the **Quick Add** bottom sheet (Brand · Deal · Meeting · Payment · Snap report).
 
 ---
 
@@ -502,7 +502,7 @@ background: bg-surface
 border-radius: var(--radius-2xl) var(--radius-2xl) 0 0
 padding: 20px
 handle bar: 36x4px, bg-border-muted, centered at top, margin-bottom: 16px
-grid: 2 columns, gap-3, four tiles (Deal · Meeting · Payment · Snap report)
+grid: 2 columns, gap-3, five tiles (Brand · Deal · Meeting · Payment · Snap report — Snap col-span-2 on the last row)
 tile: bg-surface-secondary, p-4, rounded-lg, icon in colored circle (uses brand-tint tokens)
 ```
 
