@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next";
 
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { Select } from "@/components/ui/Select";
 import { Label } from "@/components/ui/Label";
 import { FieldError } from "@/components/ui/FieldError";
 import { Button } from "@/components/ui/Button";
 import { brandSchema, type BrandFormInput } from "@/features/brands/brand.schema";
+import { BRAND_CATEGORIES } from "@shared/types/brand.types";
 
 type Props = {
   defaultValues: BrandFormInput;
@@ -64,6 +66,25 @@ export function BrandForm({
         />
         <FieldError
           message={errors.nameAr?.message ? t(errors.nameAr.message) : undefined}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="brand-category">{t("brands.fields.category")}</Label>
+        <Select
+          id="brand-category"
+          hasError={Boolean(errors.category)}
+          {...register("category")}
+        >
+          <option value="">{t("brands.fields.categoryUnset")}</option>
+          {BRAND_CATEGORIES.map((key) => (
+            <option key={key} value={key}>
+              {t(`brands.categories.${key}`)}
+            </option>
+          ))}
+        </Select>
+        <FieldError
+          message={errors.category?.message ? t(errors.category.message) : undefined}
         />
       </div>
 

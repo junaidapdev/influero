@@ -410,6 +410,8 @@
       "nameEnPlaceholder": "اسم العلامة بالإنجليزية",
       "nameAr": "الاسم (بالعربية)",
       "nameArPlaceholder": "اسم العلامة بالعربية",
+      "category": "التصنيف",
+      "categoryUnset": "غير مصنّف",
       "contactName": "اسم جهة الاتصال",
       "contactNamePlaceholder": "الشخص الذي تتعامل معه",
       "contactEmail": "البريد الإلكتروني لجهة الاتصال",
@@ -418,6 +420,26 @@
       "contactPhonePlaceholder": "+966 5X XXX XXXX",
       "notes": "ملاحظات",
       "notesPlaceholder": "أي شيء يستحقّ التذكّر عن هذه العلامة"
+    },
+    "categories": {
+      "restaurant": "مطاعم",
+      "cafe": "مقاهي",
+      "sweets": "حلويات ومخبوزات",
+      "fashion": "أزياء",
+      "beauty": "تجميل ومستحضرات",
+      "perfume": "عطور وعود",
+      "skincare": "العناية بالبشرة",
+      "salon": "صالونات وشعر",
+      "wellness": "سبا وعافية",
+      "fitness": "لياقة ونوادٍ",
+      "clinic": "عيادات",
+      "jewelry": "مجوهرات وساعات",
+      "tech": "تقنية وإلكترونيات",
+      "home": "منزل وأثاث",
+      "travel": "سفر وفنادق",
+      "app": "تطبيقات وخدمات",
+      "kids": "أطفال ومواليد",
+      "other": "أخرى"
     },
     "actions": {
       "add": "إضافة علامة",
@@ -447,7 +469,8 @@
       "emailMax": "البريد الإلكتروني طويل جدًا",
       "phoneInvalid": "أدخل رقم هاتف صحيح",
       "phoneMax": "رقم الهاتف طويل جدًا",
-      "notesMax": "الملاحظات طويلة جدًا"
+      "notesMax": "الملاحظات طويلة جدًا",
+      "categoryInvalid": "اختر تصنيفًا من القائمة"
     }
   },
   "snap": {

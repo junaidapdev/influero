@@ -39,6 +39,11 @@ export function BrandListItem({ brand, dealCount }: Props) {
         {brand.contact_name ? (
           <p className="truncate text-caption text-text-muted">{brand.contact_name}</p>
         ) : null}
+        {brand.category ? (
+          <span className="mt-1 inline-flex rounded-full border border-border-light bg-surface-secondary px-2.5 py-1 text-micro font-medium text-text-secondary">
+            {t(`brands.categories.${brand.category}`)}
+          </span>
+        ) : null}
       </div>
       {dealCount === undefined ? (
         <span className="text-body font-medium text-text-muted" aria-hidden="true">

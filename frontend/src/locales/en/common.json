@@ -402,6 +402,8 @@
       "nameEnPlaceholder": "Brand name in English",
       "nameAr": "Name (Arabic)",
       "nameArPlaceholder": "اسم العلامة بالعربية",
+      "category": "Category",
+      "categoryUnset": "Uncategorized",
       "contactName": "Contact name",
       "contactNamePlaceholder": "Who you deal with",
       "contactEmail": "Contact email",
@@ -410,6 +412,26 @@
       "contactPhonePlaceholder": "+966 5X XXX XXXX",
       "notes": "Notes",
       "notesPlaceholder": "Anything worth remembering about this brand"
+    },
+    "categories": {
+      "restaurant": "Restaurant",
+      "cafe": "Café",
+      "sweets": "Bakery & sweets",
+      "fashion": "Fashion",
+      "beauty": "Beauty & cosmetics",
+      "perfume": "Perfume & oud",
+      "skincare": "Skincare",
+      "salon": "Hair & salons",
+      "wellness": "Spa & wellness",
+      "fitness": "Fitness & gyms",
+      "clinic": "Clinics",
+      "jewelry": "Jewelry & watches",
+      "tech": "Tech & electronics",
+      "home": "Home & furniture",
+      "travel": "Travel & hotels",
+      "app": "Apps & services",
+      "kids": "Kids & baby",
+      "other": "Other"
     },
     "actions": {
       "add": "Add brand",
@@ -439,7 +461,8 @@
       "emailMax": "Email is too long",
       "phoneInvalid": "Enter a valid phone number",
       "phoneMax": "Phone number is too long",
-      "notesMax": "Notes are too long"
+      "notesMax": "Notes are too long",
+      "categoryInvalid": "Choose a category from the list"
     }
   },
   "snap": {

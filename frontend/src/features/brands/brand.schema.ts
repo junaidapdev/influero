@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { BRAND_CATEGORIES } from "@shared/types/brand.types";
+
 // Brand create/edit form validation. Error messages are i18n catalog KEYS
 // (resolved with t() at render) — never raw strings shown to the user, matching
 // auth.schema.ts and settings.schema.ts.
@@ -31,6 +33,16 @@ export const brandSchema = z.object({
     .trim()
     .min(1, "brands.errors.nameRequired")
     .max(80, "brands.errors.nameMax"),
+  // Optional, single category. "" = Uncategorized (mapped to null at the write
+  // layer); any non-empty value must be one of the curated keys. The closed
+  // <select> can't produce anything else — this refine is the defensive backstop.
+  category: z
+    .string()
+    .refine(
+      (value) =>
+        value === "" || (BRAND_CATEGORIES as readonly string[]).includes(value),
+      "brands.errors.categoryInvalid",
+    ),
   contactName: optionalEmpty(80, "brands.errors.contactNameMax"),
   contactEmail: optionalEmpty(120, "brands.errors.emailMax").refine(
     (value) => value === "" || z.string().email().safeParse(value).success,

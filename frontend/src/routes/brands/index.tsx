@@ -20,6 +20,7 @@ import type { BrandFormInput } from "@/features/brands/brand.schema";
 const EMPTY_BRAND_FORM: BrandFormInput = {
   nameEn: "",
   nameAr: "",
+  category: "",
   contactName: "",
   contactEmail: "",
   contactPhone: "",

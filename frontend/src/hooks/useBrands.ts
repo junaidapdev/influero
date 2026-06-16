@@ -24,6 +24,8 @@ function toBrandColumns(input: BrandFormInput): BrandColumns {
   return {
     name_en: input.nameEn.trim(),
     name_ar: input.nameAr.trim(),
+    // "" (Uncategorized) persists as NULL; otherwise the validated category key.
+    category: input.category === "" ? null : (input.category as Brand["category"]),
     contact_name: orNull(input.contactName),
     contact_email: orNull(input.contactEmail),
     contact_phone: orNull(input.contactPhone),

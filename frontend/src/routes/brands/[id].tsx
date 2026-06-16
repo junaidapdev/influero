@@ -26,6 +26,7 @@ function brandToFormInput(brand: Brand): BrandFormInput {
   return {
     nameEn: brand.name_en,
     nameAr: brand.name_ar,
+    category: brand.category ?? "",
     contactName: brand.contact_name ?? "",
     contactEmail: brand.contact_email ?? "",
     contactPhone: brand.contact_phone ?? "",
@@ -161,6 +162,11 @@ export function BrandDetailRoute() {
                   <p className="truncate text-sm text-text-secondary">
                     {isArabic ? brand.name_en : brand.name_ar}
                   </p>
+                  {brand.category ? (
+                    <span className="mt-1.5 inline-flex rounded-full border border-border-light bg-surface-secondary px-2.5 py-1 text-micro font-medium text-text-secondary">
+                      {t(`brands.categories.${brand.category}`)}
+                    </span>
+                  ) : null}
                 </div>
                 <Button
                   variant="secondary"
