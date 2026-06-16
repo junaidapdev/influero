@@ -63,6 +63,27 @@
       "unit": "minutes",
       "help": "Affects future reminders only."
     },
+    "notifications": {
+      "title": "Notifications",
+      "help": "Get a reminder twice a day about what's outstanding.",
+      "enable": "Enable notifications",
+      "disable": "Turn off",
+      "enabled": "Notifications are on for this device.",
+      "blocked": "Notifications are blocked. Turn them on in your browser settings, then reload.",
+      "unsupported": "This browser doesn't support notifications.",
+      "unavailable": "Notifications aren't set up yet — check back soon.",
+      "iosInstallRequired": "Add Influero to your Home Screen to receive reminders on iPhone.",
+      "enableError": "Couldn't enable notifications. Please try again.",
+      "disableError": "Couldn't turn off notifications. Please try again.",
+      "toast": {
+        "enabled": "Notifications enabled",
+        "disabled": "Notifications turned off"
+      },
+      "install": {
+        "button": "Add to Home Screen",
+        "iosHint": "Tap the Share icon, then \"Add to Home Screen\"."
+      }
+    },
     "profile": {
       "title": "Profile",
       "displayName": "Display name",

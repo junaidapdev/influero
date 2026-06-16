@@ -6,6 +6,11 @@
 // Required vars (set by the developer in `.env.local`, never committed):
 //   VITE_SUPABASE_URL
 //   VITE_SUPABASE_ANON_KEY
+// Optional vars:
+//   VITE_VAPID_PUBLIC_KEY  — the public half of the web-push VAPID key pair the
+//     browser needs to subscribe. Optional on purpose: the app must boot without
+//     it (push is opt-in and the key is unset until web-push is wired), so the
+//     notifications UI degrades to "unavailable" when it's blank — never throws.
 
 function required(value: string | undefined, name: string): string {
   if (!value) {
@@ -20,5 +25,6 @@ export const ENV = {
     import.meta.env.VITE_SUPABASE_ANON_KEY,
     "VITE_SUPABASE_ANON_KEY",
   ),
+  VAPID_PUBLIC_KEY: import.meta.env.VITE_VAPID_PUBLIC_KEY ?? "",
   IS_PROD: import.meta.env.PROD,
 } as const;

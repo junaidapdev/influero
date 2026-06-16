@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { SettingsSection } from "@/components/settings/SettingsSection";
+import { NotificationsSection } from "@/components/settings/NotificationsSection";
 import { AvatarDropzone } from "@/components/settings/AvatarDropzone";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { Card } from "@/components/ui/Card";
@@ -149,6 +150,8 @@ export function SettingsRoute() {
             >
               <LocaleToggle onLocaleChange={handleLocaleChange} />
             </SettingsSection>
+
+            <NotificationsSection />
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
               <SettingsSection

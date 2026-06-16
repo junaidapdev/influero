@@ -41,4 +41,22 @@ export const ENV = {
     return required("OPENAI_API_KEY");
   },
   SNAP_RATE_LIMIT_PER_HOUR: optionalNumber("SNAP_RATE_LIMIT_PER_HOUR", 20),
+  // Web-push secrets — only send-daily-reminders reads these, so all lazy (same
+  // reasoning as OPENAI_API_KEY). VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY are the
+  // base64url pair from `npx web-push generate-vapid-keys` (the public half also
+  // lives in the frontend as VITE_VAPID_PUBLIC_KEY); VAPID_SUBJECT is the
+  // `mailto:` contact the push relay can reach; CRON_SECRET gates the function
+  // so only pg_cron (which sends a matching x-cron-secret header) can invoke it.
+  get VAPID_PUBLIC_KEY(): string {
+    return required("VAPID_PUBLIC_KEY");
+  },
+  get VAPID_PRIVATE_KEY(): string {
+    return required("VAPID_PRIVATE_KEY");
+  },
+  get VAPID_SUBJECT(): string {
+    return required("VAPID_SUBJECT");
+  },
+  get CRON_SECRET(): string {
+    return required("CRON_SECRET");
+  },
 } as const;
