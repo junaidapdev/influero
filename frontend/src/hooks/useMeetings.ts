@@ -231,35 +231,30 @@ export function useUpdateMeeting() {
   });
 }
 
-// Cancel — terminal, the row stays (mirrors deals). The reminder is DELETED
-// first (decision: a reminder is derived scheduling state, not history), and
-// deliberately BEFORE the status flip: if the delete fails the whole mutation
-// errors with the meeting untouched and the action is retryable — never a
-// cancelled meeting with a live reminder still feeding Today.
-export function useCancelMeeting() {
+// Hard-delete a meeting (replaces the former soft cancel — a cancelled meeting
+// was already excluded from every view, and meetings carry no money/reporting
+// lineage, so the row is simply removed). The reminder is DELETED first, then
+// the row: the same delete-before-write order the cancel used, and the same
+// accepted non-atomicity (if the row delete fails, the reminder is gone but the
+// action is retryable — never a live meeting with a stale reminder). RLS gates
+// the delete to the owner.
+export function useDeleteMeeting() {
   const queryClient = useQueryClient();
   const { session } = useSession();
 
   return useMutation({
-    mutationFn: async (meeting: Meeting): Promise<Meeting> => {
+    mutationFn: async (meeting: Meeting): Promise<void> => {
       const userId = session?.user.id;
-      if (!userId) throw new Error("[useCancelMeeting] No authenticated user");
-      if (meeting.status === MEETING_STATUS.CANCELLED) {
-        throw new Error("[useCancelMeeting] Meeting is already cancelled");
-      }
+      if (!userId) throw new Error("[useDeleteMeeting] No authenticated user");
 
       await deleteReminderForRef(userId, REMINDER_KIND.MEETING, meeting.id);
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("meetings")
-        .update({ status: MEETING_STATUS.CANCELLED })
+        .delete()
         .eq("id", meeting.id)
-        .eq("user_id", userId)
-        .select("*")
-        .single();
+        .eq("user_id", userId);
       if (error) throw error;
-
-      return data as Meeting;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.MEETINGS });

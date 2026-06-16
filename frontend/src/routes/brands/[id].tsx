@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
 import { BrandAvatar } from "@/components/brands/BrandAvatar";
 import { BrandForm } from "@/components/brands/BrandForm";
@@ -9,7 +9,7 @@ import { DealListItem } from "@/components/deals/DealListItem";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { useBrand, useUpdateBrand } from "@/hooks/useBrands";
+import { useBrand, useUpdateBrand, useDeleteBrand } from "@/hooks/useBrands";
 import { useDealsForBrand } from "@/hooks/useDeals";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
@@ -96,11 +96,20 @@ export function BrandDetailRoute() {
   const brandQuery = useBrand(id);
   const dealsQuery = useDealsForBrand(id);
   const updateBrand = useUpdateBrand();
+  const deleteBrand = useDeleteBrand();
+  const navigate = useNavigate();
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
 
   const brand = brandQuery.data;
   const deals = dealsQuery.data ?? [];
   const rollup = getBrandRollup(deals);
+
+  // Delete is allowed ONLY once the deals query has resolved with zero deals —
+  // the ad_deals.brand_id RESTRICT FK is the hard backstop. While the query is
+  // loading or errored we can't prove the brand is empty, so delete stays off.
+  const dealsResolved = !dealsQuery.isLoading && !dealsQuery.isError;
+  const canDelete = dealsResolved && deals.length === 0;
 
   function handleUpdate(data: BrandFormInput): void {
     if (!id) return;
@@ -117,6 +126,20 @@ export function BrandDetailRoute() {
         },
       },
     );
+  }
+
+  function handleDelete(): void {
+    if (!id) return;
+    deleteBrand.mutate(id, {
+      onSuccess: () => {
+        showToast("brands.toast.deleted", "success");
+        navigate(ROUTES.BRANDS);
+      },
+      onError: (error) => {
+        logger.error("BrandDetailRoute.delete", error);
+        showToast("brands.toast.deleteError", "error");
+      },
+    });
   }
 
   return (
@@ -284,6 +307,46 @@ export function BrandDetailRoute() {
                   // so the row skips the redundant brand subtitle.
                   <DealListItem key={deal.id} deal={deal} brand={undefined} />
                 ))
+              )}
+            </section>
+
+            <section className="border-t border-border-light pt-6">
+              {deleteConfirming ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    isLoading={deleteBrand.isPending}
+                    className="flex-1"
+                  >
+                    {t("brands.actions.confirmDelete")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setDeleteConfirming(false)}
+                    disabled={deleteBrand.isPending}
+                    className="flex-1"
+                  >
+                    {t("brands.actions.keepBrand")}
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setDeleteConfirming(true)}
+                    disabled={!canDelete}
+                    className="w-full"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                    {t("brands.actions.delete")}
+                  </Button>
+                  {dealsResolved && deals.length > 0 ? (
+                    <p className="mt-2 text-caption text-text-muted">
+                      {t("brands.delete.blocked")}
+                    </p>
+                  ) : null}
+                </>
               )}
             </section>
           </>

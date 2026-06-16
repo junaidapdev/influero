@@ -11,8 +11,8 @@ import { EmptyState } from "@/components/feedback/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
-  useCancelMeeting,
   useCreateMeeting,
+  useDeleteMeeting,
   useMeetingsForMonth,
   useUpdateMeeting,
 } from "@/hooks/useMeetings";
@@ -100,20 +100,20 @@ export function MeetingsRoute() {
   );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
-  const [cancelConfirming, setCancelConfirming] = useState(false);
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
 
   const meetingsQuery = useMeetingsForMonth(month);
   const brandsQuery = useBrands();
   const dealsQuery = useDeals({});
   const createMeeting = useCreateMeeting();
   const updateMeeting = useUpdateMeeting();
-  const cancelMeeting = useCancelMeeting();
+  const deleteMeeting = useDeleteMeeting();
 
   // FAB Quick Add → Meeting opens this route's Add sheet in create mode (even if
   // already here). Mirrors openCreate; the setters are stable so the callback is.
   const handleQuickAdd = useCallback(() => {
     setEditingMeeting(null);
-    setCancelConfirming(false);
+    setDeleteConfirming(false);
     setSheetOpen(true);
   }, []);
   useQuickAddOpen(handleQuickAdd);
@@ -152,19 +152,19 @@ export function MeetingsRoute() {
 
   function openCreate(): void {
     setEditingMeeting(null);
-    setCancelConfirming(false);
+    setDeleteConfirming(false);
     setSheetOpen(true);
   }
 
   function openEdit(meeting: Meeting): void {
     setEditingMeeting(meeting);
-    setCancelConfirming(false);
+    setDeleteConfirming(false);
     setSheetOpen(true);
   }
 
   function closeSheet(): void {
     setSheetOpen(false);
-    setCancelConfirming(false);
+    setDeleteConfirming(false);
   }
 
   function handleSubmit(data: MeetingFormInput): void {
@@ -207,16 +207,16 @@ export function MeetingsRoute() {
     });
   }
 
-  function handleCancelMeeting(): void {
+  function handleDeleteMeeting(): void {
     if (!editingMeeting) return;
-    cancelMeeting.mutate(editingMeeting, {
+    deleteMeeting.mutate(editingMeeting, {
       onSuccess: () => {
-        showToast("meetings.toast.cancelled", "success");
+        showToast("meetings.toast.deleted", "success");
         closeSheet();
       },
       onError: (error) => {
-        logger.error("MeetingsRoute.cancel", error);
-        showToast("meetings.toast.cancelError", "error");
+        logger.error("MeetingsRoute.delete", error);
+        showToast("meetings.toast.deleteError", "error");
       },
     });
   }
@@ -376,20 +376,20 @@ export function MeetingsRoute() {
           />
 
           {editingMeeting ? (
-            cancelConfirming ? (
+            deleteConfirming ? (
               <div className="flex items-center gap-2">
                 <Button
                   variant="destructive"
-                  onClick={handleCancelMeeting}
-                  isLoading={cancelMeeting.isPending}
+                  onClick={handleDeleteMeeting}
+                  isLoading={deleteMeeting.isPending}
                   className="flex-1"
                 >
-                  {t("meetings.actions.confirmCancel")}
+                  {t("meetings.actions.confirmDelete")}
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => setCancelConfirming(false)}
-                  disabled={cancelMeeting.isPending}
+                  onClick={() => setDeleteConfirming(false)}
+                  disabled={deleteMeeting.isPending}
                   className="flex-1"
                 >
                   {t("meetings.actions.keepMeeting")}
@@ -398,11 +398,11 @@ export function MeetingsRoute() {
             ) : (
               <Button
                 variant="destructive"
-                onClick={() => setCancelConfirming(true)}
+                onClick={() => setDeleteConfirming(true)}
                 disabled={isSubmitting}
                 className="w-full"
               >
-                {t("meetings.actions.cancelMeeting")}
+                {t("meetings.actions.deleteMeeting")}
               </Button>
             )
           ) : null}

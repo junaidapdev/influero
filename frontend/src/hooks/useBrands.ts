@@ -111,6 +111,34 @@ export function useCreateBrand() {
   });
 }
 
+// Hard-delete a brand. The caller (brand detail) only enables this once it has
+// confirmed the brand has zero deals; the ad_deals.brand_id RESTRICT FK is the
+// real backstop (a brand with deals can't be deleted at the DB layer). RLS gates
+// the delete to the owner. MEETINGS is invalidated too: meetings.brand_id is
+// SET NULL on delete, so any meeting that linked to this brand changes.
+export function useDeleteBrand() {
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+
+  return useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      const userId = session?.user.id;
+      if (!userId) throw new Error("[useDeleteBrand] No authenticated user");
+
+      const { error } = await supabase
+        .from("brands")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BRANDS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.MEETINGS });
+    },
+  });
+}
+
 // Update a brand by id. RLS gates the write to the owner; the id is never
 // trusted to imply ownership on its own.
 export function useUpdateBrand() {

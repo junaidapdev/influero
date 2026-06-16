@@ -360,16 +360,16 @@
       "addAttendee": "Add attendee",
       "removeAttendee": "Remove attendee",
       "editAria": "Edit meeting: {{title}}",
-      "cancelMeeting": "Cancel meeting",
-      "confirmCancel": "Yes, cancel it",
+      "deleteMeeting": "Delete meeting",
+      "confirmDelete": "Yes, delete it",
       "keepMeeting": "Keep meeting"
     },
     "toast": {
       "created": "Meeting added — reminder set",
       "updated": "Meeting updated — reminder moved",
-      "cancelled": "Meeting cancelled",
+      "deleted": "Meeting deleted",
       "error": "Couldn't save the meeting. Please try again.",
-      "cancelError": "Couldn't cancel the meeting. Please try again.",
+      "deleteError": "Couldn't delete the meeting. Please try again.",
       "reminderFailed": "Meeting saved, but the reminder couldn't be set. Edit the meeting to retry."
     },
     "errors": {
@@ -436,12 +436,20 @@
     "actions": {
       "add": "Add brand",
       "edit": "Edit",
-      "save": "Save changes"
+      "save": "Save changes",
+      "delete": "Delete brand",
+      "confirmDelete": "Yes, delete it",
+      "keepBrand": "Keep brand"
     },
     "toast": {
       "created": "Brand added",
       "updated": "Brand updated",
-      "error": "Couldn't save the brand. Please try again."
+      "deleted": "Brand deleted",
+      "error": "Couldn't save the brand. Please try again.",
+      "deleteError": "Couldn't delete the brand. Please try again."
+    },
+    "delete": {
+      "blocked": "Resolve this brand's deals first — a brand with deals can't be deleted."
     },
     "detail": {
       "back": "Brands",
