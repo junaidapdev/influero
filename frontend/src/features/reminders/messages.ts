@@ -34,22 +34,6 @@ export function buildPostReminderMessages(title: string): ReminderMessages {
   };
 }
 
-export function buildPaymentReminderMessages(input: {
-  dealTitle: string | undefined;
-  amountEn: string;
-  amountAr: string;
-}): ReminderMessages {
-  const { dealTitle, amountEn, amountAr } = input;
-  return {
-    messageEn: dealTitle
-      ? `Payment due — ${dealTitle} · ${amountEn}`
-      : `Payment due — ${amountEn}`,
-    messageAr: dealTitle
-      ? `دفعة مستحقة — ${dealTitle} · ${amountAr}`
-      : `دفعة مستحقة — ${amountAr}`,
-  };
-}
-
 // The 24h Snap-analytics nudge (Feature 16B): a deliverable was just marked
 // posted, and the brand will ask for the content's Insights at the 24h mark —
 // this is the reminder to capture the screenshot.

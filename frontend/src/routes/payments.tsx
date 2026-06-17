@@ -15,20 +15,23 @@ import {
   useCreatePayment,
   useMarkPaymentReceived,
   usePayments,
-  useSendPaymentReminder,
 } from "@/hooks/usePayments";
 import { useDeals } from "@/hooks/useDeals";
+import { useBrands } from "@/hooks/useBrands";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
 import { isPaymentOverdue } from "@/features/payments/overdue";
+import { localizedBrandName } from "@/features/brands/brandName";
 import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
-import { todayIsoLocal } from "@/lib/date";
+import { formatDualDate, todayIsoLocal } from "@/lib/date";
+import { normalizeSaudiPhone, whatsappDeepLink } from "@/lib/whatsapp";
 import { logger } from "@/lib/logger";
 import { ROUTES } from "@/constants/routes";
 import { PAYMENTS_TAB, type PaymentsTab } from "@/constants/payments";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
+import type { Brand } from "@shared/types/brand.types";
 import type { Payment } from "@shared/types/payment.types";
 import type { PaymentFormInput } from "@/features/payments/payment.schema";
 
@@ -72,9 +75,9 @@ export function PaymentsRoute() {
 
   const paymentsQuery = usePayments(tab);
   const dealsQuery = useDeals({});
+  const brandsQuery = useBrands();
   const createPayment = useCreatePayment();
   const markReceived = useMarkPaymentReceived();
-  const sendReminder = useSendPaymentReminder();
 
   // FAB Quick Add → Payment opens this route's Add sheet (even if already here).
   const handleQuickAdd = useCallback(() => setSheetOpen(true), []);
@@ -89,6 +92,22 @@ export function PaymentsRoute() {
     for (const deal of dealsQuery.data ?? []) map.set(deal.id, deal);
     return map;
   }, [dealsQuery.data]);
+
+  const brandsById = useMemo(() => {
+    const map = new Map<string, Brand>();
+    for (const brand of brandsQuery.data ?? []) map.set(brand.id, brand);
+    return map;
+  }, [brandsQuery.data]);
+
+  // payment → deal → brand: the WhatsApp reminder needs the brand's name and
+  // phone, neither of which is on the payment row.
+  const brandForPayment = useCallback(
+    (payment: Payment): Brand | undefined => {
+      const deal = dealsById.get(payment.deal_id);
+      return deal ? brandsById.get(deal.brand_id) : undefined;
+    },
+    [dealsById, brandsById],
+  );
 
   const activeDeals = useMemo(
     () => (dealsQuery.data ?? []).filter((deal) => ACTIVE_DEAL_STATUSES.has(deal.status)),
@@ -125,23 +144,30 @@ export function PaymentsRoute() {
     });
   }
 
-  // Feature 13: the F12 gate is gone — the button now drops a real in-app
-  // kind='payment' reminder (due on the expected date, or immediately when
-  // overdue/undated) that the Feature 14 Today panel reads. A second tap moves
-  // the existing reminder instead of stacking a duplicate.
+  // Post-v1: the button is now an OUTBOUND nudge to the brand (not an in-app
+  // self-reminder). Build a prewritten payment-reminder message in the active
+  // locale and open WhatsApp (wa.me) to the brand's number — the user edits it
+  // in WhatsApp before sending. The button is disabled when there's no phone,
+  // so the early return is just defensive.
   function handleSendReminder(payment: Payment): void {
-    sendReminder.mutate(
-      { payment, dealTitle: dealsById.get(payment.deal_id)?.title },
-      {
-        onSuccess: () => {
-          showToast("payments.toast.reminderSet", "success");
-        },
-        onError: (error) => {
-          logger.error("PaymentsRoute.sendReminder", error);
-          showToast("payments.toast.reminderError", "error");
-        },
-      },
-    );
+    const brand = brandForPayment(payment);
+    const phone = normalizeSaudiPhone(brand?.contact_phone);
+    if (!brand || !phone) return;
+
+    const vars = {
+      brand: localizedBrandName(brand, locale),
+      amount: formatSar(payment.amount_sar, locale),
+    };
+    const message = !payment.expected_date
+      ? t("payments.whatsapp.messageNoDate", vars)
+      : t(
+          isPaymentOverdue(payment, today)
+            ? "payments.whatsapp.messageOverdue"
+            : "payments.whatsapp.messageDue",
+          { ...vars, date: formatDualDate(payment.expected_date, locale).primary },
+        );
+
+    window.open(whatsappDeepLink(phone, message), "_blank", "noopener,noreferrer");
   }
 
   function handleMarkReceived(payment: Payment): void {
@@ -229,10 +255,10 @@ export function PaymentsRoute() {
                 onMarkReceived={handleMarkReceived}
                 onSendReminder={handleSendReminder}
                 isMarking={markReceived.isPending && markReceived.variables === payment.id}
-                isSendingReminder={
-                  sendReminder.isPending &&
-                  sendReminder.variables?.payment.id === payment.id
-                }
+                canSendReminder={Boolean(
+                  normalizeSaudiPhone(brandForPayment(payment)?.contact_phone),
+                )}
+                showNoPhoneHint={!brandsQuery.isLoading}
               />
             ))}
           </div>

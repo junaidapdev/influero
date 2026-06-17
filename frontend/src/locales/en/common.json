@@ -317,7 +317,13 @@
     "actions": {
       "add": "Add payment",
       "markReceived": "Mark received",
-      "sendReminder": "Send reminder"
+      "sendReminder": "Remind on WhatsApp"
+    },
+    "whatsapp": {
+      "noPhone": "Add a phone number to this brand to send a reminder.",
+      "messageDue": "Hello {{brand}}, this is a friendly reminder about the outstanding payment of {{amount}}, due on {{date}}. Thank you!",
+      "messageOverdue": "Hello {{brand}}, a friendly reminder that the {{amount}} payment was due on {{date}} and is still outstanding. Thank you!",
+      "messageNoDate": "Hello {{brand}}, a friendly reminder about the outstanding payment of {{amount}}. Thank you!"
     },
     "toast": {
       "created": "Payment added",
@@ -325,9 +331,7 @@
       "dealPaid": "Payment received — deal fully paid",
       "createdNotReceived": "Payment saved — mark it received from the Pending tab.",
       "error": "Couldn't save the payment. Please try again.",
-      "receiveError": "Couldn't mark as received. Please try again.",
-      "reminderSet": "Reminder set",
-      "reminderError": "Couldn't set the reminder. Please try again."
+      "receiveError": "Couldn't mark as received. Please try again."
     },
     "errors": {
       "dealRequired": "Pick a deal",

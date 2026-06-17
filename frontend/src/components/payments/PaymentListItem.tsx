@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { MessageCircle } from "lucide-react";
 
 import { PaymentStatusPill } from "@/components/payments/PaymentStatusPill";
 import { Button } from "@/components/ui/Button";
@@ -16,11 +17,15 @@ type Props = {
   // whole list shares one "today".
   isOverdue: boolean;
   onMarkReceived: (payment: Payment) => void;
-  // Drops an in-app kind='payment' reminder (Feature 13) — the parent owns
-  // the mutation and the success/error toasts.
+  // Opens WhatsApp to the brand with a prewritten payment reminder — the parent
+  // resolves the brand, builds the message, and does window.open.
   onSendReminder: (payment: Payment) => void;
   isMarking: boolean;
-  isSendingReminder: boolean;
+  // The brand has a usable phone number → the WhatsApp button is enabled.
+  canSendReminder: boolean;
+  // Show the "add a phone number" hint on the disabled button (only once the
+  // brands query has settled — so a still-loading row stays quietly disabled).
+  showNoPhoneHint: boolean;
 };
 
 // The payment row card. Not expandable — the row IS the content. Payment rows
@@ -38,7 +43,8 @@ export function PaymentListItem({
   onMarkReceived,
   onSendReminder,
   isMarking,
-  isSendingReminder,
+  canSendReminder,
+  showNoPhoneHint,
 }: Props) {
   const { t } = useTranslation();
   const { locale } = useLocale();
@@ -84,7 +90,6 @@ export function PaymentListItem({
             variant="secondary"
             onClick={() => onMarkReceived(payment)}
             isLoading={isMarking}
-            disabled={isSendingReminder}
             className="flex-1"
           >
             {t("payments.actions.markReceived")}
@@ -92,10 +97,15 @@ export function PaymentListItem({
           <Button
             variant="ghost"
             onClick={() => onSendReminder(payment)}
-            isLoading={isSendingReminder}
-            disabled={isMarking}
+            disabled={!canSendReminder}
+            title={
+              !canSendReminder && showNoPhoneHint
+                ? t("payments.whatsapp.noPhone")
+                : undefined
+            }
             className="flex-1"
           >
+            <MessageCircle className="size-4" aria-hidden="true" />
             {t("payments.actions.sendReminder")}
           </Button>
         </div>

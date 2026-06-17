@@ -1,24 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
-import { createReminder } from "@/lib/createReminder";
-import { formatSar } from "@/lib/currency";
-import { todayIsoLocal } from "@/lib/date";
 import { logger } from "@/lib/logger";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { EDGE_FUNCTION, PAYMENTS_TAB, type PaymentsTab } from "@/constants/payments";
-import { LOCALES } from "@/constants/locale";
 import type { PaymentFormInput } from "@/features/payments/payment.schema";
 import { getPaymentsSummary, type PaymentsSummary } from "@/features/payments/summary";
-import { paymentReminderDueAt } from "@/features/reminders/dueAt";
-import { buildPaymentReminderMessages } from "@/features/reminders/messages";
 import {
   PAYMENT_STATUS,
   type MarkPaymentReceivedResult,
   type Payment,
 } from "@shared/types/payment.types";
-import { REMINDER_KIND, REMINDER_REF_TABLE } from "@shared/types/reminder.types";
 
 // The envelope every edge function we own returns (backend/shared — mirrored
 // here until a runtime-shared import lands). PostgREST responses are NOT this
@@ -206,52 +199,6 @@ export function useCreatePayment() {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DEALS });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS });
-    },
-  });
-}
-
-type SendPaymentReminderInput = {
-  payment: Payment;
-  // Resolved by the caller from the cached deals list — undefined while the
-  // deals query is in flight; the message falls back to the amount alone.
-  dealTitle: string | undefined;
-};
-
-// The F12 "Send reminder" button, wired for real (Feature 13): drops an
-// in-app kind='payment' reminder due on the payment's expected date (start of
-// the viewer's local day), or immediately when there's no date / it's already
-// past. Both message languages are denormalized at creation. createReminder's
-// upsert-by-ref semantics make a double-tap MOVE the existing reminder instead
-// of stacking a duplicate into Today.
-export function useSendPaymentReminder() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      payment,
-      dealTitle,
-    }: SendPaymentReminderInput): Promise<void> => {
-      const messages = buildPaymentReminderMessages({
-        dealTitle,
-        amountEn: formatSar(payment.amount_sar, LOCALES.EN),
-        amountAr: formatSar(payment.amount_sar, LOCALES.AR),
-      });
-      await createReminder({
-        userId: payment.user_id,
-        kind: REMINDER_KIND.PAYMENT,
-        refId: payment.id,
-        refTable: REMINDER_REF_TABLE.PAYMENTS,
-        dueAt: paymentReminderDueAt(
-          payment.expected_date,
-          todayIsoLocal(),
-          new Date().toISOString(),
-        ),
-        messageEn: messages.messageEn,
-        messageAr: messages.messageAr,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REMINDERS });
     },
   });
 }

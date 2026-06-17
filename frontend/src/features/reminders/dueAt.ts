@@ -29,17 +29,6 @@ function dateReminderDueAt(
   return new Date(year, month - 1, day).toISOString();
 }
 
-// A payment's reminder is due on its expected date (lead-minutes stays
-// meetings-only — it's "how early before an appointment", which doesn't map to
-// a due date).
-export function paymentReminderDueAt(
-  expectedDate: string | null,
-  todayLocal: string,
-  nowIso: string,
-): string {
-  return dateReminderDueAt(expectedDate, todayLocal, nowIso);
-}
-
 // A deal's shoot/post reminder is DAY-GRANULAR: shoot_date / post_date now carry
 // a time, but it's display-only — the reminder still fires at the start of the
 // planned day (or now if past). targetIso is the planned timestamptz; we take
