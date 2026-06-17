@@ -22,8 +22,12 @@ export type PushDevice = {
 };
 
 function base64UrlToBytes(value: string): Uint8Array {
-  const padding = "=".repeat((4 - (value.length % 4)) % 4);
-  const base64 = (value + padding).replace(/-/g, "+").replace(/_/g, "/");
+  // Strip anything outside the base64url alphabet first: secret values commonly
+  // pick up a trailing newline or wrapping quotes when set via the CLI/dashboard,
+  // and atob throws InvalidCharacterError on those.
+  const clean = value.replace(/[^A-Za-z0-9_-]/g, "");
+  const padding = "=".repeat((4 - (clean.length % 4)) % 4);
+  const base64 = (clean + padding).replace(/-/g, "+").replace(/_/g, "/");
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
