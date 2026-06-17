@@ -305,6 +305,7 @@
       "expectedDate": "Expected date",
       "method": "Method",
       "methodNone": "Not set",
+      "alreadyReceived": "Already received?",
       "notes": "Notes",
       "notesPlaceholder": "Anything worth remembering about this payment"
     },
@@ -322,6 +323,7 @@
       "created": "Payment added",
       "received": "Payment received",
       "dealPaid": "Payment received — deal fully paid",
+      "createdNotReceived": "Payment saved — mark it received from the Pending tab.",
       "error": "Couldn't save the payment. Please try again.",
       "receiveError": "Couldn't mark as received. Please try again.",
       "reminderSet": "Reminder set",

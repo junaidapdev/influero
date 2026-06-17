@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { createReminder } from "@/lib/createReminder";
 import { formatSar } from "@/lib/currency";
 import { todayIsoLocal } from "@/lib/date";
+import { logger } from "@/lib/logger";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { EDGE_FUNCTION, PAYMENTS_TAB, type PaymentsTab } from "@/constants/payments";
@@ -129,21 +130,42 @@ export function usePaymentsForDeal(dealId: string | undefined) {
   });
 }
 
-// Insert an installment under the caller's id. A plain single-row write —
-// the atomic path is only needed for mark-received, where two rows must agree.
+// What useCreatePayment resolves to. The payment is always created (a plain
+// single-row insert); "already received" is layered on top. markFailed = the
+// user asked to mark it received but the RPC call failed AFTER the insert —
+// the row exists as pending, so the caller surfaces a "saved, finish from
+// Pending" message rather than implying total failure (mirrors useUpdateDeal's
+// reminderFailed soft-fail). dealPaid mirrors mark_payment_received's result.
+type CreatePaymentResult = {
+  payment: Payment;
+  markedReceived: boolean;
+  markFailed: boolean;
+  dealPaid: boolean;
+};
+
+// Insert an installment under the caller's id (a plain single-row write), then
+// — only when the form's "Already received?" toggle is on (the advance /
+// reservation case) — mark it received through the SAME atomic edge fn / RPC
+// the Pending tab uses. 'received' (and the deal 'paid' flip) is never written
+// any other way. The mark step is best-effort: if it fails the row already
+// exists as pending, so we don't throw (a retry would duplicate it).
 export function useCreatePayment() {
   const queryClient = useQueryClient();
   const { session } = useSession();
 
   return useMutation({
-    mutationFn: async (input: PaymentFormInput): Promise<Payment> => {
+    mutationFn: async (input: PaymentFormInput): Promise<CreatePaymentResult> => {
       const userId = session?.user.id;
       if (!userId) throw new Error("[useCreatePayment] No authenticated user");
 
+      const columns = toPaymentColumns(input);
       const { data, error } = await supabase
         .from("payments")
         .insert({
-          ...toPaymentColumns(input),
+          ...columns,
+          // A received payment is stamped with received_date by the RPC; an
+          // expected date is only meaningful while the money is still owed.
+          expected_date: input.markReceived ? null : columns.expected_date,
           user_id: userId,
           status: PAYMENT_STATUS.PENDING,
         })
@@ -151,10 +173,37 @@ export function useCreatePayment() {
         .single();
       if (error) throw error;
 
-      return data as Payment;
+      const payment = data as Payment;
+      if (!input.markReceived) {
+        return { payment, markedReceived: false, markFailed: false, dealPaid: false };
+      }
+
+      try {
+        const { data: invokeData, error: invokeError } =
+          await supabase.functions.invoke(EDGE_FUNCTION.MARK_PAYMENT_RECEIVED, {
+            body: { paymentId: payment.id },
+          });
+        if (invokeError) throw invokeError;
+
+        const envelope = invokeData as Envelope;
+        if (!envelope.ok) throw new Error(envelope.error.message);
+
+        return {
+          payment,
+          markedReceived: true,
+          markFailed: false,
+          dealPaid: envelope.data.deal_paid,
+        };
+      } catch (markError) {
+        logger.error("useCreatePayment.markReceived", markError);
+        return { payment, markedReceived: false, markFailed: true, dealPaid: false };
+      }
     },
-    onSuccess: () => {
+    // onSettled (not onSuccess): the new row must appear even on a partial
+    // mark-received failure. DEALS too — a received payment may flip the deal.
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PAYMENTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DEALS });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS });
     },

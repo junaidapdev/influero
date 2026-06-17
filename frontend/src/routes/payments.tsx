@@ -37,6 +37,7 @@ const EMPTY_PAYMENT_FORM: PaymentFormInput = {
   amount: "",
   expectedDate: "",
   method: "",
+  markReceived: false,
   notes: "",
 };
 
@@ -101,8 +102,20 @@ export function PaymentsRoute() {
 
   function handleCreate(data: PaymentFormInput): void {
     createPayment.mutate(data, {
-      onSuccess: () => {
-        showToast("payments.toast.created", "success");
+      onSuccess: (result) => {
+        // The insert succeeded; pick the message by what happened to the
+        // "already received" step. markFailed = saved but the RPC didn't run,
+        // so point the user at the Pending tab to finish (a soft warning).
+        if (result.markFailed) {
+          showToast("payments.toast.createdNotReceived", "error");
+        } else if (result.markedReceived) {
+          showToast(
+            result.dealPaid ? "payments.toast.dealPaid" : "payments.toast.received",
+            "success",
+          );
+        } else {
+          showToast("payments.toast.created", "success");
+        }
         setSheetOpen(false);
       },
       onError: (error) => {

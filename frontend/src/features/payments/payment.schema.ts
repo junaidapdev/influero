@@ -42,6 +42,12 @@ export const paymentSchema = z.object({
     z.literal(""),
     z.enum([PAYMENT_METHOD.BANK, PAYMENT_METHOD.CASH, PAYMENT_METHOD.OTHER]),
   ]),
+  // "Already received?" — when true the payment is created AND immediately
+  // marked received (the advance/reservation case). The write layer routes a
+  // received payment through the mark_payment_received RPC (the only path that
+  // writes 'received' and can flip the deal to 'paid'); the column itself is
+  // a separate axis from `method` (how the money came in).
+  markReceived: z.boolean(),
   notes: z.string().trim().max(1000, "payments.errors.notesMax"),
 });
 

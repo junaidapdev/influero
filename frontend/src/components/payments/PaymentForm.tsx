@@ -46,11 +46,17 @@ export function PaymentForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<PaymentFormInput>({
     resolver: zodResolver(paymentSchema),
     defaultValues,
   });
+
+  // An expected date is only meaningful for money still owed — a received
+  // payment is stamped with received_date by the RPC. Hide the field when the
+  // user marks the payment already received (the advance/reservation case).
+  const markReceived = watch("markReceived");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
@@ -89,24 +95,6 @@ export function PaymentForm({
       </div>
 
       <div>
-        <Label htmlFor="payment-expected-date">
-          {t("payments.fields.expectedDate")}
-        </Label>
-        <Input
-          id="payment-expected-date"
-          type="date"
-          dir="ltr"
-          hasError={Boolean(errors.expectedDate)}
-          {...register("expectedDate")}
-        />
-        <FieldError
-          message={
-            errors.expectedDate?.message ? t(errors.expectedDate.message) : undefined
-          }
-        />
-      </div>
-
-      <div>
         <Label htmlFor="payment-method">{t("payments.fields.method")}</Label>
         <Select id="payment-method" {...register("method")}>
           <option value="">{t("payments.fields.methodNone")}</option>
@@ -117,6 +105,38 @@ export function PaymentForm({
           ))}
         </Select>
       </div>
+
+      <label className="flex min-h-11 cursor-pointer items-center gap-3">
+        <input
+          id="payment-received"
+          type="checkbox"
+          className="size-5 shrink-0 accent-accent"
+          {...register("markReceived")}
+        />
+        <span className="flex-1 text-sm text-text-primary">
+          {t("payments.fields.alreadyReceived")}
+        </span>
+      </label>
+
+      {!markReceived ? (
+        <div>
+          <Label htmlFor="payment-expected-date">
+            {t("payments.fields.expectedDate")}
+          </Label>
+          <Input
+            id="payment-expected-date"
+            type="date"
+            dir="ltr"
+            hasError={Boolean(errors.expectedDate)}
+            {...register("expectedDate")}
+          />
+          <FieldError
+            message={
+              errors.expectedDate?.message ? t(errors.expectedDate.message) : undefined
+            }
+          />
+        </div>
+      ) : null}
 
       <div>
         <Label htmlFor="payment-notes">{t("payments.fields.notes")}</Label>
