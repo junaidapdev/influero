@@ -1,43 +1,43 @@
-# Memory — Deal Lifecycle Redesign + dashboard Payments entry (built, reviewed, LIVE-confirmed)
+# Memory — Influero post-v1: Web-Push Daily Reminders (PWA) — BUILT + LIVE-CONFIRMED
 
-Last updated: 2026-06-13
+Last updated: 2026-06-17
 
 ## What was built / done this session
-- **Deal lifecycle redesign — BUILT + reviewed + developer-confirmed working live.** The post-v1 feature the prior session had only *planned* is now implemented end to end. Deal is a legible pipeline **To-do → Shot → Posted → Paid (+ Cancelled)**, driven by two checkmarks instead of per-deliverable "posted" checkboxes.
-- **`/architect` was run first** (4 decisions taken — see below), developer approved the plan, then implementation.
-- **Migration `backend/supabase/migrations/0013_deal_lifecycle.sql`:** rename `ad_deals.deadline` → `post_date`; add `shoot_date date`, `shot_at timestamptz`, `posted_at timestamptz`; status set `in_progress` → `shot` (status now DERIVED from the two stamps: posted_at→posted, else shot_at→shot, else pending; paid/cancelled terminal); backfill stamps from old per-line deliverable `posted_at`; **CHECK swap ordered DROP → CONVERT(in_progress→shot) → ADD** (critical — see Problems solved); `reminders.kind` += `shoot`,`post`; `activity_log.kind` += `deal_shot` (`deliverable_posted` retired, kept in CHECK for history); index renamed to `..._post_date_idx`; **recreated `get_dashboard_stats` + `get_monthly_totals`** with `post_date`/`shot` (definitions otherwise verbatim — Dashboard/Reports numbers unchanged). `get_per_brand_report` untouched.
-- **Shared types:** `deal.types.ts` (`DEAL_STATUS.SHOT` replaces `IN_PROGRESS`; `Deal` gains `shoot_date`/`post_date`/`shot_at`/`posted_at`; `Deliverable` drops `posted_at`), `reminder.types.ts` (+`SHOOT`/`POST`), `activity.types.ts` (+`DEAL_SHOT`).
-- **Logic:** rewrote `features/deals/status.ts` (derive-from-stamps; `toggleShot`/`togglePosted`/`canToggleShot`/`becameShot`/`becamePosted`/`compareByPostDate`; Posted⇒Shot back-stamps). `hooks/useDeals.ts`: `useCreateDeal` + **new `useUpdateDeal`** (the F10-deferred edit flow; both call `syncDealDateReminders`, return `{deal, reminderFailed}` → soft toast), `useMarkShot`/`useMarkPosted` (replace `useToggleDeliverable`), `useCancelDeal` (deletes reminders first; **re-arms them if the status UPDATE fails** — deals-only). `features/reminders/dueAt.ts` (`dealDateReminderDueAt`) + `messages.ts` (shoot/post builders).
-- **UI:** `DealForm` (shoot+post date inputs; create+edit), `DealExpandedPanel` rebuilt (read-only deliverables descriptor + ☐ Shot/☐ Posted + Edit sheet), `DealListItem`/`DealStatusPill`/`DealsFilters` (shot + post_date), ACTIVE-deal sets in deals/meetings/payments routes. Dashboard: `TodayPanel` (shoot/post → /deals, info stripe, type badges), `useNeedsAttention` → `useBehindScheduleDeals` (PostgREST `.or()` of past-post-unposted OR past-shoot-unshot), `NeedsAttentionPanel` (overdue-half label, post wins).
-- **i18n** EN+AR fully updated; **all 7 context docs** updated. **`backend/supabase/tests/seed_demo_data.sql`** (untracked) updated to the new schema + shoot/post demo reminders + a shoot-overdue deal.
-- **Reviewed twice:** a 5-dimension adversarial workflow (7 findings, all verified) + a `/review` pass. All addressed (see Problems solved). typecheck + lint + production build all clean (main ~763 kB).
-- **THEN: dashboard Payments entry (developer follow-up — "add Payments as text", option 1+3).** Payments had been hidden behind the header notification bell. Fixed: `components/dashboard/MonthTotalsBar.tsx` — the three stat tiles are now whole-card `<Link>`s (**Collected + Outstanding → /payments, Posted → /deals**, each with an aria-label) + a right-aligned **"View payments →"** link (`dashboard.viewPayments`, ChevronRight, rtl-mirrored) above the tile grid. `components/layout/AppLayout.tsx` — the **notification bell was REMOVED** (it only linked to /payments and the alert dot implied a notifications feature that doesn't exist); header keeps the presentational search button + avatar. New i18n `dashboard.viewPayments`/`dashboard.viewDeals` (en+ar); orphaned `nav.notifications` removed. ui-registry (MonthTotalsBar + AppLayout) + progress-tracker polish note updated. typecheck + lint + build clean.
+A full **web-push twice-daily reminder system** (PWA): `/architect`-planned → developer-approved → built in two phases → static-verified → **live-confirmed on real devices (macOS Chrome + iPhone iOS 18.7)** → committed + pushed to `main`. It's a notification *delivery* layer distinct from the in-app `reminders` table.
+- **Phase A (subscribe + install):** migration `0015_push_notifications.sql` (`push_subscriptions` + `notification_sends`, both standard 4-policy own-row RLS). Hand-rolled PWA: `frontend/public/manifest.webmanifest` + minimal `sw.js` (push + notificationclick→/dashboard, NO precache) + placeholder icons (`frontend/scripts/gen-icons.cjs`). `lib/pushClient.ts`; hooks `usePushNotifications` + `useInstallPrompt`; `components/settings/{NotificationsSection,InstallAppButton}.tsx` mounted in `/settings`; optional `VITE_VAPID_PUBLIC_KEY` in `config/env.ts`; SW registered in `main.tsx`; i18n `settings.notifications.*` (en+ar). Shared `backend/shared/types/pushSubscription.types.ts`.
+- **Phase B (scheduled send):** migration `0016_daily_reminders_rpc.sql` (`get_users_with_outstanding()` — security invoker, granted to `service_role` ONLY, computes "today" in Asia/Riyadh; + enables pg_cron/pg_net). `backend/config/env.ts` gains lazy `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`/`CRON_SECRET`. `_shared/webpush.ts` (uses `jsr:@negrel/webpush@0.5.0`; base64→JWK conversion; `getApplicationServer`/`sendPush`/`isSubscriptionGone`). Edge fn `send-daily-reminders/index.ts` (CRON_SECRET header gate; service-role; per-user idempotent claim; bilingual `digest.ts`; prune gone subs). Ops `README.md`.
+- **Commits on `main`:** `f814b21` (feature) → `4f174c5` (VAPID decoder hardening + tracker). **Local-uncommitted at session end:** README time fix (→10 AM), tracker park note, and this memory file — offered to commit, developer hadn't said yes yet.
 
-## Decisions made (the `/architect` forks, all developer-approved)
-1. Status: rename `in_progress`→`shot`; keep `pending` (UI label "To-do").
-2. Both dates optional; ticking **Posted auto-marks Shot** (can't post unshot content).
-3. Ticking a checkmark **DELETES** that date's reminder; untick/edit **re-arms** (createReminder upsert).
-4. Needs-attention = past-shoot-unshot **OR** past-post-unposted (one row, post label wins).
-- Folded-in: reminder kinds shoot/post (forced by the (user_id,kind,ref_id) uniqueness); activity `deal_shot`; deliverables read-only descriptor; the +24h snap-analytics reminder now arms on the **Posted** tick (was per-deliverable).
-- Deal **edit flow** built now (was F10-deferred) since dates must be editable after creation.
-- **Today panel scope: KEEP rolling next-24h** (developer chose this when asked — not calendar-day). Window: meetings `[now, now+24h)` upcoming; reminders `due_at < now+24h`, no lower bound (overdue stay). Past-today meetings surface via their Overdue reminder; early-tomorrow items show with a "Tomorrow" tag.
-- **Payments placement: dashboard money tiles + "View payments" link** (developer chose option 1+3 — NOT a tab bar slot, NOT a standalone card). ui-rules already intended Payments as a Home-card destination.
+## Decisions made (still in force)
+- **Web push now; email fallback later** (designed into the same `send-daily-reminders` loop beside `sendPush`). The WhatsApp-to-BRAND payment reminder is a SEPARATE parked feature (outbound to the client) — NOT this.
+- **Library = `@negrel/webpush`** (Deno/Web-Crypto-native) over `npm:web-push` (Node stack, unreliable on the edge). VAPID keys kept as the base64url pair from `npx web-push generate-vapid-keys`; converted base64→JWK in `_shared/webpush.ts`.
+- **Scheduling = fixed 2 cron jobs at 10:00 & 18:00 Riyadh** (07:00 & 15:00 UTC). Per-user configurable times PARKED (backlog).
+- Idempotency via `notification_sends (user_id, slot, sent_on)` unique + claim-first.
+- The cron job runs as **service-role** (documented system/cross-user exception); the RPC is granted to service_role only. No `auth.uid()` in it.
+- Per send = "today's outstanding" (meetings + shoot/post due + payment awareness), same payload both slots; nothing sent to users with nothing.
 
-## Problems solved (don't re-solve)
-- **CRITICAL migration bug (caught by review, fixed):** the `update status='shot'` ran BEFORE the old CHECK was dropped → would abort on any `in_progress` row. Correct order is **DROP old CHECK → UPDATE in_progress→shot → ADD new CHECK** (adding the new CHECK while in_progress rows still exist would ALSO fail validation — so it must be drop, convert, then add).
-- Un-ticking Posted now clears the stale "Capture Snap analytics" reminder (was left armed).
-- `shot_at`/`posted_at` render with `formatDualTimestampDate` (local tz), not the UTC-pinned `formatDualDate` (wrong-day-near-midnight bug). Planned dates (shoot_date/post_date, true `date` cols) keep `formatDualDate`.
-- `useCancelDeal` re-arms the deal's reminders if the status UPDATE fails after the deletes commit (deals-only; meeting/payment cancel keep the plain delete-before-write pattern — deliberate asymmetry).
-- Edit sheet shows a loading state while `useBrands` resolves (was an empty brand dropdown).
+## Problems solved (don't re-debug — the live-gate gauntlet; all ENVIRONMENT, not logic)
+1. A VAPID key secret carried a stray char → `atob InvalidCharacterError`. Fixed by (a) hardening `base64UrlToBytes` to strip non-base64url chars (committed `4f174c5`) AND (b) regenerating keys cleanly by capturing into shell vars (never hand-paste).
+2. `VAPID_SUBJECT` wasn't set — it's a required lazy getter, throws right after the keys. Must be a `mailto:`.
+3. `supabase` CLI must run from **`backend/`** (the only `supabase/config.toml`), NOT the repo root — else deploy/secrets silently target nothing.
+4. **macOS suppresses Chrome notifications at the OS level** even when web `Notification.permission` is `granted` → enable System Settings → Notifications → Chrome. (Chrome DevTools → Application → Service Workers → **Push** button = fastest local display test.)
+5. **iOS web push requires the PWA installed from Safari** (Share → Add to Home Screen). Chrome's "Add to Home Screen" on iOS yields a non-push-capable shortcut (`Notification`/`showNotification` are `undefined` there).
+6. A user only gets a push if **their own** account has outstanding items that day — the long final red herring: devices subscribed under one account while test data sat under another (`pushesSent:0`, no log error).
 
 ## Current state
-- **Both pieces code-complete, static-verified, and LIVE-CONFIRMED by the developer.** `0013` applied; the worklist (shoot/post/snap reminders), the two checkmarks, edit, cancel, and Needs-attention all working. The dashboard Payments entry is built (static-verified; not yet separately eyeballed live but it's a small UI link change).
-- Working tree is **uncommitted** (all changes local). Seed `seed_demo_data.sql` still intentionally untracked.
-- Reminder worklist messages (what shows in Today), per deal toward Paid: **Shoot — {title}** (on shoot_date) → **Post — {title}** (on post_date) → **Capture Snap analytics — {title}** (+24h after Posted) → **Payment due — {title} · SAR {amount}** (on expected date, only if "Send reminder" tapped); plus **Meeting — {title}** for linked meetings. Each row: time pill / "Tomorrow, {time}" / "Overdue", message, type badge, Done button.
+- Feature **done + live-confirmed** — a real push delivered "Today's tasks · 1 meeting" to Mac Chrome AND iPhone.
+- **Cron NOT yet scheduled** — developer runs the 10 AM/6 PM `cron.schedule(...)` SQL from the editor (in the function README; consolidated SQL also given in chat). Until then it fires only on a manual curl.
+- Test meetings titled `'Push test'` / `'Test reminder meeting'` may still exist (cleanup SQL provided, scoped to the junaidap.dev account).
+- `CRON_SECRET` is a **throwaway test value — rotate before real use** (value intentionally not stored here; no VAPID keys/secrets in this file).
 
 ## Next session starts with
-- **No required work — both the deal-lifecycle feature and the dashboard Payments entry are done.** Optional, only if asked: relocate `toDealFormInput` for symmetry (left in `DealExpandedPanel.tsx`); auto-create a payment's reminder on payment creation so "Payment due" appears without the manual "Send reminder" tap (currently manual by design); a quick live eyeball of the dashboard Payments link/tiles at 375px + RTL.
+- Confirm cron is scheduled + firing at 10 AM/6 PM Riyadh (`select jobname, schedule, active from cron.job;`); run the schedule SQL if not yet done.
+- Run the test-data cleanup if not done; rotate `CRON_SECRET`.
+- (Optional) commit the local doc changes (README time + tracker park + this memory).
+- **Backlog (needs `/architect`): per-user reminder times in Settings** — swap the 2 fixed crons for a 15–30 min heartbeat + a `get_users_due_now()` RPC + `reminder_morning_at`/`reminder_evening_at` on `app_users` + two Settings time pickers. Cost negligible (~1,440 invocations/mo at 30-min; scales with ticks not users; push is free). Full sketch in `progress-tracker.md`.
+- Email fallback channel is the other documented next phase.
 
-## Open questions
-- **Git author identity** (carried from v1): commits are attributed to the hostname email, not the GitHub account. Still pending the developer's call — relevant whenever this session's uncommitted changes get committed (`git config user.name/email` + optional `--amend --reset-author`).
-- Whether to ever commit `seed_demo_data.sql` (still intentionally local-only).
+## Open questions / parked
+- **Per-user reminder times** — parked, build later (architecture sketched in the tracker).
+- WhatsApp-to-brand payment reminder — separate future feature.
+- Whether to commit `seed_demo_data.sql` (still intentionally local-only, pre-existing).

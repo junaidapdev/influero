@@ -12,7 +12,12 @@ import {
 import { useDeals } from "@/hooks/useDeals";
 import { useLocale } from "@/hooks/useLocale";
 import { formatSar } from "@/lib/currency";
-import { formatDualDate, todayIsoLocal } from "@/lib/date";
+import {
+  formatDualDate,
+  formatDualTimestampDate,
+  localDayOfIso,
+  todayIsoLocal,
+} from "@/lib/date";
 import { ROUTES } from "@/constants/routes";
 import type { Deal } from "@shared/types/deal.types";
 import type { Payment } from "@shared/types/payment.types";
@@ -98,10 +103,15 @@ export function NeedsAttentionPanel() {
   }
 
   function renderDeal(deal: Deal) {
-    // Post overdue takes precedence over shoot overdue when both apply.
-    const postOverdue = deal.post_date !== null && deal.post_date < today;
+    // Post overdue takes precedence over shoot overdue when both apply. shoot/
+    // post are timestamptz now — compare by their viewer-LOCAL day (matching the
+    // query) and render with the local-tz timestamp formatter.
+    const postOverdue =
+      deal.post_date !== null && localDayOfIso(deal.post_date) < today;
     const overdueDate = postOverdue ? deal.post_date : deal.shoot_date;
-    const formatted = overdueDate ? formatDualDate(overdueDate, locale) : null;
+    const formatted = overdueDate
+      ? formatDualTimestampDate(overdueDate, locale)
+      : null;
     const labelKey = postOverdue
       ? "dashboard.attention.postOverdue"
       : "dashboard.attention.shootOverdue";

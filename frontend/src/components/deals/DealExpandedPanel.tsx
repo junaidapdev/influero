@@ -24,7 +24,12 @@ import {
   isShot,
 } from "@/features/deals/status";
 import type { DealFormInput } from "@/features/deals/deal.schema";
-import { formatDualDate, formatDualTimestampDate } from "@/lib/date";
+import {
+  formatDualDate,
+  formatDualTimestampDate,
+  formatTime,
+  toDatetimeLocalValue,
+} from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
 import { logger } from "@/lib/logger";
@@ -45,8 +50,9 @@ function toDealFormInput(deal: Deal): DealFormInput {
       count: String(line.count),
     })),
     agreedAmount: String(deal.agreed_amount_sar),
-    shootDate: deal.shoot_date ?? "",
-    postDate: deal.post_date ?? "",
+    // timestamptz -> the datetime-local input's local wall-clock value ("" = unset).
+    shootDate: deal.shoot_date ? toDatetimeLocalValue(deal.shoot_date) : "",
+    postDate: deal.post_date ? toDatetimeLocalValue(deal.post_date) : "",
     notes: deal.notes ?? "",
   };
 }
@@ -78,8 +84,16 @@ export function DealExpandedPanel({ deal }: Props) {
   const locked = isLifecycleLocked(deal.status);
   const shot = isShot(deal);
   const posted = isPosted(deal);
-  const shootDate = deal.shoot_date ? formatDualDate(deal.shoot_date, locale) : null;
-  const postDate = deal.post_date ? formatDualDate(deal.post_date, locale) : null;
+  // Planned shoot/post are timestamptz — render in the viewer's local tz, with
+  // the clock time shown beside the "Planned …" date.
+  const shootDate = deal.shoot_date
+    ? formatDualTimestampDate(deal.shoot_date, locale)
+    : null;
+  const shootTime = deal.shoot_date ? formatTime(deal.shoot_date, locale) : null;
+  const postDate = deal.post_date
+    ? formatDualTimestampDate(deal.post_date, locale)
+    : null;
+  const postTime = deal.post_date ? formatTime(deal.post_date, locale) : null;
 
   function handleMarkShot(): void {
     markShot.mutate(deal, {
@@ -179,7 +193,10 @@ export function DealExpandedPanel({ deal }: Props) {
               {deal.shot_at
                 ? formatDualTimestampDate(deal.shot_at, locale).primary
                 : shootDate
-                  ? t("deals.expanded.planned", { date: shootDate.primary })
+                  ? t("deals.expanded.planned", {
+                      date: shootDate.primary,
+                      time: shootTime ?? "",
+                    })
                   : null}
             </span>
           </label>
@@ -207,7 +224,10 @@ export function DealExpandedPanel({ deal }: Props) {
               {deal.posted_at
                 ? formatDualTimestampDate(deal.posted_at, locale).primary
                 : postDate
-                  ? t("deals.expanded.planned", { date: postDate.primary })
+                  ? t("deals.expanded.planned", {
+                      date: postDate.primary,
+                      time: postTime ?? "",
+                    })
                   : null}
             </span>
           </label>

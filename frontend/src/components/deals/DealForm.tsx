@@ -174,7 +174,7 @@ export function DealForm({
           <Label htmlFor="deal-shoot-date">{t("deals.fields.shootDate")}</Label>
           <Input
             id="deal-shoot-date"
-            type="date"
+            type="datetime-local"
             dir="ltr"
             hasError={Boolean(errors.shootDate)}
             {...register("shootDate")}
@@ -189,7 +189,7 @@ export function DealForm({
           <Label htmlFor="deal-post-date">{t("deals.fields.postDate")}</Label>
           <Input
             id="deal-post-date"
-            type="date"
+            type="datetime-local"
             dir="ltr"
             hasError={Boolean(errors.postDate)}
             {...register("postDate")}

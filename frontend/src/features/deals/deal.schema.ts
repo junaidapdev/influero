@@ -21,7 +21,9 @@ const MAX_COUNT = 99;
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 const MAX_AMOUNT_SAR = 100_000_000;
 
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+// A native <input type="datetime-local"> yields YYYY-MM-DDTHH:MM (some browsers
+// append :SS); the format check guards manual entry. Matches meeting.schema.ts.
+const DATETIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
 
 export const deliverableLineSchema = z.object({
   type: z.enum([
@@ -58,22 +60,23 @@ export const dealSchema = z.object({
       const amount = Number(value);
       return amount > 0 && amount <= MAX_AMOUNT_SAR;
     }, "deals.errors.amountInvalid"),
-  // Both dates optional — empty string means "not set". A native date input
-  // yields YYYY-MM-DD; the format check guards manual/unsupported-browser entry.
-  // shoot_date drives the shoot reminder; post_date (the publish date) drives
-  // the post reminder + Needs-attention.
+  // Both optional — empty string means "not set". A native datetime-local input
+  // yields YYYY-MM-DDTHH:MM (date + time); the format check guards manual/
+  // unsupported-browser entry. shoot_date drives the shoot reminder; post_date
+  // (the publish date+time) drives the post reminder + Needs-attention. The time
+  // is stored + displayed; the reminders stay day-granular (see dueAt.ts).
   shootDate: z
     .string()
     .trim()
     .refine(
-      (value) => value === "" || DATE_PATTERN.test(value),
+      (value) => value === "" || DATETIME_LOCAL_PATTERN.test(value),
       "deals.errors.dateInvalid",
     ),
   postDate: z
     .string()
     .trim()
     .refine(
-      (value) => value === "" || DATE_PATTERN.test(value),
+      (value) => value === "" || DATETIME_LOCAL_PATTERN.test(value),
       "deals.errors.dateInvalid",
     ),
   notes: z.string().trim().max(1000, "deals.errors.notesMax"),

@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/logActivity";
 import { logger } from "@/lib/logger";
 import { createReminder, deleteReminderForRef } from "@/lib/createReminder";
-import { todayIsoLocal } from "@/lib/date";
+import { startOfLocalDayIso, todayIsoLocal } from "@/lib/date";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import {
@@ -51,18 +51,25 @@ export type DealMutationResult = { deal: Deal; reminderFailed: boolean };
 
 type UpdateDealInput = { dealId: string; input: DealFormInput };
 
-// [start, end) post_date range for a YYYY-MM month filter.
+// [start, end) post_date range for a YYYY-MM month filter, as viewer-local
+// (Riyadh) midnight ISO instants — post_date is now a timestamptz, so the
+// bounds are instants, not bare dates, and bucket by the local calendar month
+// (matching the dashboard/reports RPCs) rather than the UTC month.
 function monthRange(month: string): { start: string; end: string } {
   const [year, monthNumber] = month.split("-").map(Number);
-  const next =
+  const nextMonthFirst =
     monthNumber === 12
       ? `${year + 1}-01-01`
       : `${year}-${String(monthNumber + 1).padStart(2, "0")}-01`;
-  return { start: `${month}-01`, end: next };
+  return {
+    start: startOfLocalDayIso(`${month}-01`),
+    end: startOfLocalDayIso(nextMonthFirst),
+  };
 }
 
 // Maps the all-string form input to ad_deals columns: trims, converts the
-// validated numeric strings to numbers, and turns the empty optional fields
+// validated numeric strings to numbers, the datetime-local shoot/post strings
+// to ISO UTC (the timestamptz columns), and turns the empty optional fields
 // into null. Deliverables are pure {type, count} descriptors (no posted_at).
 function toDealColumns(input: DealFormInput): {
   brand_id: string;
@@ -84,8 +91,8 @@ function toDealColumns(input: DealFormInput): {
       count: Number(line.count),
     })),
     agreed_amount_sar: Number(input.agreedAmount),
-    shoot_date: shootDate === "" ? null : shootDate,
-    post_date: postDate === "" ? null : postDate,
+    shoot_date: shootDate === "" ? null : new Date(shootDate).toISOString(),
+    post_date: postDate === "" ? null : new Date(postDate).toISOString(),
     notes: notes === "" ? null : notes,
   };
 }

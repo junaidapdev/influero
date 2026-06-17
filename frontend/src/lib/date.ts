@@ -68,6 +68,26 @@ export function todayIsoLocal(): string {
   return `${now.getFullYear()}-${month}-${day}`;
 }
 
+// The VIEWER-LOCAL calendar day (YYYY-MM-DD) of a stored timestamp — for
+// day-granular comparisons/bucketing of a timestamptz value (a deal's planned
+// shoot/post date+time). Same local-day convention as todayIsoLocal(); the UTC
+// day (toISOString().slice) would shift a 1 AM Riyadh value to the previous day.
+export function localDayOfIso(iso: string): string {
+  const date = new Date(iso);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+// The ISO instant at the START of a viewer-local calendar day (a YYYY-MM-DD) —
+// local midnight expressed as a UTC instant, for comparing a timestamptz column
+// against a day boundary in PostgREST. startOfLocalDayIso(todayIsoLocal()) is
+// "start of today"; passing a first-of-month gives a month boundary.
+export function startOfLocalDayIso(localDay: string): string {
+  const [year, month, day] = localDay.split("-").map(Number);
+  return new Date(year, month - 1, day).toISOString();
+}
+
 // Dual date for a stored TIMESTAMP (e.g. a meeting's scheduled_at) — same
 // Hijri/Gregorian pairing as formatDualDate but rendered in the VIEWER'S LOCAL
 // timezone, not UTC: a meeting at 00:30 Riyadh time must show its local day,

@@ -218,8 +218,8 @@
       "deliverableCount": "العدد",
       "amount": "المبلغ المتفق عليه (ريال)",
       "amountPlaceholder": "19000",
-      "shootDate": "تاريخ التصوير",
-      "postDate": "تاريخ النشر",
+      "shootDate": "تاريخ ووقت التصوير",
+      "postDate": "تاريخ ووقت النشر",
       "notes": "ملاحظات",
       "notesPlaceholder": "أي شيء يستحقّ التذكّر عن هذه الصفقة"
     },
@@ -229,7 +229,7 @@
       "progress": "التقدّم",
       "shot": "التصوير",
       "posted": "النشر",
-      "planned": "مُخطّط {{date}}",
+      "planned": "مُخطّط {{date}} · {{time}}",
       "payments": "المدفوعات",
       "paymentsSummary_zero": "لا توجد دفعات لهذه الصفقة بعد",
       "paymentsSummary_one": "تم استلام {{received}} من دفعة واحدة · المتبقي {{outstanding}}",
@@ -273,7 +273,7 @@
       "countRange": "يجب أن يكون العدد بين 1 و99",
       "amountRequired": "المبلغ مطلوب",
       "amountInvalid": "أدخل مبلغًا صحيحًا",
-      "dateInvalid": "أدخل تاريخًا صحيحًا",
+      "dateInvalid": "أدخل تاريخًا ووقتًا صحيحين",
       "notesMax": "الملاحظات طويلة جدًا"
     }
   },

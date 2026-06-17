@@ -15,6 +15,7 @@ import { useBrands } from "@/hooks/useBrands";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
+import { localDayOfIso } from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
 import { logger } from "@/lib/logger";
@@ -103,7 +104,9 @@ export function DealsRoute() {
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
     for (const row of indexQuery.data ?? []) {
-      if (row.post_date) months.add(row.post_date.slice(0, 7));
+      // post_date is a timestamptz — bucket by its viewer-local (Riyadh) month,
+      // matching the dashboard/reports RPCs (not the UTC month a raw slice gives).
+      if (row.post_date) months.add(localDayOfIso(row.post_date).slice(0, 7));
     }
     return [...months].sort((a, b) => b.localeCompare(a));
   }, [indexQuery.data]);

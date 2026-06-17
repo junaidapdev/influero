@@ -218,8 +218,8 @@
       "deliverableCount": "Count",
       "amount": "Agreed amount (SAR)",
       "amountPlaceholder": "19000",
-      "shootDate": "Shoot date",
-      "postDate": "Post date",
+      "shootDate": "Shoot date & time",
+      "postDate": "Post date & time",
       "notes": "Notes",
       "notesPlaceholder": "Anything worth remembering about this deal"
     },
@@ -229,7 +229,7 @@
       "progress": "Progress",
       "shot": "Shot",
       "posted": "Posted",
-      "planned": "Planned {{date}}",
+      "planned": "Planned {{date}} · {{time}}",
       "payments": "Payments",
       "paymentsSummary_one": "{{received}} of {{total}} payment received · {{outstanding}} outstanding",
       "paymentsSummary_other": "{{received}} of {{total}} payments received · {{outstanding}} outstanding",
@@ -269,7 +269,7 @@
       "countRange": "Count must be between 1 and 99",
       "amountRequired": "Amount is required",
       "amountInvalid": "Enter a valid amount",
-      "dateInvalid": "Enter a valid date",
+      "dateInvalid": "Enter a valid date and time",
       "notesMax": "Notes are too long"
     }
   },

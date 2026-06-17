@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { DealStatusPill } from "@/components/deals/DealStatusPill";
 import { DealExpandedPanel } from "@/components/deals/DealExpandedPanel";
 import { useLocale } from "@/hooks/useLocale";
-import { formatDualDate } from "@/lib/date";
+import { formatDualTimestampDate, formatTime } from "@/lib/date";
 import { formatSar } from "@/lib/currency";
 import type { Brand } from "@shared/types/brand.types";
 import type { Deal } from "@shared/types/deal.types";
@@ -22,14 +22,19 @@ type Props = {
 // descriptor, the two lifecycle checkmarks, and the payment/snap sections. No
 // leading stripe: the status pill carries the row's state (a stripe would
 // duplicate it, and deal rows aren't in the stripe table). At most one pill per
-// row (ui-rules). The post_date (publish date) is the date shown on the card.
+// row (ui-rules). The post_date (publish date + time) is shown on the card.
 export function DealListItem({ deal, brand }: Props) {
   const { t } = useTranslation();
   const { locale, isArabic } = useLocale();
   const panelId = useId();
   const [expanded, setExpanded] = useState(false);
 
-  const postDate = deal.post_date ? formatDualDate(deal.post_date, locale) : null;
+  // post_date is a timestamptz now — render in the viewer's local tz (not the
+  // UTC-pinned formatDualDate) and show its clock time beside the date.
+  const postDate = deal.post_date
+    ? formatDualTimestampDate(deal.post_date, locale)
+    : null;
+  const postTime = deal.post_date ? formatTime(deal.post_date, locale) : null;
   const brandName = brand ? (isArabic ? brand.name_ar : brand.name_en) : null;
 
   return (
@@ -60,7 +65,9 @@ export function DealListItem({ deal, brand }: Props) {
           <div className="flex items-end gap-3">
             {postDate ? (
               <div className="text-end">
-                <p className="text-body text-text-secondary">{postDate.primary}</p>
+                <p className="text-body text-text-secondary">
+                  {postDate.primary} · {postTime}
+                </p>
                 <p className="text-xs text-text-muted">{postDate.secondary}</p>
               </div>
             ) : (

@@ -48,12 +48,12 @@ Dashboard → Database → Extensions.
 
 ## 4. Schedule the two daily sends
 
-Run in the SQL editor (08:00 & 18:00 Riyadh = 05:00 & 15:00 UTC; pg_cron is UTC):
+Run in the SQL editor (10:00 & 18:00 Riyadh = 07:00 & 15:00 UTC; pg_cron is UTC):
 
 ```sql
 select cron.schedule(
   'send-daily-reminders-morning',
-  '0 5 * * *',
+  '0 7 * * *',
   $$
     select net.http_post(
       url     := 'https://<PROJECT_REF>.supabase.co/functions/v1/send-daily-reminders',

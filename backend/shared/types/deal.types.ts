@@ -40,7 +40,8 @@ export type Deliverable = {
 
 // The canonical shape of an ad_deals row. `deliverables` is the jsonb column,
 // zod-validated on every write so no arbitrary shapes reach the DB.
-//   shoot_date / post_date — PLANNED dates (drive the shoot/post reminders).
+//   shoot_date / post_date — PLANNED date + time (timestamptz ISO; drive the
+//                            shoot/post reminders — day-granular, see dueAt.ts).
 //   shot_at / posted_at    — ACTUAL completion stamps (set when the boxes tick).
 export type Deal = {
   id: string;

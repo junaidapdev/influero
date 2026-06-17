@@ -40,15 +40,24 @@ export function paymentReminderDueAt(
   return dateReminderDueAt(expectedDate, todayLocal, nowIso);
 }
 
-// A deal's shoot/post reminder is due on shoot_date / post_date — the same
-// start-of-local-day-or-now rule. The two kinds differ only by which date and
-// message the caller passes; the due math is identical.
+// A deal's shoot/post reminder is DAY-GRANULAR: shoot_date / post_date now carry
+// a time, but it's display-only — the reminder still fires at the start of the
+// planned day (or now if past). targetIso is the planned timestamptz; we take
+// its viewer-LOCAL calendar day and apply the same start-of-local-day-or-now
+// rule as the date kinds. Kept import-free (no lib/date) so this stays a pure,
+// deterministic feature module; the two kinds differ only by which timestamp +
+// message the caller passes.
 export function dealDateReminderDueAt(
-  targetDate: string | null,
+  targetIso: string | null,
   todayLocal: string,
   nowIso: string,
 ): string {
-  return dateReminderDueAt(targetDate, todayLocal, nowIso);
+  if (!targetIso) return nowIso;
+  const planned = new Date(targetIso);
+  const month = String(planned.getMonth() + 1).padStart(2, "0");
+  const day = String(planned.getDate()).padStart(2, "0");
+  const localDay = `${planned.getFullYear()}-${month}-${day}`;
+  return dateReminderDueAt(localDay, todayLocal, nowIso);
 }
 
 const MS_PER_HOUR = 3_600_000;

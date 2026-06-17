@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
-import { todayIsoLocal } from "@/lib/date";
+import { startOfLocalDayIso, todayIsoLocal } from "@/lib/date";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
@@ -56,14 +56,18 @@ export function useBehindScheduleDeals() {
     queryFn: async (): Promise<Deal[]> => {
       if (!userId) throw new Error("[useBehindScheduleDeals] No authenticated user");
 
-      const today = todayIsoLocal();
+      // shoot_date/post_date are timestamptz now; "before today" is the START of
+      // the viewer-local (Riyadh) day as a UTC instant — NOT the bare date, which
+      // PostgREST would cast at UTC midnight and mis-flag a 1 AM Riyadh value. The
+      // instant is double-quoted because it contains ':' and '.' (reserved in or()).
+      const startOfToday = startOfLocalDayIso(todayIsoLocal());
       const { data, error } = await supabase
         .from("ad_deals")
         .select("*")
         .eq("user_id", userId)
         .or(
-          `and(status.in.(${DEAL_STATUS.PENDING},${DEAL_STATUS.SHOT}),post_date.lt.${today}),` +
-            `and(status.eq.${DEAL_STATUS.PENDING},shoot_date.lt.${today})`,
+          `and(status.in.(${DEAL_STATUS.PENDING},${DEAL_STATUS.SHOT}),post_date.lt."${startOfToday}"),` +
+            `and(status.eq.${DEAL_STATUS.PENDING},shoot_date.lt."${startOfToday}")`,
         )
         .order("post_date", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
