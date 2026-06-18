@@ -16,8 +16,8 @@ import { DELIVERABLE_TYPE } from "@shared/types/deal.types";
 const COUNT_PATTERN = /^\d+$/;
 const MAX_COUNT = 99;
 
-// Positive SAR amount, up to 2 decimals (numeric column). Western digits — the
-// numeric input renders them regardless of locale so math stays unambiguous.
+// SAR amount (0 or greater), up to 2 decimals (numeric column). Western digits —
+// the numeric input renders them regardless of locale so math stays unambiguous.
 const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
 const MAX_AMOUNT_SAR = 100_000_000;
 
@@ -58,7 +58,7 @@ export const dealSchema = z.object({
     .refine((value) => {
       if (!AMOUNT_PATTERN.test(value)) return false;
       const amount = Number(value);
-      return amount > 0 && amount <= MAX_AMOUNT_SAR;
+      return amount >= 0 && amount <= MAX_AMOUNT_SAR;
     }, "deals.errors.amountInvalid"),
   // Both optional — empty string means "not set". A native datetime-local input
   // yields YYYY-MM-DDTHH:MM (date + time); the format check guards manual/
