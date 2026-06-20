@@ -46,11 +46,24 @@ Deno.serve(async (req) => {
       return fail(ERROR_CODE.CONFLICT, "Already subscribed", HTTP.CONFLICT);
     }
 
-    const url = await createCheckout({
-      email,
-      userId,
-      redirectUrl: `${ENV.APP_URL}/settings?checkout=success`,
-    });
+    let url: string;
+    try {
+      url = await createCheckout({
+        email,
+        userId,
+        redirectUrl: `${ENV.APP_URL}/settings?checkout=success`,
+      });
+    } catch (lsErr) {
+      // Surface the LS rejection detail (variant / store / mode mismatch) in the
+      // response so checkout misconfig is debuggable, not an opaque 500. (Tighten
+      // to a generic message before public launch.)
+      logger.error("[create-checkout] LS", lsErr);
+      return fail(
+        ERROR_CODE.INTERNAL,
+        lsErr instanceof Error ? lsErr.message : "Checkout creation failed",
+        HTTP.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return ok({ url }, HTTP.OK);
   } catch (err) {

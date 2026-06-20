@@ -69,6 +69,9 @@ export async function createCheckout(params: {
     data: {
       type: "checkouts",
       attributes: {
+        // Must match the mode of the store/variant + the API key. LS rejects a
+        // live checkout against a test variant (and vice versa).
+        test_mode: ENV.LEMONSQUEEZY_TEST_MODE,
         checkout_data: {
           email: params.email,
           custom: { user_id: params.userId },
