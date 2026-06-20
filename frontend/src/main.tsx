@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "@/App";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import { UpgradeModalProvider } from "@/components/providers/UpgradeModalProvider";
 import { logger } from "@/lib/logger";
 import "@/lib/i18n"; // bootstraps i18next + sets initial <html lang/dir> before render
 import "@/index.css";
@@ -23,7 +24,9 @@ createRoot(rootElement).render(
       <BrowserRouter>
         <SessionProvider>
           <ToastProvider>
-            <App />
+            <UpgradeModalProvider>
+              <App />
+            </UpgradeModalProvider>
           </ToastProvider>
         </SessionProvider>
       </BrowserRouter>

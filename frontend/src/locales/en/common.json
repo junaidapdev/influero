@@ -654,6 +654,8 @@
       "pro": "Pro"
     },
     "upgrade": "Upgrade to Pro",
+    "upgradeNow": "Upgrade now",
+    "maybeLater": "Maybe later",
     "manage": "Manage billing",
     "renewsOn": "Renews {{date}}",
     "endsOn": "Access until {{date}}",
@@ -667,7 +669,9 @@
     "upgradePrompt": {
       "title": "A Pro feature",
       "snap": "Turn your Snapchat screenshots into clean reports with AI — available on the Pro plan.",
-      "reports": "See your monthly and per-brand performance — available on the Pro plan."
+      "reports": "See your monthly and per-brand performance — available on the Pro plan.",
+      "deals": "You've reached the Free plan's limit of 5 active deals. Upgrade to Pro for unlimited deals.",
+      "generic": "This is a Pro feature. Upgrade to Pro to unlock it."
     }
   }
 }

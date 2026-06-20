@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { BarChart3, Building2 } from "lucide-react";
@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { useMonthlyTotals, usePerBrandReport } from "@/hooks/useReports";
 import { useEntitlement } from "@/hooks/useEntitlement";
+import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 import { ROUTES } from "@/constants/routes";
 import { UpgradePrompt } from "@/components/billing/UpgradePrompt";
 import { isPro } from "@/features/billing/entitlement";
@@ -58,6 +59,7 @@ export function ReportsRoute() {
   const monthly = useMonthlyTotals();
   const perBrand = usePerBrandReport();
   const entitlement = useEntitlement();
+  const openUpgrade = useUpgradeModal();
 
   // The RPC always returns 12 month rows (empty months as 0), so "empty" means
   // every month is genuinely zero — show the empty state, not a flat-zero chart.
@@ -67,8 +69,14 @@ export function ReportsRoute() {
     ) ?? false;
 
   // Reports are Pro-only, gated in the UI on purpose — the underlying aggregate
-  // RPC is shared with the free dashboard sparkline, so it stays callable.
-  if (!entitlement.isLoading && !isPro(entitlement.data)) {
+  // RPC is shared with the free dashboard sparkline, so it stays callable. The
+  // modal pops when a free user lands here; the card behind re-opens it.
+  const gated = !entitlement.isLoading && !isPro(entitlement.data);
+  useEffect(() => {
+    if (gated) openUpgrade("billing.upgradePrompt.reports");
+  }, [gated, openUpgrade]);
+
+  if (gated) {
     return (
       <main className="min-h-dvh bg-background px-4 py-8">
         <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">

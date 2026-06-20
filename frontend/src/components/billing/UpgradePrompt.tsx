@@ -3,37 +3,25 @@ import { Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { useCheckout } from "@/hooks/useCheckout";
-import { useToast } from "@/hooks/useToast";
-import { logger } from "@/lib/logger";
+import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 
 type UpgradePromptProps = {
   // i18n key for the feature-specific body copy (e.g. billing.upgradePrompt.snap).
   messageKey: string;
 };
 
-// The reusable Pro gate — shown where a free user hits a paid feature (the snap +
-// reports pages). Its CTA starts the LemonSqueezy checkout directly (same path as
-// the Settings Billing card), so upgrading is one tap from the gate.
+// The in-page locked state for an entirely-Pro page (snap, reports). It's the
+// fallback the user sees behind / after the auto-opened upgrade modal; its button
+// re-opens that single modal, which owns the actual checkout CTA.
 export function UpgradePrompt({ messageKey }: UpgradePromptProps) {
   const { t } = useTranslation();
-  const showToast = useToast();
-  const checkout = useCheckout();
-
-  function handleUpgrade(): void {
-    checkout.mutate(undefined, {
-      onError: (error) => {
-        logger.error("UpgradePrompt.upgrade", error);
-        showToast("billing.toast.checkoutError", "error");
-      },
-    });
-  }
+  const openUpgrade = useUpgradeModal();
 
   return (
     <Card>
       <div className="flex flex-col items-center gap-4 px-2 py-6 text-center">
         <span className="grid h-12 w-12 place-items-center rounded-full bg-accent-light text-accent">
-          <Sparkles size={24} />
+          <Sparkles size={24} aria-hidden="true" />
         </span>
         <div className="flex flex-col gap-1">
           <h2 className="text-lg font-bold text-text-primary">
@@ -41,7 +29,7 @@ export function UpgradePrompt({ messageKey }: UpgradePromptProps) {
           </h2>
           <p className="text-body text-text-secondary">{t(messageKey)}</p>
         </div>
-        <Button isLoading={checkout.isPending} onClick={handleUpgrade}>
+        <Button onClick={() => openUpgrade(messageKey)}>
           {t("billing.upgrade")}
         </Button>
       </div>

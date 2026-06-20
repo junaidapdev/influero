@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
 import { useEntitlement } from "@/hooks/useEntitlement";
+import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 import { localDayOfIso } from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
@@ -87,6 +88,7 @@ export function DealsRoute() {
   const brandsQuery = useBrands();
   const createDeal = useCreateDeal();
   const entitlement = useEntitlement();
+  const openUpgrade = useUpgradeModal();
 
   // FAB Quick Add → Deal opens this route's Add sheet (even if already here).
   const handleQuickAdd = useCallback(() => setSheetOpen(true), []);
@@ -136,10 +138,11 @@ export function DealsRoute() {
       },
       onError: (error) => {
         logger.error("DealsRoute.create", error);
-        // The free-tier deal-limit trigger raises DEAL_LIMIT — show the upgrade
-        // copy instead of a generic failure. The form sheet stays open.
+        // The free-tier deal-limit trigger raises DEAL_LIMIT — close the
+        // (now-unusable) form sheet and pop the upgrade modal.
         if (isDealLimitError(error)) {
-          showToast("billing.dealLimit", "error");
+          setSheetOpen(false);
+          openUpgrade("billing.upgradePrompt.deals");
           return;
         }
         showToast("deals.toast.error", "error");
