@@ -115,6 +115,14 @@ Deno.serve(async (req) => {
 
     for (const user of outstanding) {
       try {
+        // The automated reminder digest is a Pro feature — skip free users.
+        // (Existing accounts were grandfathered to Pro, so only NEW free signups
+        // are skipped; is_pro is granted to service_role.)
+        const { data: isProUser } = await supabase.rpc("is_pro", {
+          p_user_id: user.user_id,
+        });
+        if (!isProUser) continue;
+
         const itemCount = user.meeting_count + user.shoot_count +
           user.post_count + user.payment_count;
 

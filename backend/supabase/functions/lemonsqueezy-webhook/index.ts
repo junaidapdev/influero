@@ -51,24 +51,24 @@ Deno.serve(async (req) => {
     return fail(ERROR_CODE.NOT_FOUND, "Not found", HTTP.NOT_FOUND);
   }
 
-  const rawBody = await req.text();
-  const valid = await verifyWebhookSignature(
-    rawBody,
-    req.headers.get("X-Signature"),
-    ENV.LEMONSQUEEZY_WEBHOOK_SECRET,
-  );
-  if (!valid) {
-    return fail(ERROR_CODE.UNAUTHENTICATED, "Invalid signature", HTTP.UNAUTHORIZED);
-  }
-
-  let payload: LsWebhook;
   try {
-    payload = JSON.parse(rawBody) as LsWebhook;
-  } catch {
-    return fail(ERROR_CODE.VALIDATION, "Invalid JSON body", HTTP.BAD_REQUEST);
-  }
+    const rawBody = await req.text();
+    const valid = await verifyWebhookSignature(
+      rawBody,
+      req.headers.get("X-Signature"),
+      ENV.LEMONSQUEEZY_WEBHOOK_SECRET,
+    );
+    if (!valid) {
+      return fail(ERROR_CODE.UNAUTHENTICATED, "Invalid signature", HTTP.UNAUTHORIZED);
+    }
 
-  try {
+    let payload: LsWebhook;
+    try {
+      payload = JSON.parse(rawBody) as LsWebhook;
+    } catch {
+      return fail(ERROR_CODE.VALIDATION, "Invalid JSON body", HTTP.BAD_REQUEST);
+    }
+
     const eventName = payload.meta?.event_name ?? "";
     // Only subscription lifecycle events change entitlement; ack everything else
     // (including subscription_payment_* invoice events) without touching the row.

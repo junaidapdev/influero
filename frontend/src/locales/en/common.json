@@ -661,6 +661,13 @@
       "checkoutSuccess": "Payment received — activating Pro…",
       "checkoutError": "Couldn't start checkout. Please try again.",
       "portalError": "Couldn't open billing. Please try again."
+    },
+    "dealLimit": "The Free plan is limited to 5 active deals. Upgrade to Pro in Settings for unlimited deals.",
+    "dealUsage": "{{count}} of 5 active deals used",
+    "upgradePrompt": {
+      "title": "A Pro feature",
+      "snap": "Turn your Snapchat screenshots into clean reports with AI — available on the Pro plan.",
+      "reports": "See your monthly and per-brand performance — available on the Pro plan."
     }
   }
 }

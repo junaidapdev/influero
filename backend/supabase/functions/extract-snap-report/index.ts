@@ -243,6 +243,17 @@ Deno.serve(async (req) => {
 
     const supabase = createSupabaseAsUser(authHeader);
 
+    // Pro gate (defense-in-depth — /analytics/snap also gates this for free
+    // users). AI extraction is a paid feature; reject before any storage download
+    // or OpenAI spend.
+    const { data: entRows } = await supabase.rpc("get_my_entitlement");
+    const entitlement = (Array.isArray(entRows) ? entRows[0] : entRows) as
+      | { is_pro?: boolean }
+      | undefined;
+    if (!entitlement?.is_pro) {
+      return fail(ERROR_CODE.UPGRADE_REQUIRED, "Pro plan required", HTTP.FORBIDDEN);
+    }
+
     // RLS scopes this select to the caller — missing and not-owned are
     // deliberately indistinguishable (no cross-tenant probing).
     const { data: reportRow, error: loadError } = await supabase

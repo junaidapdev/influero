@@ -15,6 +15,7 @@ import { useBrands } from "@/hooks/useBrands";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { localDayOfIso } from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
@@ -26,6 +27,7 @@ import {
   type Deal,
 } from "@shared/types/deal.types";
 import type { DealFormInput } from "@/features/deals/deal.schema";
+import { isDealLimitError, isPro } from "@/features/billing/entitlement";
 import type { Brand } from "@shared/types/brand.types";
 
 const EMPTY_DEAL_FORM: DealFormInput = {
@@ -84,6 +86,7 @@ export function DealsRoute() {
   const indexQuery = useDealsIndex();
   const brandsQuery = useBrands();
   const createDeal = useCreateDeal();
+  const entitlement = useEntitlement();
 
   // FAB Quick Add → Deal opens this route's Add sheet (even if already here).
   const handleQuickAdd = useCallback(() => setSheetOpen(true), []);
@@ -112,6 +115,15 @@ export function DealsRoute() {
   }, [indexQuery.data]);
 
   const rollup = getRollup(deals);
+  // Free-tier usage hint: in-flight deals (pending/shot/posted) count toward the
+  // 5-deal cap. Shown only when unfiltered, where `deals` is the full set.
+  const pro = isPro(entitlement.data);
+  const inFlightCount = deals.filter(
+    (deal) =>
+      deal.status === DEAL_STATUS.PENDING ||
+      deal.status === DEAL_STATUS.SHOT ||
+      deal.status === DEAL_STATUS.POSTED,
+  ).length;
 
   function handleCreate(data: DealFormInput): void {
     createDeal.mutate(data, {
@@ -124,6 +136,12 @@ export function DealsRoute() {
       },
       onError: (error) => {
         logger.error("DealsRoute.create", error);
+        // The free-tier deal-limit trigger raises DEAL_LIMIT — show the upgrade
+        // copy instead of a generic failure. The form sheet stays open.
+        if (isDealLimitError(error)) {
+          showToast("billing.dealLimit", "error");
+          return;
+        }
         showToast("deals.toast.error", "error");
       },
     });
@@ -170,6 +188,13 @@ export function DealsRoute() {
                 amount: formatSar(rollup.pendingSar, locale),
               })}
             </p>
+            {!pro && !hasActiveFilters ? (
+              <p className="text-body font-semibold text-accent">
+                {t("billing.dealUsage", {
+                  count: formatNumber(inFlightCount, locale),
+                })}
+              </p>
+            ) : null}
           </>
         ) : null}
 

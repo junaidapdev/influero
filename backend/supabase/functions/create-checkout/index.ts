@@ -54,13 +54,12 @@ Deno.serve(async (req) => {
         redirectUrl: `${ENV.APP_URL}/settings?checkout=success`,
       });
     } catch (lsErr) {
-      // Surface the LS rejection detail (variant / store / mode mismatch) in the
-      // response so checkout misconfig is debuggable, not an opaque 500. (Tighten
-      // to a generic message before public launch.)
+      // Log the LS rejection detail server-side; return a generic message to the
+      // client (don't leak LS internals).
       logger.error("[create-checkout] LS", lsErr);
       return fail(
         ERROR_CODE.INTERNAL,
-        lsErr instanceof Error ? lsErr.message : "Checkout creation failed",
+        "Could not start checkout",
         HTTP.INTERNAL_SERVER_ERROR,
       );
     }

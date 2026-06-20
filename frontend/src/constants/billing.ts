@@ -12,3 +12,7 @@ export const BILLING_EDGE_FUNCTION = {
 // refresh entitlement), then strips it.
 export const CHECKOUT_SUCCESS_PARAM = "checkout";
 export const CHECKOUT_SUCCESS_VALUE = "success";
+
+// The bare message the enforce_deal_limit() trigger raises (SQLSTATE P0001) when
+// a free user exceeds the deal cap; the client matches it to show the upgrade copy.
+export const DEAL_LIMIT_ERROR = "DEAL_LIMIT";

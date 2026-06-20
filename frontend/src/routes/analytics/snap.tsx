@@ -6,6 +6,7 @@ import { SnapDropzone } from "@/components/snap/SnapDropzone";
 import { SnapReportListItem } from "@/components/snap/SnapReportListItem";
 import { SnapReportSheet } from "@/components/snap/SnapReportSheet";
 import { InsightsTabs } from "@/components/insights/InsightsTabs";
+import { UpgradePrompt } from "@/components/billing/UpgradePrompt";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Card } from "@/components/ui/Card";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -16,6 +17,7 @@ import {
   useSnapReportsRealtime,
 } from "@/hooks/useSnapReports";
 import { useDeals } from "@/hooks/useDeals";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { formatNumber } from "@/lib/numbers";
@@ -29,6 +31,7 @@ import {
   validateSnapImage,
   validateSnapPdf,
 } from "@/features/snap/upload";
+import { isPro } from "@/features/billing/entitlement";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
 import {
   SNAP_EXTRACTION_STATUS,
@@ -69,6 +72,7 @@ export function SnapAnalyticsRoute() {
   const reportsQuery = useSnapReports();
   const dealsQuery = useDeals({});
   const createReport = useCreateSnapReport();
+  const entitlement = useEntitlement();
 
   const reports = reportsQuery.data ?? [];
   const ready = !reportsQuery.isLoading && !reportsQuery.isError;
@@ -159,6 +163,20 @@ export function SnapAnalyticsRoute() {
     } finally {
       setIsPreparing(false);
     }
+  }
+
+  // Snap AI extraction is Pro-only — free users get the upgrade gate instead of
+  // the upload/list UI (the extract-snap-report edge function enforces it too).
+  if (!entitlement.isLoading && !isPro(entitlement.data)) {
+    return (
+      <main className="min-h-dvh bg-background px-4 py-8">
+        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+          <InsightsTabs />
+          <h1 className="text-2xl font-bold text-text-primary">{t("snap.title")}</h1>
+          <UpgradePrompt messageKey="billing.upgradePrompt.snap" />
+        </div>
+      </main>
+    );
   }
 
   return (

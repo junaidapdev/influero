@@ -8,7 +8,10 @@ import { InsightsTabs } from "@/components/insights/InsightsTabs";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { useMonthlyTotals, usePerBrandReport } from "@/hooks/useReports";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { ROUTES } from "@/constants/routes";
+import { UpgradePrompt } from "@/components/billing/UpgradePrompt";
+import { isPro } from "@/features/billing/entitlement";
 
 // Lazy so recharts (a heavy dep) lands in its own chunk instead of the main
 // bundle — the pdf.js precedent. /reports is a single leaf page, so paying the
@@ -54,6 +57,7 @@ export function ReportsRoute() {
   const { t } = useTranslation();
   const monthly = useMonthlyTotals();
   const perBrand = usePerBrandReport();
+  const entitlement = useEntitlement();
 
   // The RPC always returns 12 month rows (empty months as 0), so "empty" means
   // every month is genuinely zero — show the empty state, not a flat-zero chart.
@@ -61,6 +65,20 @@ export function ReportsRoute() {
     monthly.data?.some(
       (row) => row.invoicedSar > 0 || row.collectedSar > 0,
     ) ?? false;
+
+  // Reports are Pro-only, gated in the UI on purpose — the underlying aggregate
+  // RPC is shared with the free dashboard sparkline, so it stays callable.
+  if (!entitlement.isLoading && !isPro(entitlement.data)) {
+    return (
+      <main className="min-h-dvh bg-background px-4 py-8">
+        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+          <InsightsTabs />
+          <h1 className="text-2xl font-bold text-text-primary">{t("reports.title")}</h1>
+          <UpgradePrompt messageKey="billing.upgradePrompt.reports" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-dvh bg-background px-4 py-8">
