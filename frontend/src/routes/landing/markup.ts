@@ -71,7 +71,6 @@ export const LANDING_HTML = `
       <p class="lead rv" data-ar="مساحة عمل واحدة هادئة لكل صفقة علامة تجارية — تابِع المُخرجات، واحصل على مستحقاتك في وقتها، وحوّل لقطات سناب شات إلى تقارير أنيقة بالذكاء الاصطناعي. مصمّمة للعربية والإنجليزية.">One calm workspace for every brand deal — track deliverables, get paid on time, and turn your Snapchat screenshots into clean reports with AI. Built for Arabic and English.</p>
       <div class="hero-cta rv">
         <a class="btn btn-primary" href="/login?mode=signup"><span data-ar="ابدأ مجاناً">Start free</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn-ghost" href="/login"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg><span data-ar="شاهد العرض">Watch the demo</span></a>
       </div>
     </div>
 
@@ -142,13 +141,15 @@ export const LANDING_HTML = `
             <!-- deal card -->
             <div style="font-size:13px;font-weight:800;margin:2px 2px 9px" data-ar="كل الصفقات">All Deals</div>
             <div class="card" style="margin-bottom:9px">
-              <div class="u-row" style="margin-bottom:10px">
+              <div class="u-row" style="margin-bottom:8px">
                 <div class="av peach">ج</div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-weight:700;font-size:13px" data-ar="حملة إفطار رمضان">Ramadan iftar campaign</div>
-                  <div style="font-size:11px;color:var(--ink-3);font-weight:600" data-ar="جاهز · قصتان · ريل واحد">Jahez · 2 stories · 1 reel</div>
+                  <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ar="إطلاق قائمة الصيف">Summer menu launch</div>
                 </div>
-                <span class="pill prog"><span class="pdot"></span><span data-ar="قيد التنفيذ">In progress</span></span>
+              </div>
+              <div class="u-row" style="margin-bottom:10px;gap:8px">
+                <div style="flex:1;min-width:0;font-size:10.5px;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-ar="جاهز · قصتان · ريل واحد">Jahez · 2 stories · 1 reel</div>
+                <span class="pill prog" style="flex:none"><span class="pdot"></span><span data-ar="قيد التنفيذ">In progress</span></span>
               </div>
               <div class="u-row" style="gap:9px">
                 <div class="bar" style="flex:1"><i style="width:50%"></i></div>
@@ -196,7 +197,7 @@ export const LANDING_HTML = `
           <div class="u-row" style="margin-bottom:16px">
             <div class="av peach" style="width:46px;height:46px;border-radius:14px;font-size:18px">ج</div>
             <div style="flex:1">
-              <div style="font-weight:800;font-size:16px" data-ar="حملة إفطار رمضان">Ramadan iftar campaign</div>
+              <div style="font-weight:800;font-size:16px" data-ar="إطلاق قائمة الصيف">Summer menu launch</div>
               <div style="font-size:12.5px;color:var(--ink-3);font-weight:600" data-ar="جاهز · الموعد ١٢ يونيو">Jahez · deadline Jun 12</div>
             </div>
             <span class="pill prog"><span class="pdot"></span><span data-ar="قيد التنفيذ">In progress</span></span>

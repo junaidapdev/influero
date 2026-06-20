@@ -50,6 +50,8 @@
    page to the Arabic typeface; RTL mirroring comes from dir="rtl" + the logical
    properties / order-based alternation already in this sheet. */
 .lp[lang="ar"]{font-family:var(--ar)}
+/* Forward-arrow CTAs point left in RTL so they lead toward the reading origin. */
+.lp[lang="ar"] .hero-cta .btn-primary svg,.lp[lang="ar"] .cta-card .row .btn-white svg{transform:scaleX(-1)}
 .lp a{color:inherit;text-decoration:none}
 .lp img{max-width:100%;display:block}
 .lp .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
@@ -95,7 +97,7 @@
 .lp .nav-links a:hover{color:var(--ink);background:var(--violet-tint)}
 .lp .nav-cta{display:flex;align-items:center;gap:10px;margin-inline-start:8px}
 .lp .lang-pill{display:flex;background:var(--surface);border-radius:11px;box-shadow:0 0 0 1px var(--hair);padding:3px;font-size:12.5px;font-weight:700}
-.lp .lang-pill button{border:0;background:none;font-family:inherit;font-weight:700;cursor:pointer;color:var(--ink-3);padding:5px 10px;border-radius:8px}
+.lp .lang-pill button{border:0;background:none;font-family:inherit;font-weight:700;cursor:pointer;color:var(--ink-3);padding:8px 12px;border-radius:8px}
 .lp .lang-pill button.on{background:var(--accent);color:#fff}
 .lp .signin{font-size:14.5px;font-weight:700;color:var(--ink);padding:9px 6px}
 .lp .burger{display:none;width:42px;height:42px;border-radius:12px;background:var(--surface);box-shadow:0 0 0 1px var(--hair);border:0;cursor:pointer;align-items:center;justify-content:center;margin-inline-start:auto}
@@ -119,8 +121,12 @@
   padding:11px;box-shadow:var(--sh-lg),inset 0 0 0 2px #2b2740;transform:rotate(2.5deg);
 }
 .lp .phone .screen{border-radius:36px;overflow:hidden;background:var(--bg);aspect-ratio:300/620;position:relative}
-.lp .phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:26px;background:#17142a;border-radius:99px;z-index:5}
-.lp .screen-pad{padding:42px 16px 18px;height:100%;overflow:hidden}
+.lp .phone .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:104px;height:26px;background:#17142a;border-radius:99px;z-index:5}
+.lp .screen-pad{padding:50px 16px 18px;height:100%;overflow:hidden}
+/* Compact the status pills INSIDE the phone mockup so the narrow (300px) deal
+   cards stay tidy — scoped to .lp .phone so the feature-art pills are untouched. */
+.lp .phone .pill{font-size:10px;padding:3px 8px;gap:5px}
+.lp .phone .pill .pdot{width:5px;height:5px}
 
 /* floating cards around phone */
 .lp .float{position:absolute;background:var(--surface);border-radius:18px;box-shadow:var(--sh-md);padding:13px 15px;z-index:3;animation:lp-floaty 5s ease-in-out infinite}
@@ -261,9 +267,14 @@
 @media(prefers-reduced-motion:reduce){.lp .rv:not(.shown){opacity:1}.lp .rv.in{animation:none}}
 
 /* ============ responsive ============ */
+/* Tablet / large phone: collapse to one column, switch the nav to the burger
+   drawer. The "Get started" nav button moves into the drawer; the language pill
+   STAYS in the nav so EN/AR is always one tap away on a bilingual site. */
 @media(max-width:920px){
   .lp .nav-links,.lp .signin{display:none}
-  .lp .burger{display:flex}
+  .lp .burger{display:flex;margin-inline-start:0}
+  .lp .nav-cta{margin-inline-start:auto}
+  .lp .nav-cta .btn{display:none}
   .lp .hero-grid{grid-template-columns:1fr;gap:50px;text-align:center}
   .lp .hero .lead{margin-inline:auto}
   .lp .hero-cta{justify-content:center}
@@ -272,11 +283,42 @@
   .lp .steps,.lp .plans{grid-template-columns:1fr}
   .lp .plan.feat{transform:none}
 }
+/* Phone: tighter spacing, fluid headings, full-width thumb-friendly CTAs, and a
+   clutter-free hero (floating cards hidden — the phone mockup carries it). */
 @media(max-width:560px){
   .lp .wrap{padding:0 18px}
-  .lp .hero{padding:120px 0 50px}
+  .lp .nav-in{height:64px;padding:0 18px}
+  .lp .hero{padding:104px 0 48px}
+  .lp .hero-grid{gap:40px}
+  .lp .h-display{font-size:clamp(2.15rem,8.8vw,2.7rem)}
+  .lp .h-sec{font-size:clamp(1.7rem,6.2vw,2.1rem)}
+  .lp .hero h1{margin-top:16px}
+  .lp .hero .lead{margin-top:18px}
+  .lp .hero-cta{flex-direction:column;align-items:stretch;width:100%;gap:10px;margin-top:26px}
+  .lp .hero-cta .btn{width:100%}
+  .lp .float{display:none}
+  .lp .feature{padding:46px 0}
+  .lp .feat-grid{gap:28px}
+  .lp .art-panel{padding:20px;border-radius:24px}
+  .lp .how{padding:54px 0}
+  .lp .how-head{margin-bottom:34px}
+  .lp .steps{gap:16px}
+  .lp .step{padding:24px}
+  .lp .pricing{padding:52px 0}
+  .lp .price-head{margin-bottom:32px}
+  .lp .plan{padding:26px}
+  .lp .cta{padding:16px 0 64px}
+  .lp .cta-card .row{flex-direction:column;align-items:stretch}
+  .lp .cta-card .row .btn{width:100%}
   .lp .bi-cards,.lp .snap-stat{grid-template-columns:1fr}
-  .lp .float-1,.lp .float-2{display:none}
+}
+/* Small phones (≤360px, e.g. iPhone SE): tighten gutters and scale the fixed
+   300px phone mockup so it never clips or forces a horizontal scroll. */
+@media(max-width:360px){
+  .lp .wrap{padding:0 14px}
+  .lp .nav-in{padding:0 14px;gap:12px}
+  .lp .burger,.lp .lang-pill{flex:none}
+  .lp .phone{transform:rotate(2.5deg) scale(.9)}
 }
 
 /* nav mobile drawer */
