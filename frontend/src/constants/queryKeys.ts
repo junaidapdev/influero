@@ -36,4 +36,8 @@ export const QUERY_KEYS = {
   // mutations invalidate this prefix (alongside DASHBOARD) to keep both the
   // /reports page and the dashboard hero sparkline fresh.
   REPORTS: ["reports"] as const,
+  // Entitlement (Subscription Billing) — get_my_entitlement. The webhook write
+  // (via realtime) and the ?checkout=success return both invalidate this, so the
+  // UI flips to Pro within seconds of payment.
+  ENTITLEMENT: ["entitlement"] as const,
 };

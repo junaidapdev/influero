@@ -643,5 +643,24 @@
   "common": {
     "dismiss": "Dismiss",
     "close": "Close"
+  },
+  "billing": {
+    "title": "Billing",
+    "help": "Manage your Influero plan.",
+    "loading": "Loading…",
+    "loadError": "Couldn't load your plan.",
+    "plan": {
+      "free": "Free plan",
+      "pro": "Pro"
+    },
+    "upgrade": "Upgrade to Pro",
+    "manage": "Manage billing",
+    "renewsOn": "Renews {{date}}",
+    "endsOn": "Access until {{date}}",
+    "toast": {
+      "checkoutSuccess": "Payment received — activating Pro…",
+      "checkoutError": "Couldn't start checkout. Please try again.",
+      "portalError": "Couldn't open billing. Please try again."
+    }
   }
 }

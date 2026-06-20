@@ -29,6 +29,13 @@ function optionalNumber(name: string, fallback: number): number {
   return parsed;
 }
 
+// Optional boolean env (test-mode flags). "true"/"1" → true; absent → fallback.
+function optionalBool(name: string, fallback: boolean): boolean {
+  const value = Deno.env.get(name);
+  if (value === undefined) return fallback;
+  return value === "true" || value === "1";
+}
+
 export const ENV = {
   SUPABASE_URL: required("SUPABASE_URL"),
   SUPABASE_ANON_KEY: required("SUPABASE_ANON_KEY"),
@@ -59,4 +66,26 @@ export const ENV = {
   get CRON_SECRET(): string {
     return required("CRON_SECRET");
   },
+  // LemonSqueezy (Subscription Billing). Lazy like OPENAI/VAPID — only the billing
+  // functions read these, so a missing secret must never crash another function's
+  // boot. Dev-managed via `supabase secrets set`. APP_URL is the deployed frontend
+  // origin the post-checkout redirect returns to; LEMONSQUEEZY_TEST_MODE gates
+  // which LS mode's webhook events the handler accepts (true while the MVP runs on
+  // LS test mode).
+  get LEMONSQUEEZY_API_KEY(): string {
+    return required("LEMONSQUEEZY_API_KEY");
+  },
+  get LEMONSQUEEZY_WEBHOOK_SECRET(): string {
+    return required("LEMONSQUEEZY_WEBHOOK_SECRET");
+  },
+  get LEMONSQUEEZY_STORE_ID(): string {
+    return required("LEMONSQUEEZY_STORE_ID");
+  },
+  get LEMONSQUEEZY_PRO_VARIANT_ID(): string {
+    return required("LEMONSQUEEZY_PRO_VARIANT_ID");
+  },
+  get APP_URL(): string {
+    return required("APP_URL");
+  },
+  LEMONSQUEEZY_TEST_MODE: optionalBool("LEMONSQUEEZY_TEST_MODE", false),
 } as const;

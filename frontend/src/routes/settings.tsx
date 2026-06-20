@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
+import { BillingSection } from "@/components/settings/BillingSection";
 import { AvatarDropzone } from "@/components/settings/AvatarDropzone";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { Card } from "@/components/ui/Card";
@@ -20,6 +22,11 @@ import { useToast } from "@/hooks/useToast";
 import { validateAvatarFile } from "@/features/settings/avatar";
 import { settingsSchema, type SettingsInput } from "@/features/settings/settings.schema";
 import { ROUTES } from "@/constants/routes";
+import { QUERY_KEYS } from "@/constants/queryKeys";
+import {
+  CHECKOUT_SUCCESS_PARAM,
+  CHECKOUT_SUCCESS_VALUE,
+} from "@/constants/billing";
 import { APP_USER_DEFAULTS } from "@/constants/appUser";
 import type { Locale } from "@/constants/locale";
 import { logger } from "@/lib/logger";
@@ -41,6 +48,8 @@ export function SettingsRoute() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const showToast = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
 
   const appUserQuery = useAppUser();
   const updateAppUser = useUpdateAppUser();
@@ -72,6 +81,18 @@ export function SettingsRoute() {
     if (!avatarPreview) return;
     return () => URL.revokeObjectURL(avatarPreview);
   }, [avatarPreview]);
+
+  // Returning from a successful LS checkout: confirm + nudge entitlement to
+  // refresh (the webhook + realtime are the real flip; this just covers a missed
+  // event), then strip the param so a reload doesn't re-toast.
+  useEffect(() => {
+    if (searchParams.get(CHECKOUT_SUCCESS_PARAM) !== CHECKOUT_SUCCESS_VALUE) return;
+    showToast("billing.toast.checkoutSuccess", "success");
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ENTITLEMENT });
+    const next = new URLSearchParams(searchParams);
+    next.delete(CHECKOUT_SUCCESS_PARAM);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, showToast, queryClient]);
 
   function handleAvatarSelect(file: File): void {
     const error = validateAvatarFile(file);
@@ -152,6 +173,8 @@ export function SettingsRoute() {
             </SettingsSection>
 
             <NotificationsSection />
+
+            <BillingSection />
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
               <SettingsSection

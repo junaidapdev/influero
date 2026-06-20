@@ -655,5 +655,24 @@
   "common": {
     "dismiss": "تجاهل",
     "close": "إغلاق"
+  },
+  "billing": {
+    "title": "الفوترة",
+    "help": "أدِر اشتراكك في Influero.",
+    "loading": "جارٍ التحميل…",
+    "loadError": "تعذّر تحميل خطتك.",
+    "plan": {
+      "free": "الخطة المجانية",
+      "pro": "Pro"
+    },
+    "upgrade": "الترقية إلى Pro",
+    "manage": "إدارة الفوترة",
+    "renewsOn": "يتجدّد في {{date}}",
+    "endsOn": "متاح حتى {{date}}",
+    "toast": {
+      "checkoutSuccess": "تم استلام الدفعة — جارٍ تفعيل Pro…",
+      "checkoutError": "تعذّر بدء الدفع. حاول مرة أخرى.",
+      "portalError": "تعذّر فتح الفوترة. حاول مرة أخرى."
+    }
   }
 }
