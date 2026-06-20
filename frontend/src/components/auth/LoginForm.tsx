@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -27,8 +27,15 @@ type FormValues = {
 export function LoginForm() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [mode, setMode] = useState<AuthMode>(AUTH_MODE.SIGN_IN);
+  // Landing-page CTAs deep-link here: /login?mode=signup opens on the sign-up
+  // tab, plain /login opens on sign-in.
+  const [mode, setMode] = useState<AuthMode>(
+    searchParams.get("mode") === "signup"
+      ? AUTH_MODE.SIGN_UP
+      : AUTH_MODE.SIGN_IN,
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
