@@ -7,7 +7,9 @@ import { Sparkline } from "@/components/dashboard/Sparkline";
 import { Card } from "@/components/ui/Card";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useMonthlyTotals } from "@/hooks/useReports";
+import { useEntitlement } from "@/hooks/useEntitlement";
 import { useLocale } from "@/hooks/useLocale";
+import { isPro } from "@/features/billing/entitlement";
 import { formatSar } from "@/lib/currency";
 import { formatNumber, formatPercent } from "@/lib/numbers";
 import { formatMonthYear } from "@/lib/date";
@@ -86,6 +88,12 @@ export function MonthTotalsBar({ month }: Props) {
   // Independent of the stats query: the sparkline simply stays absent until this
   // resolves, so it never blocks or skeletons the hero.
   const monthlyQuery = useMonthlyTotals();
+  // Expenses + net are a Pro surface (the expense tracker is Pro). Gated in the
+  // UI — total_expenses is 0 for a free account anyway, but the strip stays
+  // hidden until Pro so the free dashboard is unchanged. Non-blocking, like the
+  // sparkline: while entitlement loads, pro is false and the strip is absent.
+  const entitlement = useEntitlement();
+  const pro = isPro(entitlement.data);
 
   if (statsQuery.isLoading) return <TotalsSkeleton />;
   if (statsQuery.isError || !statsQuery.data) {
@@ -98,6 +106,12 @@ export function MonthTotalsBar({ month }: Props) {
 
   const stats = statsQuery.data;
   const rate = collectionRate(stats.total_collected, stats.total_invoiced);
+  // Net = real money in − real money out this month (cash basis), so it pairs
+  // with Collected, not Invoiced. Colored by sign on the Pro strip below.
+  // total_expenses is absent until 0020 is applied — coalesce so the tile never
+  // renders NaN ("SARNaN") in the frontend-deployed-before-migration window.
+  const totalExpenses = stats.total_expenses ?? 0;
+  const net = stats.total_collected - totalExpenses;
   // Only draw the trend when there's something to show — an all-zero flat line
   // reads as noise, so hide it until at least one month has been invoiced. The
   // sparkline is decorative and non-blocking: on a failed useMonthlyTotals we
@@ -193,6 +207,34 @@ export function MonthTotalsBar({ month }: Props) {
           />
         </div>
       </div>
+
+      {/* Pro-only: this month's expenses + net (collected − expenses). Expenses
+          tile links to the ledger; Net is a derived summary (no link), colored
+          by sign. Hidden entirely for free accounts. */}
+      {pro ? (
+        <div className="grid grid-cols-2 gap-3">
+          <StatTile
+            stripe="bg-error"
+            caption={t("dashboard.tiles.expenses")}
+            value={formatSar(totalExpenses, locale)}
+            to={ROUTES.EXPENSES}
+            ariaLabel={`${t("dashboard.tiles.expenses")} · ${t("dashboard.viewExpenses")}`}
+          />
+          <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-card">
+            <div className="h-0.5 bg-accent" aria-hidden="true" />
+            <div className="p-3">
+              <p
+                className={`money truncate text-lg font-bold ${
+                  net >= 0 ? "text-success-foreground" : "text-error-foreground"
+                }`}
+              >
+                {formatSar(net, locale)}
+              </p>
+              <p className="text-xs text-text-secondary">{t("dashboard.tiles.net")}</p>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

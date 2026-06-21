@@ -128,7 +128,9 @@
     "tiles": {
       "collected": "Collected",
       "outstanding": "Outstanding",
-      "posted": "Posted"
+      "posted": "Posted",
+      "expenses": "Expenses",
+      "net": "Net"
     },
     "today": {
       "title": "Today",
@@ -170,7 +172,8 @@
         "displayName": "Display name",
         "avatar": "Avatar"
       }
-    }
+    },
+    "viewExpenses": "View expenses"
   },
   "deals": {
     "title": "Deals",
@@ -338,6 +341,68 @@
       "amountRequired": "Amount is required",
       "amountInvalid": "Enter a valid amount",
       "expectedDateInvalid": "Enter a valid date",
+      "notesMax": "Notes are too long"
+    }
+  },
+  "expenses": {
+    "title": "Expenses",
+    "count": "{{total}} expenses",
+    "addExpense": "Add expense",
+    "editExpense": "Edit expense",
+    "loadError": "Couldn't load your expenses. Please refresh the page.",
+    "filters": {
+      "all": "All",
+      "categoryLabel": "Filter by category",
+      "monthLabel": "Filter by month",
+      "allMonths": "All months"
+    },
+    "categories": {
+      "production": "Production",
+      "travel": "Travel",
+      "equipment": "Equipment",
+      "operational": "Operational",
+      "software": "Software",
+      "marketing": "Marketing",
+      "other": "Other"
+    },
+    "empty": {
+      "message": "No expenses yet",
+      "cta": "Add your first expense",
+      "noMatches": "No expenses match these filters"
+    },
+    "fields": {
+      "title": "What was it for?",
+      "titlePlaceholder": "e.g. Video editor, studio rent",
+      "category": "Category",
+      "amount": "Amount (SAR)",
+      "amountPlaceholder": "1500",
+      "date": "Date",
+      "deal": "Link to a deal (optional)",
+      "dealNone": "No deal — general expense",
+      "dealHint": "Link an expense to a deal to track that campaign's cost.",
+      "notes": "Notes",
+      "notesPlaceholder": "Anything worth remembering about this expense"
+    },
+    "actions": {
+      "add": "Add expense",
+      "save": "Save changes",
+      "delete": "Delete expense",
+      "editAria": "Edit {{title}}"
+    },
+    "toast": {
+      "created": "Expense added",
+      "updated": "Expense updated",
+      "deleted": "Expense deleted",
+      "error": "Couldn't save the expense. Please try again.",
+      "deleteError": "Couldn't delete the expense. Please try again."
+    },
+    "errors": {
+      "titleRequired": "Add a short description",
+      "titleMax": "Description is too long",
+      "amountRequired": "Amount is required",
+      "amountInvalid": "Enter a valid amount",
+      "dateRequired": "Date is required",
+      "dateInvalid": "Enter a valid date",
       "notesMax": "Notes are too long"
     }
   },
@@ -633,7 +698,8 @@
     "deal": "Deal",
     "meeting": "Meeting",
     "payment": "Payment",
-    "snap": "Snap report"
+    "snap": "Snap report",
+    "expense": "Expense"
   },
   "locale": {
     "ar": "العربية",
@@ -671,7 +737,8 @@
       "snap": "Turn your Snapchat screenshots into clean reports with AI — available on the Pro plan.",
       "reports": "See your monthly and per-brand performance — available on the Pro plan.",
       "deals": "You've reached the Free plan's limit of 5 active deals. Upgrade to Pro for unlimited deals.",
-      "generic": "This is a Pro feature. Upgrade to Pro to unlock it."
+      "generic": "This is a Pro feature. Upgrade to Pro to unlock it.",
+      "expenses": "Track production, travel, and other business costs — and see your true profit per deal. Available on the Pro plan."
     }
   }
 }

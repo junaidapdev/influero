@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Session } from "@supabase/supabase-js";
 
 import { supabase } from "@/lib/supabase";
@@ -16,6 +17,7 @@ type Props = {
 export function SessionProvider({ children }: Props) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let active = true;
@@ -35,7 +37,17 @@ export function SessionProvider({ children }: Props) {
       });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
+      (event, nextSession) => {
+        // Drop ALL cached queries on sign-out so the next account on a shared
+        // client can never read the previous user's data. Query keys aren't
+        // partitioned by user id (RLS scopes every fetch server-side), so this
+        // central clear — not per-hook user-scoped keys — is the systemic guard.
+        // Scoped to SIGNED_OUT only: TOKEN_REFRESHED / USER_UPDATED keep the
+        // same user, and an account switch always emits SIGNED_OUT before the
+        // next SIGNED_IN, so the cache is empty by the time the new user loads.
+        if (event === "SIGNED_OUT") {
+          queryClient.clear();
+        }
         setSession(nextSession);
         setIsLoading(false);
       },
@@ -45,7 +57,7 @@ export function SessionProvider({ children }: Props) {
       active = false;
       listener.subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   return (
     <SessionContext.Provider value={{ session, isLoading }}>

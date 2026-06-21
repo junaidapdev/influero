@@ -14,6 +14,10 @@ export const QUERY_KEYS = {
   // Prefix for all payment queries (Feature 11). The tab lists key off
   // [...PAYMENTS, "list", tab]; a payment mutation invalidates the prefix once.
   PAYMENTS: ["payments"] as const,
+  // Prefix for all expense queries (Expense Tracker). The ledger list keys off
+  // [...EXPENSES, "list", filters]; an expense mutation invalidates the prefix
+  // once (and DASHBOARD, since the hero net reads from it).
+  EXPENSES: ["expenses"] as const,
   // Prefix for all meeting queries (Feature 13). The month view keys off
   // [...MEETINGS, "month", "YYYY-MM"]; a meeting mutation invalidates the
   // prefix once and every cached month refetches.
