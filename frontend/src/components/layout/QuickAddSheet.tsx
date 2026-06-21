@@ -6,11 +6,14 @@ import {
   Image,
   Megaphone,
   Receipt,
+  Sparkles,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
 
 import { BottomSheet } from "@/components/ui/BottomSheet";
+import { useEntitlement } from "@/hooks/useEntitlement";
+import { isPro } from "@/features/billing/entitlement";
 import { ROUTES } from "@/constants/routes";
 
 type Props = {
@@ -28,6 +31,10 @@ type Tile = {
   // Whether to signal the destination to auto-open its Add sheet. Snap has no
   // Add sheet — the upload card IS the add surface — so it just navigates.
   quickAdd: boolean;
+  // Pro-gated destination (the route gates to the Upgrade modal for free users).
+  // A small "Pro" badge renders on these tiles while the viewer is on the free
+  // tier, so the gate is signalled before the tap (not a surprise dead-end).
+  pro?: boolean;
 };
 
 // The FAB's Quick Add sheet (ui-rules / ui-tokens): a 2-col grid of Brand · Deal
@@ -37,9 +44,16 @@ type Tile = {
 // every route's create flow rather than duplicating forms here. Brand leads
 // because a deal requires a brand, so the prerequisite sits one tap from the
 // thing needing it; Expense sits next to Payment (money out beside money in).
+// The two Pro destinations (Expense, Snap) carry a small "Pro" badge while the
+// viewer is on the free tier, so the gate is signalled before the tap rather
+// than landing them on the Upgrade modal as a surprise.
 export function QuickAddSheet({ open, onClose }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const entitlement = useEntitlement();
+  // Only badge once entitlement has loaded, so a Pro user never sees a flash of
+  // the badge before their plan resolves.
+  const isFreeTier = !entitlement.isLoading && !isPro(entitlement.data);
 
   const tiles: Tile[] = [
     {
@@ -81,6 +95,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
       circle: "bg-brand-tint-pink text-text-secondary",
       to: ROUTES.EXPENSES,
       quickAdd: true,
+      pro: true,
     },
     {
       key: "snap",
@@ -89,6 +104,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
       circle: "bg-brand-tint-green text-success-foreground",
       to: ROUTES.ANALYTICS_SNAP,
       quickAdd: false,
+      pro: true,
     },
   ];
 
@@ -107,8 +123,14 @@ export function QuickAddSheet({ open, onClose }: Props) {
               key={tile.key}
               type="button"
               onClick={() => handleTile(tile)}
-              className="flex flex-col items-center gap-2 rounded-lg bg-surface-secondary p-4 transition-colors hover:bg-surface-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="relative flex flex-col items-center gap-2 rounded-lg bg-surface-secondary p-4 transition-colors hover:bg-surface-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
+              {tile.pro && isFreeTier ? (
+                <span className="absolute end-2 top-2 inline-flex items-center gap-0.5 rounded-full bg-accent-light px-1.5 py-0.5 text-micro font-semibold text-accent">
+                  <Sparkles className="size-3" aria-hidden="true" />
+                  {t("billing.plan.pro")}
+                </span>
+              ) : null}
               <span className={`grid size-12 place-items-center rounded-full ${tile.circle}`}>
                 <Icon className="size-5" aria-hidden="true" />
               </span>
