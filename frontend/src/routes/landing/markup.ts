@@ -338,6 +338,53 @@ export const LANDING_HTML = `
   </div>
 </section>
 
+<!-- Feature 5 — expenses & profit -->
+<section class="feature">
+  <div class="wrap feat-grid">
+    <div class="feat-copy rv">
+      <span class="eyebrow"><span class="dot"></span><span data-ar="المصروفات والأرباح"> Expenses &amp; profit</span></span>
+      <h2 class="h-sec"><span data-ar="تابِع كل مصروف. ">Track every cost. </span><span class="grad-text" data-ar="واعرف ربحك الحقيقي.">Know your real profit.</span></h2>
+      <p class="lead" data-ar="أن تتقاضى مستحقاتك نصف الصورة فقط. سجّل تكلفة كل حملة — إنتاج، تنقّل، معدّات، برامج — ويحوّل Influero الإيراد إلى الرقم الذي يهم فعلاً: صافي ربحك.">Getting paid is only half the picture. Log what each campaign costs you — production, travel, gear, software — and Influero turns revenue into the number that actually matters: your net profit.</p>
+      <ul class="feat-list">
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صنّف كل تكلفة — إنتاج، تنقّل، معدّات، برامج">Categorize every cost — production, travel, gear, software</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="اربط أي مصروف بالصفقة التي يخصّه">Link any expense to the deal it belongs to</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صافي ربحك على لوحتك — الإيراد ناقص التكاليف">True net profit on your dashboard — revenue minus costs</span></li>
+      </ul>
+    </div>
+    <div class="feat-art rv">
+      <div class="art-panel">
+        <div class="art-glow" style="background:#7FC9F5;top:-40px;right:-30px"></div>
+        <div style="position:relative;z-index:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--paid-soft);border-radius:14px;padding:13px 16px;margin-bottom:14px">
+            <span style="font-size:13px;font-weight:700;color:var(--paid)" data-ar="صافي الربح · يونيو">Net profit · June</span>
+            <span style="font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--paid)" data-ar="٧٣٬٥٠٠ ر.س">SAR 73,500</span>
+          </div>
+          <div class="pay">
+            <div class="av peach" style="width:38px;height:38px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+            <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px" data-ar="إنتاج فيديو">Video production</div><div style="font-size:11px;color:var(--ink-3);font-weight:600" data-ar="إطلاق الصيف · جاهز">Summer launch · Jahez</div></div>
+            <span class="amt" data-ar="−١٢٬٠٠٠ ر.س">− SAR 12,000</span>
+          </div>
+          <div class="pay">
+            <div class="av sky" style="width:38px;height:38px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+            <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px" data-ar="تنقّل">Travel</div><div style="font-size:11px;color:var(--ink-3);font-weight:600" data-ar="تصوير الرياض">Riyadh shoot</div></div>
+            <span class="amt" data-ar="−٣٬٢٠٠ ر.س">− SAR 3,200</span>
+          </div>
+          <div class="pay" style="margin-bottom:14px">
+            <div class="av lav" style="width:38px;height:38px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+            <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px" data-ar="برامج المونتاج">Editing software</div><div style="font-size:11px;color:var(--ink-3);font-weight:600" data-ar="اشتراك شهري">Monthly subscription</div></div>
+            <span class="amt" data-ar="−٣٠٠ ر.س">− SAR 300</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;color:var(--ink-3);font-weight:600">
+            <span data-ar="محصّلة ٨٩٬٠٠٠ ر.س">Collected SAR 89,000</span>
+            <span>−</span>
+            <span data-ar="مصروفات ١٥٬٥٠٠ ر.س">Expenses SAR 15,500</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===================== HOW IT WORKS ===================== -->
 <section class="how" id="how">
   <div class="wrap">
@@ -396,6 +443,7 @@ export const LANDING_HTML = `
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="استخراج تقارير سناب بالذكاء الاصطناعي">AI Snap report extraction</span></li>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تذكيرات مدفوعات تلقائية">Automated payment reminders</span></li>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تقارير شهرية وحسب كل علامة">Monthly &amp; per-brand reports</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبّع المصروفات وصافي الربح">Expense tracking &amp; net profit</span></li>
         </ul>
         <a class="btn btn-white" href="/login?mode=signup" data-ar="ابدأ الآن">Get started</a>
       </div>
