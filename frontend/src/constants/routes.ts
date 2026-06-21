@@ -14,6 +14,7 @@ export const ROUTES = {
   PAYMENTS: "/payments",
   EXPENSES: "/expenses",
   MEETINGS: "/meetings",
+  REMINDERS: "/reminders",
   ANALYTICS_SNAP: "/analytics/snap",
   REPORTS: "/reports",
   SETTINGS: "/settings",

@@ -406,6 +406,49 @@
       "notesMax": "Notes are too long"
     }
   },
+  "reminders": {
+    "title": "Reminders",
+    "count": "{{total}} reminders",
+    "addReminder": "Add reminder",
+    "editReminder": "Edit reminder",
+    "loadError": "Couldn't load your reminders. Please refresh the page.",
+    "clearDone": "Clear done",
+    "empty": {
+      "message": "No reminders yet",
+      "cta": "Add your first reminder"
+    },
+    "sections": {
+      "upcoming": "Upcoming",
+      "done": "Done"
+    },
+    "fields": {
+      "text": "What's the reminder?",
+      "textPlaceholder": "e.g. Call Sara about the campaign",
+      "remindAt": "Date & time"
+    },
+    "actions": {
+      "add": "Add reminder",
+      "save": "Save changes",
+      "delete": "Delete reminder",
+      "editAria": "Edit {{title}}",
+      "doneAria": "Mark {{title}} done",
+      "reopenAria": "Re-open {{title}}"
+    },
+    "toast": {
+      "created": "Reminder added",
+      "updated": "Reminder updated",
+      "deleted": "Reminder deleted",
+      "cleared": "Done reminders cleared",
+      "error": "Couldn't save the reminder. Please try again.",
+      "deleteError": "Couldn't delete the reminder. Please try again."
+    },
+    "errors": {
+      "textRequired": "Add a short reminder",
+      "textMax": "Reminder is too long",
+      "remindAtRequired": "Pick a date and time",
+      "remindAtInvalid": "Enter a valid date and time"
+    }
+  },
   "meetings": {
     "title": "Meetings",
     "count_one": "{{total}} meeting",
@@ -699,7 +742,8 @@
     "meeting": "Meeting",
     "payment": "Payment",
     "snap": "Snap report",
-    "expense": "Expense"
+    "expense": "Expense",
+    "reminder": "Reminder"
   },
   "locale": {
     "ar": "العربية",

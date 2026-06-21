@@ -152,6 +152,11 @@ function reminderRoute(reminder: Reminder): string | null {
   ) {
     return ROUTES.MEETINGS;
   }
+  // A user-authored quick reminder — its management surface is the /reminders
+  // page (edit / delete / re-open all live there).
+  if (reminder.kind === REMINDER_KIND.CUSTOM) {
+    return ROUTES.REMINDERS;
+  }
   return null;
 }
 
