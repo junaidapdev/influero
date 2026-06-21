@@ -15,15 +15,9 @@ const MAX_AMOUNT_SAR = 100_000_000;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export const expenseSchema = z.object({
-  category: z.enum([
-    EXPENSE_CATEGORY.PRODUCTION,
-    EXPENSE_CATEGORY.TRAVEL,
-    EXPENSE_CATEGORY.EQUIPMENT,
-    EXPENSE_CATEGORY.OPERATIONAL,
-    EXPENSE_CATEGORY.SOFTWARE,
-    EXPENSE_CATEGORY.MARKETING,
-    EXPENSE_CATEGORY.OTHER,
-  ]),
+  // Derived from EXPENSE_CATEGORY (the shared const) so the validator stays in
+  // sync if the category set changes — one source of truth, not a hand-copied list.
+  category: z.nativeEnum(EXPENSE_CATEGORY),
   title: z
     .string()
     .trim()

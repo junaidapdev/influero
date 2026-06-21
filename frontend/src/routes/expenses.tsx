@@ -187,6 +187,21 @@ export function ExpensesRoute() {
     });
   }
 
+  // Until entitlement resolves, render a skeleton rather than the full page —
+  // otherwise a free user briefly sees the ledger before the gate applies. (All
+  // hooks above run unconditionally, so this early return is rules-of-hooks safe;
+  // `gated` stays false while loading, so the upgrade modal doesn't pop early.)
+  if (entitlement.isLoading) {
+    return (
+      <main className="min-h-dvh bg-background px-4 py-8">
+        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+          <h1 className="text-2xl font-bold text-text-primary">{t("expenses.title")}</h1>
+          <ExpensesSkeleton />
+        </div>
+      </main>
+    );
+  }
+
   if (gated) {
     return (
       <main className="min-h-dvh bg-background px-4 py-8">

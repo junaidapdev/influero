@@ -144,7 +144,14 @@ export function ExpenseForm({
         />
       </div>
 
-      <Button type="submit" className="w-full" isLoading={isSubmitting}>
+      {/* Cross-disable so a delete can't fire while a save is in flight (and
+          vice versa) — no overlapping mutations on the same row. */}
+      <Button
+        type="submit"
+        className="w-full"
+        isLoading={isSubmitting}
+        disabled={isDeleting}
+      >
         {submitLabel}
       </Button>
 
@@ -155,6 +162,7 @@ export function ExpenseForm({
           className="w-full"
           onClick={onDelete}
           isLoading={isDeleting}
+          disabled={isSubmitting}
         >
           {t("expenses.actions.delete")}
         </Button>
