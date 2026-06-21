@@ -5,6 +5,7 @@ import {
   CalendarPlus,
   Image,
   Megaphone,
+  Receipt,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -27,17 +28,15 @@ type Tile = {
   // Whether to signal the destination to auto-open its Add sheet. Snap has no
   // Add sheet — the upload card IS the add surface — so it just navigates.
   quickAdd: boolean;
-  // Full-width tile so the five-tile grid stays balanced (the odd one out
-  // spans both columns on its own row rather than sitting alone half-width).
-  span?: boolean;
 };
 
 // The FAB's Quick Add sheet (ui-rules / ui-tokens): a 2-col grid of Brand · Deal
-// · Meeting · Payment · Snap report (Snap spans the last row). Each tile
-// navigates to the destination and (except Snap) signals it via
-// location.state.quickAdd to pop its existing Add sheet — reusing every route's
-// create flow rather than duplicating forms here. Brand leads because a deal
-// requires a brand, so the prerequisite sits one tap from the thing needing it.
+// · Meeting · Payment · Expense · Snap report (six tiles = a clean 3×2, so no
+// tile needs to span). Each tile navigates to the destination and (except Snap)
+// signals it via location.state.quickAdd to pop its existing Add sheet — reusing
+// every route's create flow rather than duplicating forms here. Brand leads
+// because a deal requires a brand, so the prerequisite sits one tap from the
+// thing needing it; Expense sits next to Payment (money out beside money in).
 export function QuickAddSheet({ open, onClose }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -76,13 +75,20 @@ export function QuickAddSheet({ open, onClose }: Props) {
       quickAdd: true,
     },
     {
+      key: "expense",
+      label: t("quickAdd.expense"),
+      icon: Receipt,
+      circle: "bg-brand-tint-pink text-text-secondary",
+      to: ROUTES.EXPENSES,
+      quickAdd: true,
+    },
+    {
       key: "snap",
       label: t("quickAdd.snap"),
       icon: Image,
       circle: "bg-brand-tint-green text-success-foreground",
       to: ROUTES.ANALYTICS_SNAP,
       quickAdd: false,
-      span: true,
     },
   ];
 
@@ -101,9 +107,7 @@ export function QuickAddSheet({ open, onClose }: Props) {
               key={tile.key}
               type="button"
               onClick={() => handleTile(tile)}
-              className={`flex flex-col items-center gap-2 rounded-lg bg-surface-secondary p-4 transition-colors hover:bg-surface-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                tile.span ? "col-span-2" : ""
-              }`}
+              className="flex flex-col items-center gap-2 rounded-lg bg-surface-secondary p-4 transition-colors hover:bg-surface-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className={`grid size-12 place-items-center rounded-full ${tile.circle}`}>
                 <Icon className="size-5" aria-hidden="true" />

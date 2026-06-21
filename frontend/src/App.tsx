@@ -8,6 +8,7 @@ import { DashboardRoute } from "@/routes/dashboard";
 import { SettingsRoute } from "@/routes/settings";
 import { DealsRoute } from "@/routes/deals";
 import { PaymentsRoute } from "@/routes/payments";
+import { ExpensesRoute } from "@/routes/expenses";
 import { MeetingsRoute } from "@/routes/meetings";
 import { BrandsRoute } from "@/routes/brands/index";
 import { BrandDetailRoute } from "@/routes/brands/[id]";
@@ -41,6 +42,7 @@ export function App() {
         <Route path={ROUTES.SETTINGS} element={<SettingsRoute />} />
         <Route path={ROUTES.DEALS} element={<DealsRoute />} />
         <Route path={ROUTES.PAYMENTS} element={<PaymentsRoute />} />
+        <Route path={ROUTES.EXPENSES} element={<ExpensesRoute />} />
         <Route path={ROUTES.MEETINGS} element={<MeetingsRoute />} />
         <Route path={ROUTES.BRANDS} element={<BrandsRoute />} />
         <Route path={ROUTES.BRAND_DETAIL} element={<BrandDetailRoute />} />

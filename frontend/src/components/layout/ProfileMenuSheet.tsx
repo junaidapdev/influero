@@ -4,6 +4,7 @@ import {
   Building2,
   ChevronRight,
   LogOut,
+  Receipt,
   Settings,
   Wallet,
   type LucideIcon,
@@ -45,6 +46,7 @@ export function ProfileMenuSheet({ open, onClose, appUser }: Props) {
   const links: MenuLink[] = [
     { key: "brands", label: t("brands.title"), icon: Building2, to: ROUTES.BRANDS },
     { key: "payments", label: t("payments.title"), icon: Wallet, to: ROUTES.PAYMENTS },
+    { key: "expenses", label: t("expenses.title"), icon: Receipt, to: ROUTES.EXPENSES },
     { key: "settings", label: t("settings.title"), icon: Settings, to: ROUTES.SETTINGS },
   ];
 

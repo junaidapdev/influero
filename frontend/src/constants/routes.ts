@@ -12,6 +12,7 @@ export const ROUTES = {
   // brandPath(id). The :id segment is the first parametrized route in the app.
   BRAND_DETAIL: "/brands/:id",
   PAYMENTS: "/payments",
+  EXPENSES: "/expenses",
   MEETINGS: "/meetings",
   ANALYTICS_SNAP: "/analytics/snap",
   REPORTS: "/reports",

@@ -7,11 +7,18 @@
 // Money fields are SAR amounts; deal fields are counts over the month's deals
 // (bucketed by post_date). `outstanding` is all-time, not month-scoped — the
 // agreed definition, deliberately not total_invoiced − total_collected.
+// `total_expenses` (0020) is the month's expenses, bucketed by expense_date —
+// the dashboard derives net = total_collected − total_expenses on the client and
+// gates that display to Pro (a free user has no expense rows, so it is 0). It is
+// OPTIONAL on purpose: the RPC only returns it once 0020 is applied, so between a
+// frontend deploy and that migration the key is absent — the `?` forces every
+// reader to coalesce (`?? 0`) and never render NaN.
 
 export type DashboardStats = {
   total_invoiced: number;
   total_collected: number;
   outstanding: number;
+  total_expenses?: number;
   deals_posted: number;
   deals_pending: number;
 };
