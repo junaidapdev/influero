@@ -16,7 +16,10 @@ import { ERROR_CODE, HTTP } from "../_shared/constants.ts";
 import { createSupabaseAdmin } from "../_shared/supabase-server.ts";
 import { logger } from "../_shared/logger.ts";
 import { ENV } from "../../../config/env.ts";
-import { NOTIFICATION_SLOT } from "../../../shared/types/pushSubscription.types.ts";
+import {
+  NOTIFICATION_SLOT,
+  type NotificationSlot,
+} from "../../../shared/types/pushSubscription.types.ts";
 import {
   getApplicationServer,
   isSubscriptionGone,
@@ -24,8 +27,15 @@ import {
 } from "../_shared/webpush.ts";
 import { buildDigestMessage } from "./digest.ts";
 
+// Derive the accepted slots from the single source of truth so a new slot never
+// has to be added in two places. Cast to z.enum's non-empty-tuple shape.
+const SLOT_VALUES = Object.values(NOTIFICATION_SLOT) as [
+  NotificationSlot,
+  ...NotificationSlot[],
+];
+
 const inputSchema = z.object({
-  slot: z.enum([NOTIFICATION_SLOT.MORNING, NOTIFICATION_SLOT.EVENING] as const),
+  slot: z.enum(SLOT_VALUES),
 });
 
 // Shapes of the untyped service-role query results (no generated Database types).

@@ -2,14 +2,17 @@
 // notification-slot set. Framework-agnostic (no React, Vite, or Deno imports)
 // so the web app's subscribe flow and the future React Native client reuse them
 // untouched, and the Phase-B edge sender imports the same row shape. Keep
-// NOTIFICATION_SLOT in sync with the `slot` CHECK in 0015_push_notifications.sql.
+// NOTIFICATION_SLOT in sync with the `slot` CHECK in 0019_notification_slots_four.sql.
 
-// The two fixed daily sends. All users are in one timezone (Asia/Riyadh), so a
-// slot maps to a fixed wall-clock time; the value also keys the per-day
-// idempotency row in notification_sends.
+// The four fixed daily sends. All users are in one timezone (Asia/Riyadh), so a
+// slot maps to a fixed wall-clock time (noon / 4pm / 6pm / 9pm Riyadh); the value
+// also keys the per-day idempotency row in notification_sends, so the four names
+// must stay distinct — reusing one would dedupe two sends into one push.
 export const NOTIFICATION_SLOT = {
-  MORNING: "morning",
+  NOON: "noon",
+  AFTERNOON: "afternoon",
   EVENING: "evening",
+  NIGHT: "night",
 } as const;
 
 export type NotificationSlot =
