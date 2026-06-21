@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  Bell,
   Building2,
   CalendarPlus,
   Image,
@@ -38,15 +39,15 @@ type Tile = {
 };
 
 // The FAB's Quick Add sheet (ui-rules / ui-tokens): a 2-col grid of Brand · Deal
-// · Meeting · Payment · Expense · Snap report (six tiles = a clean 3×2, so no
-// tile needs to span). Each tile navigates to the destination and (except Snap)
-// signals it via location.state.quickAdd to pop its existing Add sheet — reusing
-// every route's create flow rather than duplicating forms here. Brand leads
-// because a deal requires a brand, so the prerequisite sits one tap from the
-// thing needing it; Expense sits next to Payment (money out beside money in).
-// The two Pro destinations (Expense, Snap) carry a small "Pro" badge while the
-// viewer is on the free tier, so the gate is signalled before the tap rather
-// than landing them on the Upgrade modal as a surprise.
+// · Meeting · Payment · Expense · Snap report · Reminder. Each tile navigates to
+// the destination and (except Snap) signals it via location.state.quickAdd to pop
+// its existing Add sheet — reusing every route's create flow rather than
+// duplicating forms here. Brand leads because a deal requires a brand, so the
+// prerequisite sits one tap from the thing needing it; Expense sits next to
+// Payment (money out beside money in). The two Pro destinations (Expense, Snap)
+// carry a small "Pro" badge while the viewer is on the free tier, so the gate is
+// signalled before the tap rather than landing them on the Upgrade modal as a
+// surprise. Reminder is free (a core personal to-do, zero marginal cost).
 export function QuickAddSheet({ open, onClose }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -105,6 +106,14 @@ export function QuickAddSheet({ open, onClose }: Props) {
       to: ROUTES.ANALYTICS_SNAP,
       quickAdd: false,
       pro: true,
+    },
+    {
+      key: "reminder",
+      label: t("quickAdd.reminder"),
+      icon: Bell,
+      circle: "bg-brand-tint-blue text-info-foreground",
+      to: ROUTES.REMINDERS,
+      quickAdd: true,
     },
   ];
 

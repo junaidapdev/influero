@@ -10,6 +10,7 @@ import { DealsRoute } from "@/routes/deals";
 import { PaymentsRoute } from "@/routes/payments";
 import { ExpensesRoute } from "@/routes/expenses";
 import { MeetingsRoute } from "@/routes/meetings";
+import { RemindersRoute } from "@/routes/reminders";
 import { BrandsRoute } from "@/routes/brands/index";
 import { BrandDetailRoute } from "@/routes/brands/[id]";
 import { SnapAnalyticsRoute } from "@/routes/analytics/snap";
@@ -44,6 +45,7 @@ export function App() {
         <Route path={ROUTES.PAYMENTS} element={<PaymentsRoute />} />
         <Route path={ROUTES.EXPENSES} element={<ExpensesRoute />} />
         <Route path={ROUTES.MEETINGS} element={<MeetingsRoute />} />
+        <Route path={ROUTES.REMINDERS} element={<RemindersRoute />} />
         <Route path={ROUTES.BRANDS} element={<BrandsRoute />} />
         <Route path={ROUTES.BRAND_DETAIL} element={<BrandDetailRoute />} />
         <Route path={ROUTES.ANALYTICS_SNAP} element={<SnapAnalyticsRoute />} />
