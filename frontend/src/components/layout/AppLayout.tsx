@@ -8,6 +8,7 @@ import { QuickAddSheet } from "@/components/layout/QuickAddSheet";
 import { ProfileMenuSheet } from "@/components/layout/ProfileMenuSheet";
 import { ProfileAvatar } from "@/components/layout/ProfileAvatar";
 import { useAppUser } from "@/hooks/useAppUser";
+import { useEntitlementRealtime } from "@/hooks/useEntitlement";
 import { ROUTES } from "@/constants/routes";
 
 type Props = {
@@ -27,6 +28,12 @@ export function AppLayout({ children }: Props) {
   const appUserQuery = useAppUser();
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // The single entitlement realtime subscription for the whole authenticated app
+  // (the shell is mounted once). Components read entitlement via useEntitlement
+  // (query only) — never open their own channel, or they'd collide on the
+  // per-user topic and crash the app.
+  useEntitlementRealtime();
 
   const isDashboard = location.pathname === ROUTES.DASHBOARD;
   const greetingName =
