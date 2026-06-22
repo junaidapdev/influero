@@ -48,11 +48,18 @@ export type Subscription = {
   updated_at: string;
 };
 
+// How a Pro entitlement is sourced — 'paid' = a real LemonSqueezy subscription
+// (show "Manage billing"), 'grant' = a complimentary entitlement_grant (promo code
+// etc., no LS subscription to manage), null = free. Decided in get_my_entitlement
+// (migration 0022).
+export type EntitlementVia = "paid" | "grant";
+
 // get_my_entitlement() RPC shape — the frontend read (always returns one row,
-// even for free users, where plan/status are null and is_pro is false).
+// even for free users, where plan/status/via are null and is_pro is false).
 export type Entitlement = {
   plan: Plan | null;
   status: SubscriptionStatus | null;
   is_pro: boolean;
   active_until: string | null;
+  via: EntitlementVia | null;
 };

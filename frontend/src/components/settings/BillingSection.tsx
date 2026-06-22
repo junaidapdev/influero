@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { SettingsSection } from "@/components/settings/SettingsSection";
+import { PromoCodeForm } from "@/components/settings/PromoCodeForm";
 import { Button } from "@/components/ui/Button";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { useCheckout } from "@/hooks/useCheckout";
@@ -26,6 +27,9 @@ export function BillingSection() {
   const locale = i18n.language === LOCALES.AR ? LOCALES.AR : LOCALES.EN;
   const entitlement = entitlementQuery.data;
   const pro = isPro(entitlement);
+  // Pro sourced from a complimentary grant (promo code etc.) rather than a paid LS
+  // subscription — there's no billing to manage, and we show its free-access window.
+  const isGrant = entitlement?.via === "grant";
 
   function handleUpgrade(): void {
     checkout.mutate(undefined, {
@@ -58,7 +62,7 @@ export function BillingSection() {
     const activeUntil = entitlement?.active_until
       ? formatDualTimestampDate(entitlement.active_until, locale).primary
       : null;
-    const dateKey =
+    const subscriptionDateKey =
       entitlement?.status === SUBSCRIPTION_STATUS.CANCELLED
         ? "billing.endsOn"
         : "billing.renewsOn";
@@ -69,29 +73,42 @@ export function BillingSection() {
           <p className="font-semibold text-text-primary">
             {pro ? t("billing.plan.pro") : t("billing.plan.free")}
           </p>
-          {pro && activeUntil ? (
+          {pro && isGrant ? (
             <p className="text-body text-text-secondary">
-              {t(dateKey, { date: activeUntil })}
+              {activeUntil
+                ? t("billing.grantUntil", { date: activeUntil })
+                : t("billing.grantForever")}
+            </p>
+          ) : pro && activeUntil ? (
+            <p className="text-body text-text-secondary">
+              {t(subscriptionDateKey, { date: activeUntil })}
             </p>
           ) : null}
         </div>
 
         {pro ? (
-          <Button
-            variant="secondary"
-            isLoading={portal.isPending}
-            onClick={handleManage}
-          >
-            {t("billing.manage")}
-          </Button>
+          // Grant-only Pro has no LemonSqueezy subscription, so there is nothing to
+          // manage (the customer portal would 404) — show the plan state only.
+          isGrant ? null : (
+            <Button
+              variant="secondary"
+              isLoading={portal.isPending}
+              onClick={handleManage}
+            >
+              {t("billing.manage")}
+            </Button>
+          )
         ) : (
-          <Button
-            className="w-full"
-            isLoading={checkout.isPending}
-            onClick={handleUpgrade}
-          >
-            {t("billing.upgrade")}
-          </Button>
+          <>
+            <Button
+              className="w-full"
+              isLoading={checkout.isPending}
+              onClick={handleUpgrade}
+            >
+              {t("billing.upgrade")}
+            </Button>
+            <PromoCodeForm />
+          </>
         )}
       </div>
     );
