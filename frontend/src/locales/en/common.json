@@ -637,8 +637,7 @@
       "busy": "Uploading…",
       "hint": "PNG, JPEG, or WebP up to 5 MB · PDF up to 10 MB (first page only)",
       "typeLabel": "Report type",
-      "postHint": "One story or post's Insights, captured about 24 hours after posting",
-      "monthlyHint": "Your account's monthly Insights page — one screenshot covers the whole month"
+      "postHint": "One story or post's Insights, captured about 24 hours after posting"
     },
     "status": {
       "pending": "Extracting",
@@ -652,7 +651,8 @@
       "metrics": "Views {{views}} · Reach {{reach}}",
       "noNumbers": "No numbers yet — enter them manually",
       "openAria": "Open Snap report",
-      "untitledMonthly": "Monthly Snap report"
+      "untitledMonthly": "Monthly Snap report",
+      "monthlyMetrics": "Followers {{followers}} · Story views {{storyViews}}"
     },
     "detail": {
       "title": "Snap report",
@@ -688,7 +688,8 @@
       "fileContent": "This file doesn't match its type — try exporting it again",
       "pdfConvert": "Couldn't read this PDF — try a screenshot instead",
       "countInvalid": "Enter a whole number",
-      "dateInvalid": "Enter a valid date"
+      "dateInvalid": "Enter a valid date",
+      "valueInvalid": "Enter a valid number"
     },
     "toast": {
       "uploaded": "Uploaded — extracting the numbers",
@@ -705,6 +706,25 @@
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
       "footer": "Generated with {{app}}"
+    },
+    "monthly": {
+      "steps": {
+        "intro": "Open Snapchat → your profile → Public Profile → Insights. Set the range to Last 28 Days. Then screenshot:",
+        "profile": "Profile — Total followers + Profile views",
+        "publicStories": "Public Stories — the 28 Day Summary (Snap Views, Viewers, view times)",
+        "spotlight": "Spotlight — the 28 Day Summary (Views, Viewers, Favourites, Shares)",
+        "note": "Make sure the numbers aren't cut off — you can add more than one image per screen."
+      },
+      "addImages": "Add screenshots",
+      "removeImage": "Remove screenshot",
+      "imageCount": "{{n}} / {{max}}",
+      "maxReached": "Up to {{max}} images per screen",
+      "previewAlt": "{{surface}} screenshot",
+      "periodLabel": "Reporting period",
+      "periodPlaceholder": "e.g. June 2026",
+      "periodHint": "Shown on the report — a month or a date range (e.g. 25 May – 21 Jun)",
+      "generate": "Generate monthly report",
+      "needImages": "Add at least one screenshot to a slot"
     }
   },
   "reports": {

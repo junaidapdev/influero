@@ -19,6 +19,7 @@ import { useAppUser } from "@/hooks/useAppUser";
 import { useBrands } from "@/hooks/useBrands";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
+import { useExportCardPng } from "@/hooks/useExportCardPng";
 import { formatDualDate, formatMonthYear } from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
 import { logger } from "@/lib/logger";
@@ -75,17 +76,6 @@ const MONTHLY_COUNT_FIELDS: { name: CountFieldName; labelKey: string }[] = [
 
 type EditableField = CountFieldName | "reportDate";
 
-// Export render scale — 2× the on-screen pixels so the PNG stays crisp when
-// WhatsApp re-compresses it.
-const EXPORT_PIXEL_RATIO = 2;
-
-// A 1×1 transparent PNG — a defensive backstop for any image html-to-image
-// can't inline. The card itself embeds NO cross-origin image (the avatar uses
-// the initial via ProfileAvatar's noImage — see SnapReportCard), so the export
-// has nothing external to fetch; this only guards future card content.
-const TRANSPARENT_PIXEL =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
-
 function toFormValues(report: SnapReport): SnapReportFormInput {
   const toField = (value: number | null): string =>
     value === null ? "" : String(value);
@@ -134,9 +124,9 @@ export function SnapReportSheet({ report, deals }: Props) {
         isFailed ? [...countFields.map((field) => field.name), "reportDate"] : [],
       ),
   );
-  const [isExporting, setIsExporting] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
+  const { isExporting, exportPng } = useExportCardPng();
   const updateFields = useUpdateSnapFields();
   const linkToDeal = useLinkSnapToDeal();
   const signedUrl = useSnapSignedUrl(report.source_file_url);
@@ -203,35 +193,13 @@ export function SnapReportSheet({ report, deals }: Props) {
     );
   }
 
-  // PNG export (16B): captures the report-card DOM exactly as rendered (so
-  // Arabic shaping / RTL / Hijri survive), via the lazily-imported
-  // html-to-image — its first and only consumer, so the library stays out of
-  // the main bundle (the pdf.js / recharts precedent).
-  async function handleExport(): Promise<void> {
-    const node = cardRef.current;
-    if (!node) return;
-    setIsExporting(true);
-    try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(node, {
-        pixelRatio: EXPORT_PIXEL_RATIO,
-        // No cacheBust — see TRANSPARENT_PIXEL: it forces a unique URL per call
-        // that an external avatar CDN rate-limits (429), rejecting the export.
-        imagePlaceholder: TRANSPARENT_PIXEL,
-      });
-      const link = document.createElement("a");
-      link.download = isMonthly
-        ? `snap-monthly-report-${report.report_date?.slice(0, 7) ?? report.id.slice(0, 8)}.png`
-        : `snap-report-${report.report_date ?? report.id.slice(0, 8)}.png`;
-      link.href = dataUrl;
-      link.click();
-      showToast("snap.toast.exported", "success");
-    } catch (error) {
-      logger.error("SnapReportSheet.export", error);
-      showToast("snap.toast.exportError", "error");
-    } finally {
-      setIsExporting(false);
-    }
+  // PNG export (16B) via the shared useExportCardPng (lazy html-to-image,
+  // captures the card DOM as rendered so Arabic shaping / RTL / Hijri survive).
+  function handleExport(): void {
+    const filename = isMonthly
+      ? `snap-monthly-report-${report.report_date?.slice(0, 7) ?? report.id.slice(0, 8)}.png`
+      : `snap-report-${report.report_date ?? report.id.slice(0, 8)}.png`;
+    void exportPng(cardRef.current, filename);
   }
 
   const monthLabel =

@@ -12,13 +12,21 @@ import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { STORAGE } from "@/constants/storage";
 import { SNAP_EDGE_FUNCTION, type SnapMime } from "@/constants/snap";
-import { snapObjectPath } from "@/features/snap/upload";
+import { snapMonthlyObjectPath, snapObjectPath } from "@/features/snap/upload";
 import type { SnapReportFormInput } from "@/features/snap/snap.schema";
 import {
   SNAP_EXTRACTION_STATUS,
+  SNAP_REPORT_TYPE,
   type SnapReport,
   type SnapReportType,
 } from "@shared/types/snapReport.types";
+import {
+  SNAP_PLATFORM,
+  SNAP_SCOPE,
+  type SnapMonthlyMetrics,
+  type SnapReportImage,
+  type SnapSurface,
+} from "@shared/analytics/snapMetricDictionary";
 
 // Signed URLs outlive their consumer comfortably but stay short-lived — the
 // bucket is private and the URL is the only thing that ever leaves it.
@@ -320,4 +328,163 @@ export function useSnapReportsRealtime(enabled: boolean) {
       void supabase.removeChannel(channel);
     };
   }, [enabled, userId, queryClient]);
+}
+
+// ─── Monthly (metric-dictionary) model ──────────────────────────────────────
+
+type MonthlyImageInput = { surface: SnapSurface; blob: Blob; mime: SnapMime };
+
+type CreateMonthlySnapInput = {
+  // 1+ surface-tagged images (the surface comes from the slot the user dropped
+  // each into). The route validates + converts each to an image before here.
+  images: MonthlyImageInput[];
+  // The displayed reporting period — defaults to the current month-year; the
+  // edge function overwrites it only if it cleanly reads a range, and the user
+  // can edit it afterwards.
+  periodLabel: string;
+};
+
+// Upload every slotted image under one per-report folder, insert ONE pending
+// monthly row carrying the image manifest, then fire the same background
+// extraction the post flow uses (the edge function reads the manifest from the
+// row and merges a per-surface metrics jsonb). source_file_url (NOT NULL since
+// 0010) is set to the first image as a representative — monthly reads `images`.
+export function useCreateMonthlySnapReport() {
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+
+  return useMutation({
+    mutationFn: async ({
+      images,
+      periodLabel,
+    }: CreateMonthlySnapInput): Promise<SnapReport> => {
+      const userId = session?.user.id;
+      if (!userId) {
+        throw new Error("[useCreateMonthlySnapReport] No authenticated user");
+      }
+      if (images.length === 0) {
+        throw new Error("[useCreateMonthlySnapReport] No images");
+      }
+
+      const groupId = crypto.randomUUID();
+      // Paths are deterministic, so build the manifest up front and reuse it for
+      // upload, the inserted row, and cleanup-on-failure.
+      const manifest: SnapReportImage[] = images.map((image, index) => ({
+        surface: image.surface,
+        path: snapMonthlyObjectPath(userId, groupId, image.surface, index, image.mime),
+      }));
+
+      // Best-effort removal of every uploaded object — used to clean up orphans
+      // when an upload or the insert fails partway.
+      const removeUploaded = async (): Promise<void> => {
+        const { error } = await supabase.storage
+          .from(STORAGE.SNAP_UPLOADS_BUCKET)
+          .remove(manifest.map((item) => item.path));
+        if (error) logger.error("[useCreateMonthlySnapReport] cleanup", error);
+      };
+
+      const uploads = await Promise.allSettled(
+        images.map((image, index) =>
+          supabase.storage
+            .from(STORAGE.SNAP_UPLOADS_BUCKET)
+            .upload(manifest[index].path, image.blob, { contentType: image.mime })
+            .then(({ error }) => {
+              if (error) throw error;
+            }),
+        ),
+      );
+      if (uploads.some((result) => result.status === "rejected")) {
+        // Some files may have landed before the failure — remove them so no
+        // orphans accumulate in the private bucket.
+        await removeUploaded();
+        throw new Error("[useCreateMonthlySnapReport] upload failed");
+      }
+
+      const { data, error: insertError } = await supabase
+        .from("snap_reports")
+        .insert({
+          user_id: userId,
+          source_file_url: manifest[0].path,
+          report_type: SNAP_REPORT_TYPE.MONTHLY,
+          platform: SNAP_PLATFORM.SNAPCHAT,
+          scope: SNAP_SCOPE.MONTHLY,
+          period_label: periodLabel,
+          images: manifest,
+          extraction_status: SNAP_EXTRACTION_STATUS.PENDING,
+        })
+        .select("*")
+        .single();
+      if (insertError) {
+        await removeUploaded();
+        throw insertError;
+      }
+
+      return data as SnapReport;
+    },
+    onSuccess: (report) => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
+      void runExtraction(report.id, report.user_id, queryClient);
+    },
+  });
+}
+
+type UpdateMonthlySnapInput = {
+  reportId: string;
+  metrics: SnapMonthlyMetrics;
+  periodLabel: string;
+};
+
+// The monthly manual override: writes the edited metrics jsonb + period and
+// stamps the row 'manual' (the user always has the final word). A direct
+// RLS-gated single-row write — no edge function.
+export function useUpdateMonthlySnap() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportId,
+      metrics,
+      periodLabel,
+    }: UpdateMonthlySnapInput): Promise<SnapReport> => {
+      const { data, error } = await supabase
+        .from("snap_reports")
+        .update({
+          metrics,
+          period_label: periodLabel.trim() === "" ? null : periodLabel.trim(),
+          extraction_status: SNAP_EXTRACTION_STATUS.MANUAL,
+        })
+        .eq("id", reportId)
+        .select("*")
+        .single();
+      if (error) throw error;
+
+      return data as SnapReport;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
+    },
+  });
+}
+
+// Batch signed URLs for a monthly report's per-surface previews — one query for
+// all paths (createSignedUrls), keyed by path → URL. Same private-bucket TTL as
+// the single-image preview.
+export function useSnapSignedUrls(paths: string[]) {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.SNAP_REPORTS, "signed-urls", paths],
+    enabled: paths.length > 0,
+    staleTime: SIGNED_URL_STALE_MS,
+    queryFn: async (): Promise<Record<string, string>> => {
+      const { data, error } = await supabase.storage
+        .from(STORAGE.SNAP_UPLOADS_BUCKET)
+        .createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
+      if (error) throw error;
+
+      const byPath: Record<string, string> = {};
+      for (const item of data ?? []) {
+        if (item.path && item.signedUrl) byPath[item.path] = item.signedUrl;
+      }
+      return byPath;
+    },
+  });
 }

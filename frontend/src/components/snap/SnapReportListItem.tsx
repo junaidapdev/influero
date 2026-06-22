@@ -5,6 +5,7 @@ import { SnapStatusPill } from "@/components/snap/SnapStatusPill";
 import { useLocale } from "@/hooks/useLocale";
 import { formatDualDate, formatMonthYear } from "@/lib/date";
 import { formatNumber } from "@/lib/numbers";
+import { SNAP_SCOPE } from "@shared/analytics/snapMetricDictionary";
 import {
   SNAP_EXTRACTION_STATUS,
   SNAP_REPORT_TYPE,
@@ -29,28 +30,48 @@ export function SnapReportListItem({ report, onOpen }: Props) {
   const { t } = useTranslation();
   const { locale } = useLocale();
 
-  const isMonthly = report.report_type === SNAP_REPORT_TYPE.MONTHLY;
+  // New metric-dictionary monthly (scope) vs legacy fixed-column monthly vs post.
+  const isNewMonthly = report.scope === SNAP_SCOPE.MONTHLY;
+  const isLegacyMonthly =
+    !isNewMonthly && report.report_type === SNAP_REPORT_TYPE.MONTHLY;
+  const isMonthlyKind = isNewMonthly || isLegacyMonthly;
 
-  const monthTitle =
-    isMonthly && report.report_date
+  const monthTitle = isNewMonthly
+    ? (report.period_label?.trim() || null)
+    : isLegacyMonthly && report.report_date
       ? formatMonthYear(report.report_date.slice(0, 7), locale)
       : null;
   const dualDate =
-    !isMonthly && report.report_date
+    !isMonthlyKind && report.report_date
       ? formatDualDate(report.report_date, locale)
       : null;
 
   const isPending = report.extraction_status === SNAP_EXTRACTION_STATUS.PENDING;
-  const hasNumbers = report.views !== null || report.reach !== null;
+
+  const numOrDash = (value: number | null | undefined): string =>
+    typeof value === "number" ? formatNumber(value, locale) : "—";
+
+  // New monthly leads with account followers + story views; post/legacy with
+  // the old views/reach pair.
+  const followers = report.metrics?.profile?.followers;
+  const storyViews = report.metrics?.public_stories?.snap_views;
+  const hasNumbers = isNewMonthly
+    ? typeof followers === "number" || typeof storyViews === "number"
+    : report.views !== null || report.reach !== null;
 
   const subline = isPending
     ? t("snap.list.extracting")
-    : hasNumbers
-      ? t("snap.list.metrics", {
-          views: report.views === null ? "—" : formatNumber(report.views, locale),
-          reach: report.reach === null ? "—" : formatNumber(report.reach, locale),
-        })
-      : t("snap.list.noNumbers");
+    : !hasNumbers
+      ? t("snap.list.noNumbers")
+      : isNewMonthly
+        ? t("snap.list.monthlyMetrics", {
+            followers: numOrDash(followers),
+            storyViews: numOrDash(storyViews),
+          })
+        : t("snap.list.metrics", {
+            views: numOrDash(report.views),
+            reach: numOrDash(report.reach),
+          });
 
   return (
     <button
@@ -73,7 +94,7 @@ export function SnapReportListItem({ report, onOpen }: Props) {
           </>
         ) : (
           <p className="truncate text-row font-semibold text-text-primary">
-            {isMonthly ? t("snap.list.untitledMonthly") : t("snap.list.untitled")}
+            {isMonthlyKind ? t("snap.list.untitledMonthly") : t("snap.list.untitled")}
           </p>
         )}
         <p
@@ -83,7 +104,7 @@ export function SnapReportListItem({ report, onOpen }: Props) {
         </p>
       </div>
       <span className="inline-flex shrink-0 items-center rounded-full border border-border-light bg-surface-secondary px-2.5 py-1 text-micro font-medium text-text-secondary">
-        {isMonthly ? t("snap.type.monthly") : t("snap.type.post")}
+        {isMonthlyKind ? t("snap.type.monthly") : t("snap.type.post")}
       </span>
       <SnapStatusPill status={report.extraction_status} />
       <ChevronRight
