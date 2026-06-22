@@ -367,23 +367,38 @@ export function useCreateMonthlySnapReport() {
       }
 
       const groupId = crypto.randomUUID();
-      const manifest: SnapReportImage[] = [];
-      await Promise.all(
-        images.map(async (image, index) => {
-          const path = snapMonthlyObjectPath(
-            userId,
-            groupId,
-            image.surface,
-            index,
-            image.mime,
-          );
-          const { error } = await supabase.storage
+      // Paths are deterministic, so build the manifest up front and reuse it for
+      // upload, the inserted row, and cleanup-on-failure.
+      const manifest: SnapReportImage[] = images.map((image, index) => ({
+        surface: image.surface,
+        path: snapMonthlyObjectPath(userId, groupId, image.surface, index, image.mime),
+      }));
+
+      // Best-effort removal of every uploaded object — used to clean up orphans
+      // when an upload or the insert fails partway.
+      const removeUploaded = async (): Promise<void> => {
+        const { error } = await supabase.storage
+          .from(STORAGE.SNAP_UPLOADS_BUCKET)
+          .remove(manifest.map((item) => item.path));
+        if (error) logger.error("[useCreateMonthlySnapReport] cleanup", error);
+      };
+
+      const uploads = await Promise.allSettled(
+        images.map((image, index) =>
+          supabase.storage
             .from(STORAGE.SNAP_UPLOADS_BUCKET)
-            .upload(path, image.blob, { contentType: image.mime });
-          if (error) throw error;
-          manifest[index] = { surface: image.surface, path };
-        }),
+            .upload(manifest[index].path, image.blob, { contentType: image.mime })
+            .then(({ error }) => {
+              if (error) throw error;
+            }),
+        ),
       );
+      if (uploads.some((result) => result.status === "rejected")) {
+        // Some files may have landed before the failure — remove them so no
+        // orphans accumulate in the private bucket.
+        await removeUploaded();
+        throw new Error("[useCreateMonthlySnapReport] upload failed");
+      }
 
       const { data, error: insertError } = await supabase
         .from("snap_reports")
@@ -399,7 +414,10 @@ export function useCreateMonthlySnapReport() {
         })
         .select("*")
         .single();
-      if (insertError) throw insertError;
+      if (insertError) {
+        await removeUploaded();
+        throw insertError;
+      }
 
       return data as SnapReport;
     },

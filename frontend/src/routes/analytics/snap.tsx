@@ -99,6 +99,9 @@ export function SnapAnalyticsRoute() {
     : null;
 
   async function handleSelect(file: File): Promise<void> {
+    // Capture the type now — if the user flips the chip during the async prep,
+    // the report must still be created as whatever was selected at pick time.
+    const reportType = uploadType;
     setUploadErrorKey(undefined);
     setIsPreparing(true);
     try {
@@ -109,7 +112,7 @@ export function SnapAnalyticsRoute() {
       }
 
       createReport.mutate(
-        { blob: prepared.file.blob, mime: prepared.file.mime, reportType: uploadType },
+        { blob: prepared.file.blob, mime: prepared.file.mime, reportType },
         {
           onSuccess: () => {
             // The pending row is now in the list; extraction runs in the

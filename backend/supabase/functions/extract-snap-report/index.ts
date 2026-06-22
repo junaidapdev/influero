@@ -48,6 +48,13 @@ const inputSchema = z.object({ snapReportId: z.string().uuid() });
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_MODEL = "gpt-4o";
 const MAX_OUTPUT_TOKENS = 300;
+// Per-call OpenAI timeout — fail fast instead of hanging the invocation (and
+// leaving the row stuck pending) if the upstream stalls.
+const OPENAI_TIMEOUT_MS = 30_000;
+// Server-side cap on a monthly report's image manifest (mirrors the client's
+// 3-images × 3-surfaces). Defense-in-depth so a hand-crafted row can't fan out
+// an unbounded number of parallel vision calls.
+const MAX_MONTHLY_IMAGES = 9;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const SNAP_BUCKET = "snap-uploads";
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -241,32 +248,45 @@ async function visionExtract(
   content: string | null;
   refusal: string | null;
 }> {
-  const response = await fetch(OPENAI_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${ENV.OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      temperature: 0,
-      max_tokens: MAX_OUTPUT_TOKENS,
-      response_format: { type: "json_schema", json_schema: jsonSchema },
-      messages: [
-        { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Extract the Snap Insights metrics from this screenshot.",
-            },
-            { type: "image_url", image_url: { url: dataUrl, detail: "high" } },
-          ],
-        },
-      ],
-    }),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), OPENAI_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(OPENAI_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${ENV.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        temperature: 0,
+        max_tokens: MAX_OUTPUT_TOKENS,
+        response_format: { type: "json_schema", json_schema: jsonSchema },
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Extract the Snap Insights metrics from this screenshot.",
+              },
+              { type: "image_url", image_url: { url: dataUrl, detail: "high" } },
+            ],
+          },
+        ],
+      }),
+    });
+  } catch (err) {
+    // Timeout (abort) or network error — surface as a non-ok result so callers
+    // mark the row failed instead of hanging.
+    logger.error("[extract-snap-report] OpenAI fetch", err);
+    return { httpOk: false, status: 0, rawBody: null, content: null, refusal: null };
+  } finally {
+    clearTimeout(timer);
+  }
 
   const rawBody: unknown = await response.json().catch(() => null);
   if (!response.ok) {
@@ -359,8 +379,9 @@ function buildSurfacePrompt(surface: SnapSurface): string {
         : "";
       return `- ${metric.id} (${metric.unit}): ${labels}.${changeNote}`;
     }),
-    '- period: the date range or month the page covers, e.g. "25 May - 21 Jun" or',
-    '  "June 2026"; null if not shown.',
+    '- period: the EXPLICIT date range or month shown, e.g. "25 May - 21 Jun" or',
+    '  "June 2026". Return null if the page shows only a relative label such as',
+    '  "Last 28 Days" / "آخر ٢٨ يومًا" with no explicit dates.',
     "",
     ...MONTHLY_NUMBER_RULES,
     "",
@@ -418,7 +439,28 @@ const imageManifestSchema = z
       path: z.string().min(1),
     }),
   )
-  .min(1);
+  .min(1)
+  .max(MAX_MONTHLY_IMAGES);
+
+// Gregorian month tokens (en short forms also match the long names; ar Intl
+// names) used to tell an EXPLICIT period ("June 2026", "25 May - 21 Jun") from a
+// relative window ("Last 28 Days") — only an explicit period overwrites the
+// client's current-month default.
+const PERIOD_MONTH_TOKENS_EN = [
+  "jan", "feb", "mar", "apr", "may", "jun",
+  "jul", "aug", "sep", "oct", "nov", "dec",
+];
+const PERIOD_MONTH_TOKENS_AR = [
+  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
+];
+
+function isExplicitPeriod(value: string): boolean {
+  if (/20\d\d/.test(value)) return true;
+  const lower = value.toLowerCase();
+  if (PERIOD_MONTH_TOKENS_EN.some((token) => lower.includes(token))) return true;
+  return PERIOD_MONTH_TOKENS_AR.some((token) => value.includes(token));
+}
 
 function parseImageManifest(raw: unknown): SnapReportImage[] | null {
   const parsed = imageManifestSchema.safeParse(raw);
@@ -464,9 +506,10 @@ async function extractOneImage(
     if (!candidate.success) return null;
 
     const data = candidate.data as Record<string, number | string | null>;
-    const periodRaw = data.period;
-    const period =
-      typeof periodRaw === "string" && periodRaw.trim() !== "" ? periodRaw.trim() : null;
+    const periodRaw = typeof data.period === "string" ? data.period.trim() : "";
+    // Only an explicit month/range overwrites the client default — a generic
+    // "Last 28 Days" reading is dropped (the user's "June 2026" stands).
+    const period = periodRaw !== "" && isExplicitPeriod(periodRaw) ? periodRaw : null;
     const values: SnapMetricValues = {};
     for (const [key, value] of Object.entries(data)) {
       if (key === "period") continue;
@@ -499,11 +542,9 @@ async function extractMonthly(
   const metrics: SnapMonthlyMetrics = {};
   const rawBodies: SnapMetricValues[] = [];
   let period: string | null = null;
-  let anySuccess = false;
 
   for (const result of results) {
     if (!result) continue;
-    anySuccess = true;
     rawBodies.push(result.values);
     const bucket = (metrics[result.surface] ??= {});
     for (const [key, value] of Object.entries(result.values)) {
@@ -514,7 +555,13 @@ async function extractMonthly(
     if (period === null && result.period) period = result.period;
   }
 
-  if (!anySuccess) {
+  // Settle 'extracted' only if at least one real metric value was read. If every
+  // image failed OR parsed to all-nulls (wrong/unreadable screenshots), fall to
+  // 'failed' so the detail sheet opens straight into manual entry.
+  const hasAnyValue = Object.values(metrics).some((bucket) =>
+    Object.values(bucket ?? {}).some((value) => typeof value === "number"),
+  );
+  if (!hasAnyValue) {
     await markFailed(supabase, snapReportId, report.user_id);
     return fail(ERROR_CODE.INTERNAL, "Extraction failed", HTTP.INTERNAL_SERVER_ERROR);
   }

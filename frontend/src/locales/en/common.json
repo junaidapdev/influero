@@ -637,8 +637,7 @@
       "busy": "Uploading…",
       "hint": "PNG, JPEG, or WebP up to 5 MB · PDF up to 10 MB (first page only)",
       "typeLabel": "Report type",
-      "postHint": "One story or post's Insights, captured about 24 hours after posting",
-      "monthlyHint": "Your account's monthly Insights page — one screenshot covers the whole month"
+      "postHint": "One story or post's Insights, captured about 24 hours after posting"
     },
     "status": {
       "pending": "Extracting",
@@ -689,7 +688,8 @@
       "fileContent": "This file doesn't match its type — try exporting it again",
       "pdfConvert": "Couldn't read this PDF — try a screenshot instead",
       "countInvalid": "Enter a whole number",
-      "dateInvalid": "Enter a valid date"
+      "dateInvalid": "Enter a valid date",
+      "valueInvalid": "Enter a valid number"
     },
     "toast": {
       "uploaded": "Uploaded — extracting the numbers",

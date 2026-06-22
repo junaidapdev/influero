@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, Download, Pencil } from "lucide-react";
+import { AlertCircle, Download, ImageOff, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -280,6 +280,15 @@ export function MonthlySnapReportSheet({ report }: Props) {
                       })}
                       className="size-16 rounded-md border border-border-light object-cover"
                     />
+                  ) : signedUrls.isError ? (
+                    <div
+                      key={image.path}
+                      className="grid size-16 place-items-center rounded-md border border-border bg-surface-secondary text-text-muted"
+                      role="img"
+                      aria-label={t("snap.detail.previewError")}
+                    >
+                      <ImageOff className="size-5" aria-hidden />
+                    </div>
                   ) : (
                     <div
                       key={image.path}
@@ -314,7 +323,13 @@ export function MonthlySnapReportSheet({ report }: Props) {
                         />
                         <FieldError
                           message={
-                            fieldErrors.has(key) ? t("snap.errors.countInvalid") : undefined
+                            fieldErrors.has(key)
+                              ? t(
+                                  metric.unit === SNAP_METRIC_UNIT.COUNT
+                                    ? "snap.errors.countInvalid"
+                                    : "snap.errors.valueInvalid",
+                                )
+                              : undefined
                           }
                         />
                       </div>
