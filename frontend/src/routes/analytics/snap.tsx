@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Camera } from "lucide-react";
 
 import { SnapDropzone } from "@/components/snap/SnapDropzone";
+import { MonthlyUploadSlots } from "@/components/snap/MonthlyUploadSlots";
 import { SnapReportListItem } from "@/components/snap/SnapReportListItem";
 import { SnapReportSheet } from "@/components/snap/SnapReportSheet";
+import { MonthlySnapReportSheet } from "@/components/snap/MonthlySnapReportSheet";
 import { InsightsTabs } from "@/components/insights/InsightsTabs";
 import { UpgradePrompt } from "@/components/billing/UpgradePrompt";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -22,17 +24,10 @@ import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { formatNumber } from "@/lib/numbers";
-import { pdfFirstPageToPng } from "@/lib/pdfToImage";
 import { logger } from "@/lib/logger";
-import { SNAP_UPLOAD } from "@/constants/snap";
-import {
-  isPdfMime,
-  isSnapImageMime,
-  MAGIC_BYTES_NEEDED,
-  validateSnapImage,
-  validateSnapPdf,
-} from "@/features/snap/upload";
+import { prepareSnapFile } from "@/features/snap/prepareUpload";
 import { isPro } from "@/features/billing/entitlement";
+import { SNAP_SCOPE } from "@shared/analytics/snapMetricDictionary";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
 import {
   SNAP_EXTRACTION_STATUS,
@@ -103,65 +98,30 @@ export function SnapAnalyticsRoute() {
     ? (reports.find((report) => report.id === openReportId) ?? null)
     : null;
 
-  async function prepareUpload(
-    file: File,
-  ): Promise<{ blob: Blob; mime: "image/png" | "image/jpeg" | "image/webp" } | null> {
-    const headBytes = new Uint8Array(
-      await file.slice(0, MAGIC_BYTES_NEEDED).arrayBuffer(),
-    );
-
-    if (isPdfMime(file.type)) {
-      const pdfError = validateSnapPdf(file, headBytes);
-      if (pdfError) {
-        setUploadErrorKey(pdfError);
-        return null;
-      }
-      try {
-        const png = await pdfFirstPageToPng(file);
-        // The rendered PNG bypasses the pre-conversion PDF cap, so re-check it
-        // against the image cap before it can reach the bucket.
-        if (png.size > SNAP_UPLOAD.IMAGE_MAX_BYTES) {
-          setUploadErrorKey("snap.errors.imageSize");
-          return null;
-        }
-        return { blob: png, mime: "image/png" };
-      } catch (error) {
-        logger.error("SnapAnalyticsRoute.pdfConvert", error);
-        setUploadErrorKey("snap.errors.pdfConvert");
-        return null;
-      }
-    }
-
-    const imageError = validateSnapImage(file, headBytes);
-    if (imageError) {
-      setUploadErrorKey(imageError);
-      return null;
-    }
-    if (!isSnapImageMime(file.type)) {
-      setUploadErrorKey("snap.errors.fileType");
-      return null;
-    }
-    return { blob: file, mime: file.type };
-  }
-
   async function handleSelect(file: File): Promise<void> {
     setUploadErrorKey(undefined);
     setIsPreparing(true);
     try {
-      const prepared = await prepareUpload(file);
-      if (!prepared) return;
+      const prepared = await prepareSnapFile(file);
+      if (!prepared.ok) {
+        setUploadErrorKey(prepared.errorKey);
+        return;
+      }
 
-      createReport.mutate({ ...prepared, reportType: uploadType }, {
-        onSuccess: () => {
-          // The pending row is now in the list; extraction runs in the
-          // background and the row's status pill flips when it settles.
-          showToast("snap.toast.uploaded", "success");
+      createReport.mutate(
+        { blob: prepared.file.blob, mime: prepared.file.mime, reportType: uploadType },
+        {
+          onSuccess: () => {
+            // The pending row is now in the list; extraction runs in the
+            // background and the row's status pill flips when it settles.
+            showToast("snap.toast.uploaded", "success");
+          },
+          onError: (error) => {
+            logger.error("SnapAnalyticsRoute.upload", error);
+            showToast("snap.toast.uploadError", "error");
+          },
         },
-        onError: (error) => {
-          logger.error("SnapAnalyticsRoute.upload", error);
-          showToast("snap.toast.uploadError", "error");
-        },
-      });
+      );
     } finally {
       setIsPreparing(false);
     }
@@ -218,19 +178,21 @@ export function SnapAnalyticsRoute() {
               onChange={setUploadType}
               label={t("snap.upload.typeLabel")}
             />
-            <p className="mt-2 text-xs text-text-muted">
-              {uploadType === SNAP_REPORT_TYPE.MONTHLY
-                ? t("snap.upload.monthlyHint")
-                : t("snap.upload.postHint")}
-            </p>
           </div>
-          <SnapDropzone
-            onSelect={(file) => {
-              void handleSelect(file);
-            }}
-            errorKey={uploadErrorKey}
-            isBusy={isPreparing || createReport.isPending}
-          />
+          {uploadType === SNAP_REPORT_TYPE.MONTHLY ? (
+            <MonthlyUploadSlots />
+          ) : (
+            <>
+              <p className="mb-3 text-xs text-text-muted">{t("snap.upload.postHint")}</p>
+              <SnapDropzone
+                onSelect={(file) => {
+                  void handleSelect(file);
+                }}
+                errorKey={uploadErrorKey}
+                isBusy={isPreparing || createReport.isPending}
+              />
+            </>
+          )}
         </Card>
 
         {reportsQuery.isLoading ? (
@@ -260,7 +222,11 @@ export function SnapAnalyticsRoute() {
         title={t("snap.detail.title")}
       >
         {openReport ? (
-          <SnapReportSheet report={openReport} deals={linkableDeals} />
+          openReport.scope === SNAP_SCOPE.MONTHLY ? (
+            <MonthlySnapReportSheet report={openReport} />
+          ) : (
+            <SnapReportSheet report={openReport} deals={linkableDeals} />
+          )
         ) : null}
       </BottomSheet>
     </main>

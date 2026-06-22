@@ -652,7 +652,8 @@
       "metrics": "Views {{views}} · Reach {{reach}}",
       "noNumbers": "No numbers yet — enter them manually",
       "openAria": "Open Snap report",
-      "untitledMonthly": "Monthly Snap report"
+      "untitledMonthly": "Monthly Snap report",
+      "monthlyMetrics": "Followers {{followers}} · Story views {{storyViews}}"
     },
     "detail": {
       "title": "Snap report",
@@ -705,6 +706,25 @@
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
       "footer": "Generated with {{app}}"
+    },
+    "monthly": {
+      "steps": {
+        "intro": "Open Snapchat → your profile → Public Profile → Insights. Set the range to Last 28 Days. Then screenshot:",
+        "profile": "Profile — Total followers + Profile views",
+        "publicStories": "Public Stories — the 28 Day Summary (Snap Views, Viewers, view times)",
+        "spotlight": "Spotlight — the 28 Day Summary (Views, Viewers, Favourites, Shares)",
+        "note": "Make sure the numbers aren't cut off — you can add more than one image per screen."
+      },
+      "addImages": "Add screenshots",
+      "removeImage": "Remove screenshot",
+      "imageCount": "{{n}} / {{max}}",
+      "maxReached": "Up to {{max}} images per screen",
+      "previewAlt": "{{surface}} screenshot",
+      "periodLabel": "Reporting period",
+      "periodPlaceholder": "e.g. June 2026",
+      "periodHint": "Shown on the report — a month or a date range (e.g. 25 May – 21 Jun)",
+      "generate": "Generate monthly report",
+      "needImages": "Add at least one screenshot to a slot"
     }
   },
   "reports": {

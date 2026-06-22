@@ -27,3 +27,7 @@ export const SNAP_UPLOAD = {
 // GPT-4o to read the small Snap Insights labels, low enough to stay well under
 // the image cap.
 export const PDF_RENDER_WIDTH_PX = 1280;
+
+// Per-surface image cap for a monthly report (3 slots → ≤ 9 vision calls per
+// report). Bounds the OpenAI cost + the edge function's runtime per extraction.
+export const SNAP_MONTHLY_MAX_IMAGES_PER_SLOT = 3;

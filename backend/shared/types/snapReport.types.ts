@@ -2,8 +2,16 @@
 // extraction-status set. Framework-agnostic (no React, Vite, or Deno imports)
 // so the web app, the extract-snap-report edge function, and the future React
 // Native app all reuse them untouched. Keep SNAP_EXTRACTION_STATUS in sync with
-// the CHECK constraint in 0010_snap_reports.sql and SNAP_REPORT_TYPE with the
-// CHECK in 0012_snap_report_types.sql.
+// the CHECK constraint in 0010_snap_reports.sql, SNAP_REPORT_TYPE with the
+// CHECK in 0012_snap_report_types.sql, and the monthly-model columns (platform/
+// scope/period_label/metrics/images) with 0023_snap_monthly.sql.
+
+import type {
+  SnapMonthlyMetrics,
+  SnapPlatform,
+  SnapReportImage,
+  SnapScope,
+} from "../analytics/snapMetricDictionary.ts";
 //
 // The extracted fields are nullable: Snap Insights UI variants omit some
 // numbers, and the extraction contract lets the model return null rather than
@@ -32,8 +40,13 @@ export const SNAP_REPORT_TYPE = {
 export type SnapReportType =
   (typeof SNAP_REPORT_TYPE)[keyof typeof SNAP_REPORT_TYPE];
 
-// The canonical shape of a snap_reports row. The last three integer fields are
-// the monthly-only metrics — always null on 'post' rows.
+// The canonical shape of a snap_reports row.
+//
+// Two models coexist (0023). LEGACY (post + old monthly): the fixed integer
+// columns below, with `scope` NULL. NEW monthly (the metric-dictionary model):
+// `scope = 'monthly'`, `metrics` jsonb nested by surface, `images` manifest,
+// `period_label` — and the fixed columns are left null/unwritten. A row is a
+// new-model monthly report iff `scope === SNAP_SCOPE.MONTHLY`.
 export type SnapReport = {
   id: string;
   user_id: string;
@@ -52,6 +65,12 @@ export type SnapReport = {
   raw_ai_json: unknown;
   extraction_status: SnapExtractionStatus;
   created_at: string;
+  // Monthly metric-dictionary model (0023). NULL on every legacy row.
+  platform: SnapPlatform | null;
+  scope: SnapScope | null;
+  period_label: string | null;
+  metrics: SnapMonthlyMetrics | null;
+  images: SnapReportImage[] | null;
 };
 
 // What the GPT-4o structured-output call returns for a 'post' report — every

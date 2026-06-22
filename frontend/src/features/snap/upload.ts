@@ -4,6 +4,7 @@ import {
   SNAP_UPLOAD,
   type SnapMime,
 } from "@/constants/snap";
+import type { SnapSurface } from "@shared/analytics/snapMetricDictionary";
 
 // Pure snap-upload logic — no React, no Supabase, no DOM. The route reads the
 // file's leading bytes and hands them here; validation and path-building live
@@ -80,6 +81,20 @@ export function validateSnapPdf(file: FileFacts, bytes: Uint8Array): string | nu
 // caller-generated (crypto.randomUUID) so this stays pure.
 export function snapObjectPath(userId: string, fileId: string, mime: SnapMime): string {
   return `${userId}/${fileId}.${SNAP_MIME_EXT[mime]}`;
+}
+
+// A monthly report's images live under one per-report folder, named by surface
+// + index so the manifest path is self-describing and uniquely keyed. `groupId`
+// is caller-generated (crypto.randomUUID) so this stays pure; the first path
+// segment is still the user id, which the snap-uploads RLS gates on.
+export function snapMonthlyObjectPath(
+  userId: string,
+  groupId: string,
+  surface: SnapSurface,
+  index: number,
+  mime: SnapMime,
+): string {
+  return `${userId}/${groupId}/${surface}-${index}.${SNAP_MIME_EXT[mime]}`;
 }
 
 export { MAGIC_BYTES_NEEDED };
