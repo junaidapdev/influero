@@ -769,6 +769,8 @@
     "manage": "Manage billing",
     "renewsOn": "Renews {{date}}",
     "endsOn": "Access until {{date}}",
+    "grantUntil": "Free Pro access until {{date}}",
+    "grantForever": "Free Pro access",
     "toast": {
       "checkoutSuccess": "Payment received — activating Pro…",
       "checkoutError": "Couldn't start checkout. Please try again.",
@@ -783,6 +785,20 @@
       "deals": "You've reached the Free plan's limit of 5 active deals. Upgrade to Pro for unlimited deals.",
       "generic": "This is a Pro feature. Upgrade to Pro to unlock it.",
       "expenses": "Track production, travel, and other business costs — and see your true profit per deal. Available on the Pro plan."
+    },
+    "promo": {
+      "label": "Have a promo code?",
+      "placeholder": "Enter code",
+      "redeem": "Redeem",
+      "toast": {
+        "success": "Code applied — Pro unlocked! 🎉",
+        "invalid": "That code isn't valid.",
+        "alreadyRedeemed": "You've already used this code.",
+        "alreadyPro": "You're already on Pro.",
+        "exhausted": "This code has reached its limit.",
+        "signedOut": "Your session expired — please sign in again.",
+        "error": "Couldn't redeem the code. Please try again."
+      }
     }
   }
 }

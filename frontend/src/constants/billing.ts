@@ -16,3 +16,13 @@ export const CHECKOUT_SUCCESS_VALUE = "success";
 // The bare message the enforce_deal_limit() trigger raises (SQLSTATE P0001) when
 // a free user exceeds the deal cap; the client matches it to show the upgrade copy.
 export const DEAL_LIMIT_ERROR = "DEAL_LIMIT";
+
+// The bare token messages redeem_promo() raises (SQLSTATE P0001, migration 0022).
+// The client matches these to localized toast copy — same convention as DEAL_LIMIT.
+export const PROMO_REDEEM_ERROR = {
+  NOT_AUTHENTICATED: "NOT_AUTHENTICATED",
+  ALREADY_PRO: "ALREADY_PRO",
+  INVALID_CODE: "INVALID_CODE",
+  ALREADY_REDEEMED: "ALREADY_REDEEMED",
+  CODE_EXHAUSTED: "CODE_EXHAUSTED",
+} as const;

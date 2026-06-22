@@ -13,6 +13,7 @@ const FREE_ENTITLEMENT: Entitlement = {
   status: null,
   is_pro: false,
   active_until: null,
+  via: null,
 };
 
 // The caller's plan/entitlement (get_my_entitlement RPC). SAFE TO CALL FROM ANY
