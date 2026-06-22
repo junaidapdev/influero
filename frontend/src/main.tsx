@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import { App } from "@/App";
 import { SessionProvider } from "@/components/providers/SessionProvider";
@@ -28,6 +29,7 @@ createRoot(rootElement).render(
             <UpgradeModalProvider>
               <App />
               <Analytics />
+              <SpeedInsights />
             </UpgradeModalProvider>
           </ToastProvider>
         </SessionProvider>
