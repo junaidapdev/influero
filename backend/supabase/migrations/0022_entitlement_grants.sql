@@ -67,6 +67,9 @@ create table if not exists public.promo_codes (
   -- counter the redeem path bumps (see redeem_promo).
   max_redemptions integer check (max_redemptions is null or max_redemptions > 0),
   redemption_count integer not null default 0,
+  -- Reserved for future multi-redemption support. Phase 1 enforces exactly ONE
+  -- redemption per (code, user) via the promo_redemptions UNIQUE constraint, so
+  -- redeem_promo does not read this column yet; a later phase can honor values > 1.
   per_user_limit integer not null default 1,
   active boolean not null default true,
   valid_from timestamptz,
