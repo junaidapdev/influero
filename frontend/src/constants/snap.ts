@@ -32,6 +32,7 @@ export const PDF_RENDER_WIDTH_PX = 1280;
 // report). Bounds the OpenAI cost + the edge function's runtime per extraction.
 export const SNAP_MONTHLY_MAX_IMAGES_PER_SLOT = 3;
 
-// Frame cap for a 24-hour campaign report: a brand usually appears in only 1–3
-// story frames, and each frame is one vision call. Bounds cost + runtime.
-export const SNAP_CAMPAIGN_MAX_FRAMES = 3;
+// Frame cap for a 24-hour campaign report: a brand's story can run many frames
+// across a day (commonly up to ~20). Each frame is one vision call, so this
+// caps the OpenAI cost + the edge function's runtime per extraction.
+export const SNAP_CAMPAIGN_MAX_FRAMES = 20;

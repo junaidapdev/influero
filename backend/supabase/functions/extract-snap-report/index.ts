@@ -54,13 +54,17 @@ const MAX_OUTPUT_TOKENS = 300;
 // Per-call OpenAI timeout — fail fast instead of hanging the invocation (and
 // leaving the row stuck pending) if the upstream stalls.
 const OPENAI_TIMEOUT_MS = 30_000;
-// Server-side cap on a multi-image report's manifest (monthly = 3 images × 3
-// surfaces; campaign = up to 3 frames — 9 covers both). Defense-in-depth so a
-// hand-crafted row can't fan out an unbounded number of parallel vision calls.
-const MAX_REPORT_IMAGES = 9;
-// A campaign captures at most 3 brand frames (mirrors the client cap). Enforced
-// per-scope so a hand-crafted row can't fan out extra vision calls.
-const MAX_CAMPAIGN_FRAMES = 3;
+// Per-scope server-side image caps, each enforced strictly inside its own
+// extraction path (defense-in-depth so a hand-crafted row can't fan out an
+// unbounded number of parallel vision calls). MAX_REPORT_IMAGES is the outer
+// manifest bound the generic parser shares across scopes.
+const MAX_MONTHLY_IMAGES = 9; // 3 surfaces × 3 images
+const MAX_CAMPAIGN_FRAMES = 20; // a brand's story can run many frames in a day
+const MAX_REPORT_IMAGES = Math.max(MAX_MONTHLY_IMAGES, MAX_CAMPAIGN_FRAMES);
+// Cap on the parallel OpenAI vision calls one report fans out: the per-image
+// extraction runs in batches of this size, so a 20-frame campaign can't fire 20
+// calls at once (OpenAI rate limits + the edge wall-clock budget).
+const VISION_CONCURRENCY = 5;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const SNAP_BUCKET = "snap-uploads";
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -475,6 +479,27 @@ function parseImageManifest(raw: unknown): SnapReportImage[] | null {
   return parsed.success ? parsed.data : null;
 }
 
+// Run `fn` over `items` with at most `limit` calls in flight at once, preserving
+// input order in the result. Bounds the parallel OpenAI vision calls a single
+// report fans out (a campaign can carry up to MAX_CAMPAIGN_FRAMES frames).
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let cursor = 0;
+  async function worker(): Promise<void> {
+    while (cursor < items.length) {
+      const index = cursor++;
+      results[index] = await fn(items[index]);
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
 // Download + extract ONE image. Returns null on any failure (download, OpenAI,
 // parse) — that image simply contributes nothing; the report still settles on
 // whatever other images yielded. The own-path download runs under the caller's
@@ -544,12 +569,14 @@ async function extractMonthly(
   snapReportId: string,
 ): Promise<Response> {
   const images = parseImageManifest(report.images);
-  if (!images) {
+  if (!images || images.length > MAX_MONTHLY_IMAGES) {
     await markFailed(supabase, snapReportId, report.user_id);
     return fail(ERROR_CODE.INTERNAL, "No images to extract", HTTP.INTERNAL_SERVER_ERROR);
   }
 
-  const results = await Promise.all(images.map((image) => extractOneImage(supabase, image)));
+  const results = await mapWithConcurrency(images, VISION_CONCURRENCY, (image) =>
+    extractOneImage(supabase, image),
+  );
 
   const metrics: SnapMonthlyMetrics = {};
   const rawBodies: SnapMetricValues[] = [];
@@ -773,7 +800,9 @@ async function extractCampaign(
     return fail(ERROR_CODE.INTERNAL, "Invalid campaign images", HTTP.INTERNAL_SERVER_ERROR);
   }
 
-  const results = await Promise.all(images.map((image) => extractOneFrame(supabase, image)));
+  const results = await mapWithConcurrency(images, VISION_CONCURRENCY, (image) =>
+    extractOneFrame(supabase, image),
+  );
 
   const frames: SnapFrameValues[] = [];
   let reportDate: string | null = null;

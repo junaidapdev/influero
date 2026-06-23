@@ -240,7 +240,9 @@ export function CampaignUploadSlots({ deals }: Props) {
           }}
         />
 
-        <FieldError message={imageError ? t(imageError) : undefined} />
+        <FieldError
+          message={imageError ? t(imageError, { max: SNAP_CAMPAIGN_MAX_FRAMES }) : undefined}
+        />
       </div>
 
       <FieldError message={formErrorKey ? t(formErrorKey) : undefined} />
