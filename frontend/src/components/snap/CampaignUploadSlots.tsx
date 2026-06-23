@@ -68,6 +68,18 @@ export function CampaignUploadSlots({ deals }: Props) {
   const isBusy = isPreparing || createCampaign.isPending;
   const atCap = frames.length >= SNAP_CAMPAIGN_MAX_FRAMES;
 
+  // Why the Generate button is disabled — surfaced as a hint, because a disabled
+  // button can't be clicked to reveal the validation error. There is no minimum
+  // frame count (one is enough); the gate is a deal plus at least one frame.
+  const generateHintKey =
+    isBusy || (!!dealId && frames.length > 0)
+      ? undefined
+      : !dealId && frames.length === 0
+        ? "snap.campaign.generateHint"
+        : !dealId
+          ? "snap.campaign.needDeal"
+          : "snap.campaign.needImages";
+
   async function addFrames(fileList: FileList): Promise<void> {
     setFormErrorKey(undefined);
     setImageError(undefined);
@@ -256,6 +268,11 @@ export function CampaignUploadSlots({ deals }: Props) {
       >
         {t("snap.campaign.generate")}
       </Button>
+      {generateHintKey ? (
+        <p className="text-center text-xs text-text-muted">
+          {t(generateHintKey)}
+        </p>
+      ) : null}
     </div>
   );
 }
