@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useExportCardPng } from "@/hooks/useExportCardPng";
 import { formatDualDate } from "@/lib/date";
-import { formatNumber } from "@/lib/numbers";
+import { formatNumber, normalizeDigits } from "@/lib/numbers";
 import { logger } from "@/lib/logger";
 import { localizedBrandName } from "@/features/brands/brandName";
 import {
@@ -57,8 +57,10 @@ function frameKey(index: number, metricId: string): string {
 }
 
 // Counts only on a frame — empty → null, digits → integer, else malformed.
+// Arabic-Indic numerals are normalized to ASCII first so an Arabic keypad entry
+// validates (parity with the edge extraction).
 function parseCount(raw: string): { ok: true; value: number | null } | { ok: false } {
-  const trimmed = raw.trim();
+  const trimmed = normalizeDigits(raw.trim());
   if (trimmed === "") return { ok: true, value: null };
   if (!COUNT_PATTERN.test(trimmed)) return { ok: false };
   return { ok: true, value: Number(trimmed) };

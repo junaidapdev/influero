@@ -11,7 +11,11 @@ import { logger } from "@/lib/logger";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { STORAGE } from "@/constants/storage";
-import { SNAP_EDGE_FUNCTION, type SnapMime } from "@/constants/snap";
+import {
+  SNAP_CAMPAIGN_MAX_FRAMES,
+  SNAP_EDGE_FUNCTION,
+  type SnapMime,
+} from "@/constants/snap";
 import { snapSurfaceObjectPath, snapObjectPath } from "@/features/snap/upload";
 import type { SnapReportFormInput } from "@/features/snap/snap.schema";
 import {
@@ -529,6 +533,11 @@ export function useCreateCampaignSnapReport() {
       }
       if (images.length === 0) {
         throw new Error("[useCreateCampaignSnapReport] No images");
+      }
+      // Mirror the UI cap + the edge guard — a non-UI caller can't send an
+      // oversized frame set that would fan out extra backend vision calls.
+      if (images.length > SNAP_CAMPAIGN_MAX_FRAMES) {
+        throw new Error("[useCreateCampaignSnapReport] Too many frames");
       }
 
       const groupId = crypto.randomUUID();

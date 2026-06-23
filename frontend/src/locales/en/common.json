@@ -707,7 +707,7 @@
     },
     "card": {
       "titlePost": "24-hour Snap report",
-      "titleCampaign": "24-hour Snap report",
+      "titleCampaign": "Campaign Snap report",
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
       "footer": "Generated with {{app}}"

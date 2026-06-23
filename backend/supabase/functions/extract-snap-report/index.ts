@@ -58,6 +58,9 @@ const OPENAI_TIMEOUT_MS = 30_000;
 // surfaces; campaign = up to 3 frames — 9 covers both). Defense-in-depth so a
 // hand-crafted row can't fan out an unbounded number of parallel vision calls.
 const MAX_REPORT_IMAGES = 9;
+// A campaign captures at most 3 brand frames (mirrors the client cap). Enforced
+// per-scope so a hand-crafted row can't fan out extra vision calls.
+const MAX_CAMPAIGN_FRAMES = 3;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const SNAP_BUCKET = "snap-uploads";
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -756,10 +759,18 @@ async function extractCampaign(
   report: SnapReport,
   snapReportId: string,
 ): Promise<Response> {
+  // Enforce the campaign contract on the row's manifest BEFORE any vision call:
+  // the generic parser allows up to MAX_REPORT_IMAGES of any surface, but a
+  // campaign is ≤ MAX_CAMPAIGN_FRAMES story-frame images. A row violating this
+  // is treated as unextractable (failed → manual path), never fanned out.
   const images = parseImageManifest(report.images);
-  if (!images) {
+  if (
+    !images ||
+    images.length > MAX_CAMPAIGN_FRAMES ||
+    images.some((image) => image.surface !== SNAP_SURFACE.STORY_FRAME)
+  ) {
     await markFailed(supabase, snapReportId, report.user_id);
-    return fail(ERROR_CODE.INTERNAL, "No images to extract", HTTP.INTERNAL_SERVER_ERROR);
+    return fail(ERROR_CODE.INTERNAL, "Invalid campaign images", HTTP.INTERNAL_SERVER_ERROR);
   }
 
   const results = await Promise.all(images.map((image) => extractOneFrame(supabase, image)));
