@@ -12,6 +12,7 @@ import type { AppUser } from "@shared/types/appUser.types";
 import {
   changePctKey,
   getMonthlyMetricDef,
+  SNAP_CAMPAIGN_HEADLINES,
   SNAP_METRIC_UNIT,
   SNAP_MONTHLY_HEADLINES,
   SNAP_SCOPE,
@@ -102,23 +103,35 @@ export function SnapReportCard({ report, appUser, brandName, dealTitle }: Props)
   const { t } = useTranslation();
   const { locale } = useLocale();
 
+  // 24-hour campaign (0024) — a fused headline read from metrics.computed.
+  const isCampaign = report.scope === SNAP_SCOPE.CAMPAIGN_24H;
   // The new metric-dictionary monthly model — a CURATED headline set read from
   // the metrics jsonb (the full set stays in `metrics`, off the card).
   const isNewMonthly = report.scope === SNAP_SCOPE.MONTHLY;
   // Legacy fixed-column monthly (pre-0023 rows) still render their old grid.
-  const isLegacyMonthly = !isNewMonthly && report.report_type === SNAP_REPORT_TYPE.MONTHLY;
+  const isLegacyMonthly =
+    !isNewMonthly && !isCampaign && report.report_type === SNAP_REPORT_TYPE.MONTHLY;
   const legacyMetrics = isLegacyMonthly ? MONTHLY_METRICS : POST_METRICS;
+
+  const computed = report.metrics?.computed;
+  const frameCount = computed?.frame_count ?? 0;
 
   const monthLabel =
     isLegacyMonthly && report.report_date
       ? formatMonthYear(report.report_date.slice(0, 7), locale)
       : null;
+  // Campaign + post both show the snap date as a dual Hijri/Gregorian line.
   const dualDate =
     !isNewMonthly && !isLegacyMonthly && report.report_date
       ? formatDualDate(report.report_date, locale)
       : null;
 
-  const cardTitle = isNewMonthly || isLegacyMonthly ? t("snap.card.titleMonthly") : t("snap.card.titlePost");
+  const cardTitle = isCampaign
+    ? t("snap.card.titleCampaign")
+    : isNewMonthly || isLegacyMonthly
+      ? t("snap.card.titleMonthly")
+      : t("snap.card.titlePost");
+  // Campaign shares the post context (brand · deal); monthly its period/month.
   const contextLine = isNewMonthly
     ? (report.period_label?.trim() || null)
     : isLegacyMonthly
@@ -163,7 +176,36 @@ export function SnapReportCard({ report, appUser, brandName, dealTitle }: Props)
         ) : null}
 
         <div className="grid grid-cols-2 gap-3">
-          {isNewMonthly
+          {isCampaign
+            ? SNAP_CAMPAIGN_HEADLINES.map((headline) => {
+                const value = computed?.[headline.computedKey];
+                // views_peak is a single-frame MAX — flag it as the highest
+                // frame and note the spread when more than one frame was caught.
+                const showAcross = Boolean(headline.isPeak) && frameCount > 1;
+                return (
+                  <div
+                    key={headline.computedKey}
+                    className="rounded-lg border border-border-light bg-surface-secondary p-3"
+                  >
+                    <p className="money text-lg font-bold text-text-primary">
+                      {typeof value === "number" ? formatNumber(value, locale) : "—"}
+                    </p>
+                    <p className="text-xs text-text-secondary">
+                      {headline.label[locale]}
+                      {showAcross ? ` · ${t("snap.campaign.highestFrame")}` : ""}
+                    </p>
+                    {showAcross ? (
+                      <p className="text-micro text-text-muted">
+                        {t("snap.campaign.acrossFrames", {
+                          count: frameCount,
+                          n: formatNumber(frameCount, locale),
+                        })}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })
+            : isNewMonthly
             ? SNAP_MONTHLY_HEADLINES.map((headline) => {
                 const cell = headlineCell(report, headline);
                 const tone =

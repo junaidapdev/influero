@@ -21,13 +21,13 @@ import {
 import {
   SNAP_SURFACE_LABELS,
   SNAP_SURFACE_ORDER,
-  type SnapSurface,
+  type SnapMonthlySurface,
 } from "@shared/analytics/snapMetricDictionary";
 
 const ACCEPT = [...Object.keys(SNAP_MIME_EXT), PDF_MIME].join(",");
 
 type SlotImage = { id: string; blob: Blob; mime: SnapMime; previewUrl: string };
-type SlotState = Record<SnapSurface, SlotImage[]>;
+type SlotState = Record<SnapMonthlySurface, SlotImage[]>;
 
 const EMPTY_SLOTS: SlotState = {
   profile: [],
@@ -36,7 +36,7 @@ const EMPTY_SLOTS: SlotState = {
 };
 
 // The three step instructions map 1:1 to the surfaces, in capture order.
-const STEP_KEYS: Record<SnapSurface, string> = {
+const STEP_KEYS: Record<SnapMonthlySurface, string> = {
   profile: "snap.monthly.steps.profile",
   public_stories: "snap.monthly.steps.publicStories",
   spotlight: "snap.monthly.steps.spotlight",
@@ -58,10 +58,10 @@ export function MonthlyUploadSlots() {
   const createMonthly = useCreateMonthlySnapReport();
 
   const [slots, setSlots] = useState<SlotState>(EMPTY_SLOTS);
-  const [slotError, setSlotError] = useState<Partial<Record<SnapSurface, string>>>({});
+  const [slotError, setSlotError] = useState<Partial<Record<SnapMonthlySurface, string>>>({});
   const [formErrorKey, setFormErrorKey] = useState<string | undefined>();
   const [periodLabel, setPeriodLabel] = useState(() => defaultPeriodLabel(locale));
-  const [preparingSurface, setPreparingSurface] = useState<SnapSurface | null>(null);
+  const [preparingSurface, setPreparingSurface] = useState<SnapMonthlySurface | null>(null);
 
   // Revoke every object URL on unmount (slots can hold blobs that never reach
   // the bucket if the user navigates away). A ref keeps the cleanup current
@@ -85,7 +85,7 @@ export function MonthlyUploadSlots() {
   );
   const isBusy = preparingSurface !== null || createMonthly.isPending;
 
-  async function addToSlot(surface: SnapSurface, fileList: FileList): Promise<void> {
+  async function addToSlot(surface: SnapMonthlySurface, fileList: FileList): Promise<void> {
     setFormErrorKey(undefined);
     setSlotError((prev) => ({ ...prev, [surface]: undefined }));
     setPreparingSurface(surface);
@@ -118,7 +118,7 @@ export function MonthlyUploadSlots() {
     }
   }
 
-  function removeImage(surface: SnapSurface, id: string): void {
+  function removeImage(surface: SnapMonthlySurface, id: string): void {
     setSlots((prev) => {
       const image = prev[surface].find((item) => item.id === id);
       if (image) URL.revokeObjectURL(image.previewUrl);

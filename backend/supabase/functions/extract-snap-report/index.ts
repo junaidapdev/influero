@@ -36,12 +36,15 @@ import {
   SNAP_SCOPE,
   SNAP_SURFACE,
   SNAP_SURFACE_LABELS,
+  type SnapCampaignMetrics,
+  type SnapFrameValues,
   type SnapMetricUnit,
   type SnapMetricValues,
   type SnapMonthlyMetrics,
   type SnapReportImage,
   type SnapSurface,
 } from "../../../shared/analytics/snapMetricDictionary.ts";
+import { computeCampaignHeadline } from "../../../shared/analytics/snapCampaignHeadline.ts";
 
 const inputSchema = z.object({ snapReportId: z.string().uuid() });
 
@@ -51,10 +54,10 @@ const MAX_OUTPUT_TOKENS = 300;
 // Per-call OpenAI timeout — fail fast instead of hanging the invocation (and
 // leaving the row stuck pending) if the upstream stalls.
 const OPENAI_TIMEOUT_MS = 30_000;
-// Server-side cap on a monthly report's image manifest (mirrors the client's
-// 3-images × 3-surfaces). Defense-in-depth so a hand-crafted row can't fan out
-// an unbounded number of parallel vision calls.
-const MAX_MONTHLY_IMAGES = 9;
+// Server-side cap on a multi-image report's manifest (monthly = 3 images × 3
+// surfaces; campaign = up to 3 frames — 9 covers both). Defense-in-depth so a
+// hand-crafted row can't fan out an unbounded number of parallel vision calls.
+const MAX_REPORT_IMAGES = 9;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const SNAP_BUCKET = "snap-uploads";
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -413,8 +416,10 @@ type SurfaceConfig = {
   zod: z.ZodTypeAny;
 };
 
-// Built once at module load — one config per surface.
-const SURFACE_CONFIG: Record<SnapSurface, SurfaceConfig> = {
+// Built once at module load — one config per MONTHLY surface (story_frame is a
+// campaign surface, configured separately as FRAME_CONFIG). Partial because the
+// SnapSurface union now spans both scopes.
+const SURFACE_CONFIG: Partial<Record<SnapSurface, SurfaceConfig>> = {
   [SNAP_SURFACE.PROFILE]: {
     jsonSchema: buildSurfaceJsonSchema(SNAP_SURFACE.PROFILE),
     prompt: buildSurfacePrompt(SNAP_SURFACE.PROFILE),
@@ -440,7 +445,7 @@ const imageManifestSchema = z
     }),
   )
   .min(1)
-  .max(MAX_MONTHLY_IMAGES);
+  .max(MAX_REPORT_IMAGES);
 
 // Gregorian month tokens (en short forms also match the long names; ar Intl
 // names) used to tell an EXPLICIT period ("June 2026", "25 May - 21 Jun") from a
@@ -489,6 +494,10 @@ async function extractOneImage(
     const dataUrl = `data:${mime};base64,${toBase64(bytes)}`;
 
     const config = SURFACE_CONFIG[image.surface];
+    if (!config) {
+      logger.error("[extract-snap-report] monthly unknown surface", image.surface);
+      return null;
+    }
     const vision = await visionExtract(config.prompt, config.jsonSchema, dataUrl);
     if (!vision.httpOk) {
       logger.error("[extract-snap-report] monthly OpenAI status", vision.status);
@@ -601,6 +610,218 @@ async function extractMonthly(
   return ok({ snapReportId, metrics }, HTTP.OK);
 }
 
+// ─── Campaign (24h) extraction ─────────────────────────────────────────────
+// A campaign report is ONE row with an `images` manifest of the 1–3 story
+// FRAMES that featured a brand. Each frame is extracted against the dictionary's
+// story_frame metrics, then computeCampaignHeadline fuses them (MAX for unique
+// reach / peak views, SUM for action counts) into the `computed` headline. The
+// per-frame raw extractions AND the headline are stored under metrics =
+// { frames, computed }. Frames stay aligned to the manifest order — a frame
+// that fails extraction becomes an all-null entry (kept so frame_count is the
+// honest captured count and the editor maps 1:1 to the uploaded images).
+
+const CAMPAIGN_FRAME_METRICS = getSurfaceMetrics(
+  SNAP_PLATFORM.SNAPCHAT,
+  SNAP_SCOPE.CAMPAIGN_24H,
+  SNAP_SURFACE.STORY_FRAME,
+);
+
+// A frame's strict structured-output schema: every story_frame metric (all
+// counts) + a nullable `date`, all required-but-nullable.
+function buildFrameJsonSchema(): Record<string, unknown> {
+  const properties: Record<string, { type: [string, "null"] }> = {};
+  const required: string[] = [];
+  for (const metric of CAMPAIGN_FRAME_METRICS) {
+    properties[metric.id] = { type: [numTypeForUnit(metric.unit), "null"] };
+    required.push(metric.id);
+  }
+  properties.date = { type: ["string", "null"] };
+  required.push("date");
+  return {
+    name: "snap_campaign_story_frame",
+    strict: true,
+    schema: { type: "object", additionalProperties: false, required, properties },
+  };
+}
+
+function buildFramePrompt(): string {
+  return [
+    "You extract metrics from a screenshot of a SINGLE Snapchat story FRAME's",
+    "Insights (one slide of a story you posted, captured ~24h after posting).",
+    "The UI may be in Arabic or English.",
+    "",
+    "Extract ONLY these fields (canonical id (unit): native labels to match):",
+    ...CAMPAIGN_FRAME_METRICS.map((metric) => {
+      const labels = [...metric.synonyms.en, ...metric.synonyms.ar].join(", ");
+      return `- ${metric.id} (${metric.unit}): ${labels}.`;
+    }),
+    '- date: the frame\'s date if shown, e.g. "16 Jun 2026", as YYYY-MM-DD',
+    "  (Gregorian). Return null if no date is visible.",
+    "",
+    "Layout notes:",
+    "- 'Views' may show a Followers / Non-followers split — use the TOTAL views.",
+    "- 'Interactions' is a TOTAL broken into Tap Forwards, Tap Backwards,",
+    "  Swipe-aways, and Clicks — extract each of those sub-metrics, never the",
+    "  'Interactions' total itself.",
+    "- 'Clicks' means link taps.",
+    "",
+    ...MONTHLY_NUMBER_RULES,
+    "",
+    ...MONTHLY_INJECTION_DEFENSE,
+  ].join("\n");
+}
+
+// The zod validator mirroring the frame schema — all metrics are non-negative
+// integer counts; date is a nullable string.
+function buildFrameZod(): z.ZodTypeAny {
+  const shape: Record<string, z.ZodTypeAny> = {};
+  for (const metric of CAMPAIGN_FRAME_METRICS) {
+    shape[metric.id] = z.number().int().nonnegative().nullable();
+  }
+  shape.date = z.string().nullable();
+  return z.object(shape);
+}
+
+// Built once at module load.
+const FRAME_CONFIG: SurfaceConfig = {
+  jsonSchema: buildFrameJsonSchema(),
+  prompt: buildFramePrompt(),
+  zod: buildFrameZod(),
+};
+
+// An all-null frame — the placeholder for a frame whose image failed extraction,
+// so frames stay aligned to the manifest and frame_count is the captured count.
+function emptyFrameValues(): SnapFrameValues {
+  const values: SnapFrameValues = {};
+  for (const metric of CAMPAIGN_FRAME_METRICS) values[metric.id] = null;
+  return values;
+}
+
+// Download + extract ONE frame. Returns null on any failure (download, OpenAI,
+// parse) — the caller substitutes an all-null frame so indices stay aligned.
+async function extractOneFrame(
+  supabase: ReturnType<typeof createSupabaseAsUser>,
+  image: SnapReportImage,
+): Promise<{ values: SnapFrameValues; date: string | null } | null> {
+  try {
+    const { data: file, error } = await supabase.storage
+      .from(SNAP_BUCKET)
+      .download(image.path);
+    if (error || !file) {
+      logger.error("[extract-snap-report] campaign download", error);
+      return null;
+    }
+
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const mime = file.type || "image/png";
+    const dataUrl = `data:${mime};base64,${toBase64(bytes)}`;
+
+    const vision = await visionExtract(FRAME_CONFIG.prompt, FRAME_CONFIG.jsonSchema, dataUrl);
+    if (!vision.httpOk) {
+      logger.error("[extract-snap-report] campaign OpenAI status", vision.status);
+      return null;
+    }
+    if (!vision.content || vision.refusal) return null;
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(vision.content);
+    } catch {
+      return null;
+    }
+    const candidate = FRAME_CONFIG.zod.safeParse(parsed);
+    if (!candidate.success) return null;
+
+    const data = candidate.data as Record<string, number | string | null>;
+    const dateRaw = typeof data.date === "string" ? data.date : "";
+    const date = ISO_DATE_PATTERN.test(dateRaw) ? dateRaw : null;
+    const values: SnapFrameValues = {};
+    for (const metric of CAMPAIGN_FRAME_METRICS) {
+      const value = data[metric.id];
+      values[metric.id] = typeof value === "number" ? value : null;
+    }
+    return { values, date };
+  } catch (err) {
+    logger.error("[extract-snap-report] campaign frame", err);
+    return null;
+  }
+}
+
+// The campaign extraction path: fan out over the frames in parallel (manifest
+// order), fuse via computeCampaignHeadline, then one guarded write. At least one
+// real headline value → 'extracted'; every frame all-null → 'failed' (the
+// manual-entry path), never stuck pending.
+async function extractCampaign(
+  supabase: ReturnType<typeof createSupabaseAsUser>,
+  report: SnapReport,
+  snapReportId: string,
+): Promise<Response> {
+  const images = parseImageManifest(report.images);
+  if (!images) {
+    await markFailed(supabase, snapReportId, report.user_id);
+    return fail(ERROR_CODE.INTERNAL, "No images to extract", HTTP.INTERNAL_SERVER_ERROR);
+  }
+
+  const results = await Promise.all(images.map((image) => extractOneFrame(supabase, image)));
+
+  const frames: SnapFrameValues[] = [];
+  let reportDate: string | null = null;
+  for (const result of results) {
+    frames.push(result ? result.values : emptyFrameValues());
+    if (reportDate === null && result?.date) reportDate = result.date;
+  }
+
+  const computed = computeCampaignHeadline(frames);
+  // Settle 'extracted' only if at least one real headline value was read (every
+  // image unreadable / wrong screenshot → 'failed', opens straight into manual).
+  const hasAnyValue = [
+    computed.reach,
+    computed.views_peak,
+    computed.screenshots,
+    computed.replies,
+    computed.clicks,
+  ].some((value) => typeof value === "number");
+  if (!hasAnyValue) {
+    await markFailed(supabase, snapReportId, report.user_id);
+    return fail(ERROR_CODE.INTERNAL, "Extraction failed", HTTP.INTERNAL_SERVER_ERROR);
+  }
+
+  const metrics: SnapCampaignMetrics = { frames, computed };
+  const updatePayload: Record<string, unknown> = {
+    metrics,
+    raw_ai_json: frames,
+    extraction_status: SNAP_EXTRACTION_STATUS.EXTRACTED,
+  };
+  // The frame date (first one read) becomes the report's snap date — same
+  // report_date plumbing + dual Hijri/Gregorian display as a post report.
+  if (reportDate) updatePayload.report_date = reportDate;
+
+  const { data: updatedRows, error: updateError } = await supabase
+    .from("snap_reports")
+    .update(updatePayload)
+    .eq("id", snapReportId)
+    .eq("user_id", report.user_id)
+    .eq("extraction_status", SNAP_EXTRACTION_STATUS.PENDING)
+    .select("id");
+
+  if (updateError) {
+    logger.error("[extract-snap-report] campaign update", updateError);
+    return fail(ERROR_CODE.INTERNAL, "Unexpected error", HTTP.INTERNAL_SERVER_ERROR);
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    return fail(ERROR_CODE.CONFLICT, "Report already processed", HTTP.CONFLICT);
+  }
+
+  await logActivity(supabase, {
+    kind: ACTIVITY_KIND.SNAP_EXTRACTED,
+    summary: reportDate ? `Snap campaign report · ${reportDate}` : "Snap campaign report",
+    refId: snapReportId,
+    refTable: "snap_reports",
+  });
+
+  return ok({ snapReportId, metrics }, HTTP.OK);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return corsPreflight();
@@ -686,6 +907,12 @@ Deno.serve(async (req) => {
         "Hourly extraction limit reached",
         HTTP.TOO_MANY_REQUESTS,
       );
+    }
+
+    // New campaign model (0024): one row, 1–3 story-frame images, a metrics
+    // jsonb of { frames, computed }. Branches off the legacy path entirely.
+    if (report.scope === SNAP_SCOPE.CAMPAIGN_24H) {
+      return await extractCampaign(supabase, report, snapReportId);
     }
 
     // New monthly model (0023): one row, many surface-tagged images, a metrics

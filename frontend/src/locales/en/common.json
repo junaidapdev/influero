@@ -241,6 +241,7 @@
       "paymentsError": "Couldn't load this deal's payments",
       "snapReport": "Snap report",
       "snapSummary": "{{date}} · {{views}} views",
+      "snapSummaryCampaign": "{{date}} · Reach {{reach}} · Clicks {{clicks}}",
       "noSnapReport": "No Snap report linked to this deal yet",
       "snapError": "Couldn't load this deal's Snap report"
     },
@@ -625,6 +626,7 @@
     "title": "Snap analytics",
     "type": {
       "post": "24h post",
+      "campaign": "Campaign",
       "monthly": "Monthly"
     },
     "count_one": "{{total}} report",
@@ -652,7 +654,9 @@
       "noNumbers": "No numbers yet — enter them manually",
       "openAria": "Open Snap report",
       "untitledMonthly": "Monthly Snap report",
-      "monthlyMetrics": "Followers {{followers}} · Story views {{storyViews}}"
+      "untitledCampaign": "Campaign report",
+      "monthlyMetrics": "Followers {{followers}} · Story views {{storyViews}}",
+      "campaignMetrics": "Reach {{reach}} · Clicks {{clicks}}"
     },
     "detail": {
       "title": "Snap report",
@@ -703,6 +707,7 @@
     },
     "card": {
       "titlePost": "24-hour Snap report",
+      "titleCampaign": "24-hour Snap report",
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
       "footer": "Generated with {{app}}"
@@ -725,6 +730,33 @@
       "periodHint": "Shown on the report — a month or a date range (e.g. 25 May – 21 Jun)",
       "generate": "Generate monthly report",
       "needImages": "Add at least one screenshot to a slot"
+    },
+    "campaign": {
+      "steps": {
+        "intro": "To report a story campaign:",
+        "one": "Open Snapchat → your profile → tap the story you posted for the brand.",
+        "two": "Tap the frame that featured the brand — its Insights appear (Views, Viewers, Screenshots, Clicks).",
+        "three": "Screenshot it. If the brand appeared in 2–3 frames, screenshot each one.",
+        "four": "Upload them within ~24 hours, before Snapchat hides the story's numbers.",
+        "note": "Only screenshot the frames that were the ad — not every frame."
+      },
+      "dealLabel": "Which brand deal is this for?",
+      "dealPlaceholder": "Select the brand deal",
+      "dealHint": "A campaign report is always tied to one deal.",
+      "noDeals": "Add a brand deal first — a campaign report links to one.",
+      "framesLabel": "Frames that featured the brand",
+      "frameCount": "{{n}} / {{max}}",
+      "frameAlt": "Story frame screenshot",
+      "addFrames": "Add frame screenshots",
+      "removeFrame": "Remove frame",
+      "maxReached": "Up to {{max}} frames per campaign",
+      "needDeal": "Choose the brand deal first",
+      "needImages": "Add at least one brand frame",
+      "generate": "Generate campaign report",
+      "frameHeading": "Frame {{n}}",
+      "highestFrame": "highest frame",
+      "acrossFrames_one": "across {{n}} frame",
+      "acrossFrames_other": "across {{n}} frames"
     }
   },
   "reports": {

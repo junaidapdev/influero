@@ -31,5 +31,6 @@
       "@shared/*": ["../backend/shared/*"]
     }
   },
-  "include": ["src", "../backend/shared"]
+  "include": ["src", "../backend/shared"],
+  "exclude": ["**/*.test.ts", "../backend/shared/**/*.test.ts"]
 }

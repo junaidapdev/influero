@@ -34,6 +34,7 @@ import { formatNumber } from "@/lib/numbers";
 import { formatSar } from "@/lib/currency";
 import { logger } from "@/lib/logger";
 import { ROUTES } from "@/constants/routes";
+import { SNAP_SCOPE } from "@shared/analytics/snapMetricDictionary";
 import type { Deal } from "@shared/types/deal.types";
 
 type Props = {
@@ -302,15 +303,29 @@ export function DealExpandedPanel({ deal }: Props) {
             to={ROUTES.ANALYTICS_SNAP}
             className="mt-1 block text-sm text-text-primary hover:text-accent focus-visible:underline focus-visible:outline-none"
           >
-            {t("deals.expanded.snapSummary", {
-              date: linkedReport.report_date
-                ? formatDualDate(linkedReport.report_date, locale).primary
-                : "—",
-              views:
-                linkedReport.views === null
-                  ? "—"
-                  : formatNumber(linkedReport.views, locale),
-            })}
+            {linkedReport.scope === SNAP_SCOPE.CAMPAIGN_24H
+              ? t("deals.expanded.snapSummaryCampaign", {
+                  date: linkedReport.report_date
+                    ? formatDualDate(linkedReport.report_date, locale).primary
+                    : "—",
+                  reach:
+                    typeof linkedReport.metrics?.computed?.reach === "number"
+                      ? formatNumber(linkedReport.metrics.computed.reach, locale)
+                      : "—",
+                  clicks:
+                    typeof linkedReport.metrics?.computed?.clicks === "number"
+                      ? formatNumber(linkedReport.metrics.computed.clicks, locale)
+                      : "—",
+                })
+              : t("deals.expanded.snapSummary", {
+                  date: linkedReport.report_date
+                    ? formatDualDate(linkedReport.report_date, locale).primary
+                    : "—",
+                  views:
+                    linkedReport.views === null
+                      ? "—"
+                      : formatNumber(linkedReport.views, locale),
+                })}
           </Link>
         )}
       </div>

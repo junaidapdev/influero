@@ -20,18 +20,34 @@ export type SnapPlatform = (typeof SNAP_PLATFORM)[keyof typeof SNAP_PLATFORM];
 
 export const SNAP_SCOPE = {
   MONTHLY: "monthly",
+  // 24-hour campaign: the 1–3 story FRAMES that featured one brand, fused into
+  // one honest card and linked to a deal (0024).
+  CAMPAIGN_24H: "campaign_24h",
 } as const;
 export type SnapScope = (typeof SNAP_SCOPE)[keyof typeof SNAP_SCOPE];
 
-// The three monthly surfaces, in capture/render order.
+// Snapchat surfaces. The three monthly dashboards + the single per-frame
+// surface a campaign captures. PROFILE/PUBLIC_STORIES/SPOTLIGHT are the monthly
+// model; STORY_FRAME is the campaign model.
 export const SNAP_SURFACE = {
   PROFILE: "profile",
   PUBLIC_STORIES: "public_stories",
   SPOTLIGHT: "spotlight",
+  STORY_FRAME: "story_frame",
 } as const;
 export type SnapSurface = (typeof SNAP_SURFACE)[keyof typeof SNAP_SURFACE];
 
-export const SNAP_SURFACE_ORDER: SnapSurface[] = [
+// The monthly-only surfaces (excludes story_frame) — the monthly upload slots
+// and detail sheet key their per-surface state by this narrower set, so adding
+// the campaign surface to SnapSurface never forces a story_frame slot on them.
+export type SnapMonthlySurface =
+  | typeof SNAP_SURFACE.PROFILE
+  | typeof SNAP_SURFACE.PUBLIC_STORIES
+  | typeof SNAP_SURFACE.SPOTLIGHT;
+
+// The three MONTHLY surfaces, in capture/render order. STORY_FRAME is
+// deliberately ABSENT — it belongs to the campaign scope, not the monthly grid.
+export const SNAP_SURFACE_ORDER: SnapMonthlySurface[] = [
   SNAP_SURFACE.PROFILE,
   SNAP_SURFACE.PUBLIC_STORIES,
   SNAP_SURFACE.SPOTLIGHT,
@@ -73,12 +89,15 @@ export const SNAP_SURFACE_LABELS: Record<SnapSurface, SnapLabel> = {
   [SNAP_SURFACE.PROFILE]: { en: "Profile", ar: "الملف الشخصي" },
   [SNAP_SURFACE.PUBLIC_STORIES]: { en: "Public Stories", ar: "القصص العامة" },
   [SNAP_SURFACE.SPOTLIGHT]: { en: "Spotlight", ar: "سبوت لايت" },
+  [SNAP_SURFACE.STORY_FRAME]: { en: "Story frame", ar: "لقطة القصة" },
 };
 
-// The dictionary. Nested platform → scope → surface → metrics[].
+// The dictionary. Nested platform → scope → surface → metrics[]. Partial at the
+// scope + surface levels because each scope defines only the surfaces it uses
+// (monthly: profile/public_stories/spotlight; campaign: story_frame).
 export const SNAP_METRIC_DICTIONARY: Record<
   SnapPlatform,
-  Record<SnapScope, Record<SnapSurface, SnapMetricDef[]>>
+  Partial<Record<SnapScope, Partial<Record<SnapSurface, SnapMetricDef[]>>>>
 > = {
   [SNAP_PLATFORM.SNAPCHAT]: {
     [SNAP_SCOPE.MONTHLY]: {
@@ -229,6 +248,94 @@ export const SNAP_METRIC_DICTIONARY: Record<
         },
       ],
     },
+    // 24-hour campaign: ONE surface (a single story frame's Insights screen).
+    // Each captured frame is extracted against these metrics, then fused by
+    // computeCampaignHeadline. Counts only; Snapchat shows no "vs previous" %
+    // on a frame, so hasChangePct is false throughout.
+    [SNAP_SCOPE.CAMPAIGN_24H]: {
+      [SNAP_SURFACE.STORY_FRAME]: [
+        {
+          id: "views",
+          label: { en: "Views", ar: "المشاهدات" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Views"],
+            ar: ["المشاهدات", "مرات المشاهدة", "عدد المشاهدات"],
+          },
+        },
+        {
+          id: "viewers",
+          label: { en: "Viewers", ar: "المشاهدون" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Viewers", "Unique viewers"],
+            ar: ["المشاهدون", "عدد المشاهدين", "المشاهدون الفريدون"],
+          },
+        },
+        {
+          id: "screenshots",
+          label: { en: "Screenshots", ar: "لقطات الشاشة" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Screenshots"],
+            ar: ["لقطات الشاشة", "لقطات الشاشه", "عدد لقطات الشاشة"],
+          },
+        },
+        {
+          id: "replies",
+          label: { en: "Replies", ar: "الردود" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Replies"],
+            ar: ["الردود", "ردود", "عدد الردود"],
+          },
+        },
+        {
+          id: "clicks",
+          label: { en: "Clicks", ar: "النقرات" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Clicks", "Link taps", "Link clicks"],
+            ar: ["النقرات", "نقرات الرابط", "النقر", "عدد النقرات"],
+          },
+        },
+        {
+          id: "tap_forwards",
+          label: { en: "Tap forwards", ar: "التمرير للأمام" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Tap forwards", "Tap forward", "Taps forward"],
+            ar: ["التمرير للأمام", "النقر للأمام", "التقديم"],
+          },
+        },
+        {
+          id: "tap_backwards",
+          label: { en: "Tap backwards", ar: "التمرير للخلف" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Tap backwards", "Tap back", "Taps back"],
+            ar: ["التمرير للخلف", "النقر للخلف", "الرجوع"],
+          },
+        },
+        {
+          id: "swipe_aways",
+          label: { en: "Swipe-aways", ar: "التمرير بعيدًا" },
+          unit: SNAP_METRIC_UNIT.COUNT,
+          hasChangePct: false,
+          synonyms: {
+            en: ["Swipe aways", "Swipe away", "Swipe-aways"],
+            ar: ["التمرير بعيدًا", "السحب بعيدًا", "التمرير بعيداً"],
+          },
+        },
+      ],
+    },
   },
 };
 
@@ -245,18 +352,55 @@ export type SnapMetricValues = Record<string, number | null>;
 // absent until at least one of its images is extracted.
 export type SnapMonthlyMetrics = Partial<Record<SnapSurface, SnapMetricValues>>;
 
+// ─── Campaign (24h) value types ─────────────────────────────────────────────
+
+// One captured frame's extracted metrics — story_frame metric id → number|null
+// (same shape as a surface's values; aliased for intent at the call sites).
+export type SnapFrameValues = SnapMetricValues;
+
+// The fused headline. reach/views_peak are MAX over frames (unique people /
+// peak impressions — never summed); screenshots/replies/clicks are SUM (action
+// counts). Each is null when no captured frame reported that metric.
+export type SnapCampaignComputed = {
+  reach: number | null;
+  views_peak: number | null;
+  frame_count: number;
+  screenshots: number | null;
+  replies: number | null;
+  clicks: number | null;
+};
+
+// The campaign `metrics` jsonb: the per-frame raw extractions AND the fused
+// headline. computeCampaignHeadline is the only writer of `computed`.
+export type SnapCampaignMetrics = {
+  frames: SnapFrameValues[];
+  computed: SnapCampaignComputed;
+};
+
+// The `metrics` column shape across BOTH new-model scopes. Monthly fills the
+// surface-keyed buckets; campaign fills frames + computed. Kept as ONE combined
+// type (not a discriminated union) so monthly read-sites keep indexing by
+// surface key with no change, while campaign adds its own optional keys. Narrow
+// the intent by `report.scope` at the call site.
+export type SnapReportMetrics = SnapMonthlyMetrics & {
+  frames?: SnapFrameValues[];
+  computed?: SnapCampaignComputed;
+};
+
 // The change-% companion key for a metric id.
 export function changePctKey(metricId: string): string {
   return `${metricId}_change_pct`;
 }
 
-// Every metric definition for a platform/scope/surface.
+// Every metric definition for a platform/scope/surface. Returns [] for a
+// scope/surface pair the dictionary doesn't define (the nesting is Partial),
+// so callers can iterate without a presence check.
 export function getSurfaceMetrics(
   platform: SnapPlatform,
   scope: SnapScope,
   surface: SnapSurface,
 ): SnapMetricDef[] {
-  return SNAP_METRIC_DICTIONARY[platform][scope][surface];
+  return SNAP_METRIC_DICTIONARY[platform]?.[scope]?.[surface] ?? [];
 }
 
 // One metric definition by surface + id (monthly Snapchat — the only scope).
@@ -332,4 +476,34 @@ export const SNAP_MONTHLY_HEADLINES: SnapHeadline[] = [
     metricIds: ["favourites", "shares"],
     label: { en: "Engagement", ar: "التفاعل" },
   },
+];
+
+// The campaign card's headline tiles, read from `computed` (NOT raw frames).
+// Reach is the hero (unique people); Clicks ≈ conversions; Screenshots is an
+// honest action count. Views is the PEAK frame, never a summed total. Labels
+// live here, not in the card — the single-source-of-truth rule.
+export type SnapCampaignHeadline = {
+  computedKey: keyof SnapCampaignComputed;
+  label: SnapLabel;
+  tier: "primary" | "secondary";
+  // views_peak is a single-frame MAX, never a total — the card labels it the
+  // "highest frame" and notes "across N frames" when frame_count > 1.
+  isPeak?: boolean;
+};
+
+export const SNAP_CAMPAIGN_HEADLINES: SnapCampaignHeadline[] = [
+  { computedKey: "reach", label: { en: "Reach", ar: "الوصول" }, tier: "primary" },
+  { computedKey: "clicks", label: { en: "Clicks", ar: "النقرات" }, tier: "primary" },
+  {
+    computedKey: "screenshots",
+    label: { en: "Screenshots", ar: "لقطات الشاشة" },
+    tier: "primary",
+  },
+  {
+    computedKey: "views_peak",
+    label: { en: "Views", ar: "المشاهدات" },
+    tier: "secondary",
+    isPeak: true,
+  },
+  { computedKey: "replies", label: { en: "Replies", ar: "الردود" }, tier: "secondary" },
 ];

@@ -83,11 +83,12 @@ export function snapObjectPath(userId: string, fileId: string, mime: SnapMime): 
   return `${userId}/${fileId}.${SNAP_MIME_EXT[mime]}`;
 }
 
-// A monthly report's images live under one per-report folder, named by surface
-// + index so the manifest path is self-describing and uniquely keyed. `groupId`
-// is caller-generated (crypto.randomUUID) so this stays pure; the first path
-// segment is still the user id, which the snap-uploads RLS gates on.
-export function snapMonthlyObjectPath(
+// A multi-image report's files (monthly surfaces OR campaign frames) live under
+// one per-report folder, named by surface + index so the manifest path is
+// self-describing and uniquely keyed. `groupId` is caller-generated
+// (crypto.randomUUID) so this stays pure; the first path segment is still the
+// user id, which the snap-uploads RLS gates on.
+export function snapSurfaceObjectPath(
   userId: string,
   groupId: string,
   surface: SnapSurface,

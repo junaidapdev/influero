@@ -12,7 +12,7 @@ import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { STORAGE } from "@/constants/storage";
 import { SNAP_EDGE_FUNCTION, type SnapMime } from "@/constants/snap";
-import { snapMonthlyObjectPath, snapObjectPath } from "@/features/snap/upload";
+import { snapSurfaceObjectPath, snapObjectPath } from "@/features/snap/upload";
 import type { SnapReportFormInput } from "@/features/snap/snap.schema";
 import {
   SNAP_EXTRACTION_STATUS,
@@ -23,10 +23,14 @@ import {
 import {
   SNAP_PLATFORM,
   SNAP_SCOPE,
+  SNAP_SURFACE,
+  type SnapCampaignMetrics,
+  type SnapFrameValues,
   type SnapMonthlyMetrics,
   type SnapReportImage,
   type SnapSurface,
 } from "@shared/analytics/snapMetricDictionary";
+import { computeCampaignHeadline } from "@shared/analytics/snapCampaignHeadline";
 
 // Signed URLs outlive their consumer comfortably but stay short-lived — the
 // bucket is private and the URL is the only thing that ever leaves it.
@@ -371,7 +375,7 @@ export function useCreateMonthlySnapReport() {
       // upload, the inserted row, and cleanup-on-failure.
       const manifest: SnapReportImage[] = images.map((image, index) => ({
         surface: image.surface,
-        path: snapMonthlyObjectPath(userId, groupId, image.surface, index, image.mime),
+        path: snapSurfaceObjectPath(userId, groupId, image.surface, index, image.mime),
       }));
 
       // Best-effort removal of every uploaded object — used to clean up orphans
@@ -485,6 +489,156 @@ export function useSnapSignedUrls(paths: string[]) {
         if (item.path && item.signedUrl) byPath[item.path] = item.signedUrl;
       }
       return byPath;
+    },
+  });
+}
+
+// ─── Campaign (24h) model ───────────────────────────────────────────────────
+
+type CampaignImageInput = { blob: Blob; mime: SnapMime };
+
+type CreateCampaignSnapInput = {
+  // REQUIRED — a campaign IS a brand deal's result. The picker enforces this
+  // before the mutation can fire.
+  dealId: string;
+  // 1–3 story FRAMES that featured the brand. The route validates + converts
+  // each to an image before here.
+  images: CampaignImageInput[];
+};
+
+// Upload every frame under one per-report folder, insert ONE pending campaign
+// row (scope='campaign_24h', report_type='post', linked deal, image manifest),
+// then fire the same background extraction (the edge fn reads the manifest from
+// the row, extracts each frame, and fuses a { frames, computed } metrics jsonb).
+// source_file_url (NOT NULL since 0010) is the first frame as a representative.
+export function useCreateCampaignSnapReport() {
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+
+  return useMutation({
+    mutationFn: async ({
+      dealId,
+      images,
+    }: CreateCampaignSnapInput): Promise<SnapReport> => {
+      const userId = session?.user.id;
+      if (!userId) {
+        throw new Error("[useCreateCampaignSnapReport] No authenticated user");
+      }
+      if (!dealId) {
+        throw new Error("[useCreateCampaignSnapReport] A linked deal is required");
+      }
+      if (images.length === 0) {
+        throw new Error("[useCreateCampaignSnapReport] No images");
+      }
+
+      const groupId = crypto.randomUUID();
+      // Every frame shares the story_frame surface — the path stays self-keyed
+      // by group + index. Build the manifest up front so upload, the inserted
+      // row, and cleanup-on-failure all reuse it.
+      const manifest: SnapReportImage[] = images.map((image, index) => ({
+        surface: SNAP_SURFACE.STORY_FRAME,
+        path: snapSurfaceObjectPath(
+          userId,
+          groupId,
+          SNAP_SURFACE.STORY_FRAME,
+          index,
+          image.mime,
+        ),
+      }));
+
+      const removeUploaded = async (): Promise<void> => {
+        const { error } = await supabase.storage
+          .from(STORAGE.SNAP_UPLOADS_BUCKET)
+          .remove(manifest.map((item) => item.path));
+        if (error) logger.error("[useCreateCampaignSnapReport] cleanup", error);
+      };
+
+      const uploads = await Promise.allSettled(
+        images.map((image, index) =>
+          supabase.storage
+            .from(STORAGE.SNAP_UPLOADS_BUCKET)
+            .upload(manifest[index].path, image.blob, { contentType: image.mime })
+            .then(({ error }) => {
+              if (error) throw error;
+            }),
+        ),
+      );
+      if (uploads.some((result) => result.status === "rejected")) {
+        await removeUploaded();
+        throw new Error("[useCreateCampaignSnapReport] upload failed");
+      }
+
+      const { data, error: insertError } = await supabase
+        .from("snap_reports")
+        .insert({
+          user_id: userId,
+          deal_id: dealId,
+          source_file_url: manifest[0].path,
+          report_type: SNAP_REPORT_TYPE.POST,
+          platform: SNAP_PLATFORM.SNAPCHAT,
+          scope: SNAP_SCOPE.CAMPAIGN_24H,
+          images: manifest,
+          extraction_status: SNAP_EXTRACTION_STATUS.PENDING,
+        })
+        .select("*")
+        .single();
+      if (insertError) {
+        await removeUploaded();
+        throw insertError;
+      }
+
+      return data as SnapReport;
+    },
+    onSuccess: (report) => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
+      void runExtraction(report.id, report.user_id, queryClient);
+    },
+  });
+}
+
+type UpdateCampaignSnapInput = {
+  reportId: string;
+  // The edited per-frame values, in manifest order. The headline is RECOMPUTED
+  // here from the helper — the human's edit always wins and the fusion stays in
+  // one place (no client could write an inconsistent `computed`).
+  frames: SnapFrameValues[];
+  // The snap date (the frame date the AI read, or the user's correction).
+  reportDate: string | null;
+};
+
+// The campaign manual override: recomputes `computed` from the edited frames,
+// writes the { frames, computed } metrics jsonb + the snap date, and stamps the
+// row 'manual'. A direct RLS-gated single-row write — no edge function. (The
+// linked deal is edited via useLinkSnapToDeal, shared with the post flow.)
+export function useUpdateCampaignSnap() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      reportId,
+      frames,
+      reportDate,
+    }: UpdateCampaignSnapInput): Promise<SnapReport> => {
+      const metrics: SnapCampaignMetrics = {
+        frames,
+        computed: computeCampaignHeadline(frames),
+      };
+      const { data, error } = await supabase
+        .from("snap_reports")
+        .update({
+          metrics,
+          report_date: reportDate,
+          extraction_status: SNAP_EXTRACTION_STATUS.MANUAL,
+        })
+        .eq("id", reportId)
+        .select("*")
+        .single();
+      if (error) throw error;
+
+      return data as SnapReport;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
     },
   });
 }
