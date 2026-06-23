@@ -37,8 +37,8 @@ import {
 
 type Props = {
   report: SnapReport;
-  // Non-cancelled deals — the required linked-deal select (a campaign is always
-  // tied to one). The parent filters.
+  // Non-cancelled deals — the optional linked-deal select (a campaign MAY tie to
+  // one; the empty option unlinks). The parent filters.
   deals: Deal[];
 };
 
@@ -74,8 +74,8 @@ function parseDateInput(raw: string): { ok: true; value: string | null } | { ok:
   return { ok: true, value: trimmed };
 }
 
-// The campaign report detail (scope='campaign_24h'): the linked deal (required,
-// editable), each captured FRAME's metrics editable via the pencil pattern (the
+// The campaign report detail (scope='campaign_24h'): the linked deal (optional,
+// editable — the empty option unlinks), each captured FRAME's metrics editable via the pencil pattern (the
 // headline recomputes on save), and the fused report-card preview + PNG export.
 // The human's edit always wins; saving stamps the row 'manual'. Self-contained:
 // owns its mutations + toasts + export.
@@ -215,9 +215,8 @@ export function CampaignSnapReportSheet({ report, deals }: Props) {
   }
 
   function handleLinkChange(dealId: string): void {
-    if (dealId === "") return;
     linkToDeal.mutate(
-      { reportId: report.id, dealId },
+      { reportId: report.id, dealId: dealId || null },
       {
         onSuccess: () => showToast("snap.toast.linked", "success"),
         onError: (error) => {
@@ -248,7 +247,7 @@ export function CampaignSnapReportSheet({ report, deals }: Props) {
         </p>
       ) : null}
 
-      {/* Linked deal — required, editable. */}
+      {/* Linked deal — optional, editable (the empty option unlinks). */}
       <div>
         <Label htmlFor="campaign-deal-link">{t("snap.detail.linkToDeal")}</Label>
         <Select
@@ -257,9 +256,7 @@ export function CampaignSnapReportSheet({ report, deals }: Props) {
           disabled={linkToDeal.isPending}
           onChange={(event) => handleLinkChange(event.target.value)}
         >
-          {report.deal_id ? null : (
-            <option value="">{t("snap.campaign.dealPlaceholder")}</option>
-          )}
+          <option value="">{t("snap.campaign.dealPlaceholder")}</option>
           {deals.map((deal) => (
             <option key={deal.id} value={deal.id}>
               {deal.title}

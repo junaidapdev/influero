@@ -445,16 +445,17 @@ export function useSnapSignedUrls(paths: string[]) {
 type CampaignImageInput = { blob: Blob; mime: SnapMime };
 
 type CreateCampaignSnapInput = {
-  // REQUIRED — a campaign IS a brand deal's result. The picker enforces this
-  // before the mutation can fire.
-  dealId: string;
+  // OPTIONAL — a campaign report MAY link to a brand deal, but can also stand
+  // alone (account-level). null = unlinked; the deal can be added later.
+  dealId: string | null;
   // 1–3 story FRAMES that featured the brand. The route validates + converts
   // each to an image before here.
   images: CampaignImageInput[];
 };
 
 // Upload every frame under one per-report folder, insert ONE pending campaign
-// row (scope='campaign_24h', report_type='post', linked deal, image manifest),
+// row (scope='campaign_24h', report_type='post', optional linked deal, image
+// manifest),
 // then fire the same background extraction (the edge fn reads the manifest from
 // the row, extracts each frame, and fuses a { frames, computed } metrics jsonb).
 // source_file_url (NOT NULL since 0010) is the first frame as a representative.
@@ -470,9 +471,6 @@ export function useCreateCampaignSnapReport() {
       const userId = session?.user.id;
       if (!userId) {
         throw new Error("[useCreateCampaignSnapReport] No authenticated user");
-      }
-      if (!dealId) {
-        throw new Error("[useCreateCampaignSnapReport] A linked deal is required");
       }
       if (images.length === 0) {
         throw new Error("[useCreateCampaignSnapReport] No images");
@@ -524,7 +522,7 @@ export function useCreateCampaignSnapReport() {
         .from("snap_reports")
         .insert({
           user_id: userId,
-          deal_id: dealId,
+          deal_id: dealId || null,
           source_file_url: manifest[0].path,
           report_type: SNAP_REPORT_TYPE.POST,
           platform: SNAP_PLATFORM.SNAPCHAT,

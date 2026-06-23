@@ -17,9 +17,10 @@
 -- This REUSES the columns 0023/0010 already added — `scope`, `metrics` jsonb,
 -- `images` manifest, `platform`, `deal_id`, `report_date`. A campaign row sets
 -- report_type='post' (already an allowed value — it IS a 24h content report)
--- and scope='campaign_24h'. `deal_id` is REQUIRED for a campaign (a campaign is
--- a brand deal's result) — enforced in application code; the FK + `on delete
--- set null` from 0010 already constrains it to the user's own ad_deals.
+-- and scope='campaign_24h'. `deal_id` is OPTIONAL for a campaign — a report can
+-- stand alone (account-level) or link to a brand deal, set/changed/cleared in
+-- the app; the FK + `on delete set null` from 0010 already constrains a linked
+-- value to the user's own ad_deals.
 --
 -- The ONLY DDL is widening the scope CHECK so 'campaign_24h' is accepted.
 -- 0023 added `scope` with an inline column check, which Postgres auto-named
