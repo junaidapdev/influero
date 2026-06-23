@@ -626,7 +626,7 @@
     "title": "Snap analytics",
     "type": {
       "post": "24h post",
-      "campaign": "Campaign",
+      "campaign": "24h Campaign",
       "monthly": "Monthly"
     },
     "count_one": "{{total}} report",

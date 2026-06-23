@@ -16,13 +16,12 @@ import {
   SNAP_EDGE_FUNCTION,
   type SnapMime,
 } from "@/constants/snap";
-import { snapSurfaceObjectPath, snapObjectPath } from "@/features/snap/upload";
+import { snapSurfaceObjectPath } from "@/features/snap/upload";
 import type { SnapReportFormInput } from "@/features/snap/snap.schema";
 import {
   SNAP_EXTRACTION_STATUS,
   SNAP_REPORT_TYPE,
   type SnapReport,
-  type SnapReportType,
 } from "@shared/types/snapReport.types";
 import {
   SNAP_PLATFORM,
@@ -123,17 +122,6 @@ export function useSnapReportsForDeal(dealId: string | undefined) {
   });
 }
 
-type CreateSnapReportInput = {
-  // Always an IMAGE by the time it reaches the hook — the route validates
-  // (MIME + magic bytes + size) and converts a PDF's first page to PNG first.
-  blob: Blob;
-  mime: SnapMime;
-  // 'post' (one piece of content's 24h Insights) or 'monthly' (the account's
-  // monthly Insights page) — picked by the upload card's type chips (16B).
-  // The edge function reads it back from the ROW, never from the client.
-  reportType: SnapReportType;
-};
-
 // Best-effort failure write — flips a still-pending row to failed so the
 // manual-entry path appears. Guarded on 'pending' so it can never overwrite a
 // result that landed concurrently.
@@ -144,7 +132,7 @@ async function markReportFailed(reportId: string, userId: string): Promise<void>
     .eq("id", reportId)
     .eq("user_id", userId)
     .eq("extraction_status", SNAP_EXTRACTION_STATUS.PENDING);
-  if (error) logger.error("[useCreateSnapReport] markReportFailed", error);
+  if (error) logger.error("[snap extraction] markReportFailed", error);
 }
 
 // Fire-and-forget extraction. Kicked off AFTER the pending row is visible, so
@@ -163,61 +151,16 @@ async function runExtraction(
       body: { snapReportId: reportId },
     });
     if (error) {
-      logger.error("[useCreateSnapReport] invoke", error);
+      logger.error("[snap extraction] invoke", error);
       await markReportFailed(reportId, userId);
     }
     // On a non-2xx envelope the function already marked the row failed.
   } catch (err) {
-    logger.error("[useCreateSnapReport] invoke", err);
+    logger.error("[snap extraction] invoke", err);
     await markReportFailed(reportId, userId);
   } finally {
     void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
   }
-}
-
-// Upload → pending row. The mutation resolves once the report EXISTS (upload +
-// insert succeeded) and the list is invalidated so the pending row appears at
-// once; extraction is then fired in the background and its result arrives via
-// realtime. The edge function owns extracted/failed and logs snap_extracted.
-export function useCreateSnapReport() {
-  const queryClient = useQueryClient();
-  const { session } = useSession();
-
-  return useMutation({
-    mutationFn: async ({
-      blob,
-      mime,
-      reportType,
-    }: CreateSnapReportInput): Promise<SnapReport> => {
-      const userId = session?.user.id;
-      if (!userId) throw new Error("[useCreateSnapReport] No authenticated user");
-
-      const path = snapObjectPath(userId, crypto.randomUUID(), mime);
-      const { error: uploadError } = await supabase.storage
-        .from(STORAGE.SNAP_UPLOADS_BUCKET)
-        .upload(path, blob, { contentType: mime });
-      if (uploadError) throw uploadError;
-
-      const { data, error: insertError } = await supabase
-        .from("snap_reports")
-        .insert({
-          user_id: userId,
-          source_file_url: path,
-          report_type: reportType,
-          extraction_status: SNAP_EXTRACTION_STATUS.PENDING,
-        })
-        .select("*")
-        .single();
-      if (insertError) throw insertError;
-
-      return data as SnapReport;
-    },
-    onSuccess: (report) => {
-      // Show the pending row now, then extract in the background.
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SNAP_REPORTS });
-      void runExtraction(report.id, report.user_id, queryClient);
-    },
-  });
 }
 
 type UpdateSnapFieldsInput = {
