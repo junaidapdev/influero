@@ -47,7 +47,7 @@ export type SnapReportType =
 // columns below, `scope` NULL. NEW monthly (metric-dictionary): `scope =
 // 'monthly'`, `metrics` nested by surface, `images` manifest, `period_label`.
 // NEW campaign (0024): `scope = 'campaign_24h'`, `metrics = { frames, computed }`,
-// `images` = the story frames, a required `deal_id`. For both new models the
+// `images` = the story frames, an optional `deal_id` (may stand alone). For both new models the
 // fixed columns are left null/unwritten; narrow by `scope`.
 export type SnapReport = {
   id: string;

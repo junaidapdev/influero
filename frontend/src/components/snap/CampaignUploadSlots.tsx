@@ -31,12 +31,12 @@ const STEP_KEYS = [
 type FrameImage = { id: string; blob: Blob; mime: SnapMime; previewUrl: string };
 
 type Props = {
-  // Non-cancelled deals — a campaign MUST link to one (the required picker).
+  // Non-cancelled deals — a campaign MAY link to one (the picker is optional).
   deals: Deal[];
 };
 
-// The 24-hour campaign upload surface: pick the brand DEAL first, then upload the
-// 1–3 story FRAMES that featured that brand. Self-contained (the TodayPanel /
+// The 24-hour campaign upload surface: optionally link a brand DEAL, then upload
+// the 1–3 story FRAMES that featured that brand. Self-contained (the TodayPanel /
 // MonthlyUploadSlots pattern): owns its frame state, the create mutation, and
 // its toasts. On success it creates ONE pending campaign row + fires the
 // per-frame extraction. The surface for every frame is story_frame (set by the
@@ -67,6 +67,12 @@ export function CampaignUploadSlots({ deals }: Props) {
 
   const isBusy = isPreparing || createCampaign.isPending;
   const atCap = frames.length >= SNAP_CAMPAIGN_MAX_FRAMES;
+
+  // Why the Generate button is disabled — surfaced as a hint, because a disabled
+  // button can't be clicked to reveal the validation error. The deal link is
+  // optional, so the only gate is at least one frame (one is enough).
+  const generateHintKey =
+    isBusy || frames.length > 0 ? undefined : "snap.campaign.needImages";
 
   async function addFrames(fileList: FileList): Promise<void> {
     setFormErrorKey(undefined);
@@ -115,16 +121,15 @@ export function CampaignUploadSlots({ deals }: Props) {
   }
 
   function handleGenerate(): void {
-    if (!dealId) {
-      setFormErrorKey("snap.campaign.needDeal");
-      return;
-    }
     if (frames.length === 0) {
       setFormErrorKey("snap.campaign.needImages");
       return;
     }
     createCampaign.mutate(
-      { dealId, images: frames.map((frame) => ({ blob: frame.blob, mime: frame.mime })) },
+      {
+        dealId: dealId || null,
+        images: frames.map((frame) => ({ blob: frame.blob, mime: frame.mime })),
+      },
       {
         onSuccess: () => {
           showToast("snap.toast.uploaded", "success");
@@ -252,10 +257,15 @@ export function CampaignUploadSlots({ deals }: Props) {
         className="w-full"
         onClick={handleGenerate}
         isLoading={createCampaign.isPending}
-        disabled={isBusy || frames.length === 0 || !dealId}
+        disabled={isBusy || frames.length === 0}
       >
         {t("snap.campaign.generate")}
       </Button>
+      {generateHintKey ? (
+        <p className="text-center text-xs text-text-muted">
+          {t(generateHintKey)}
+        </p>
+      ) : null}
     </div>
   );
 }
