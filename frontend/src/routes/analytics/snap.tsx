@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Camera } from "lucide-react";
 
-import { SnapDropzone } from "@/components/snap/SnapDropzone";
 import { MonthlyUploadSlots } from "@/components/snap/MonthlyUploadSlots";
 import { CampaignUploadSlots } from "@/components/snap/CampaignUploadSlots";
 import { SnapReportListItem } from "@/components/snap/SnapReportListItem";
@@ -16,31 +15,27 @@ import { Card } from "@/components/ui/Card";
 import { FilterChips } from "@/components/ui/FilterChips";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import {
-  useCreateSnapReport,
   useSnapReports,
   useSnapReportsRealtime,
 } from "@/hooks/useSnapReports";
 import { useDeals } from "@/hooks/useDeals";
 import { useEntitlement } from "@/hooks/useEntitlement";
 import { useUpgradeModal } from "@/hooks/useUpgradeModal";
-import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { formatNumber } from "@/lib/numbers";
-import { logger } from "@/lib/logger";
-import { prepareSnapFile } from "@/features/snap/prepareUpload";
 import { isPro } from "@/features/billing/entitlement";
 import { SNAP_SCOPE } from "@shared/analytics/snapMetricDictionary";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
 import {
   SNAP_EXTRACTION_STATUS,
-  SNAP_REPORT_TYPE,
   type SnapReport,
 } from "@shared/types/snapReport.types";
 
-// The upload picker's three kinds. 'post' + 'monthly' are existing report
-// shapes; 'campaign' maps to scope='campaign_24h'. Local to the route — the row
-// stores report_type + scope, not this UI kind.
-type UploadKind = "post" | "campaign" | "monthly";
+// The upload picker's two kinds. 'campaign' maps to scope='campaign_24h' (the
+// 1–3 brand frames of a deal's story); 'monthly' maps to scope='monthly' (the
+// account's monthly Insights). The legacy 24h 'post' report was retired — it can
+// no longer be created, but existing post rows still render read-only below.
+type UploadKind = "campaign" | "monthly";
 
 function SnapSkeleton() {
   return (
@@ -58,20 +53,14 @@ function SnapSkeleton() {
 export function SnapAnalyticsRoute() {
   const { t } = useTranslation();
   const { locale } = useLocale();
-  const showToast = useToast();
 
   const [openReportId, setOpenReportId] = useState<string | null>(null);
-  const [uploadErrorKey, setUploadErrorKey] = useState<string | undefined>();
-  // Covers the read-bytes + PDF-conversion stretch BEFORE the mutation starts.
-  const [isPreparing, setIsPreparing] = useState(false);
-  // Which upload surface is shown: a single post screenshot, the 3-surface
-  // monthly slots, or the 24h-campaign frames. The post dropzone always creates
-  // a 'post' report; campaign/monthly are self-contained components.
-  const [uploadKind, setUploadKind] = useState<UploadKind>("post");
+  // Which upload surface is shown: the 24h-campaign frames or the 3-surface
+  // monthly slots. Each is a self-contained component owning its own create flow.
+  const [uploadKind, setUploadKind] = useState<UploadKind>("campaign");
 
   const reportsQuery = useSnapReports();
   const dealsQuery = useDeals({});
-  const createReport = useCreateSnapReport();
   const entitlement = useEntitlement();
   const openUpgrade = useUpgradeModal();
 
@@ -101,41 +90,6 @@ export function SnapAnalyticsRoute() {
   const openReport = openReportId
     ? (reports.find((report) => report.id === openReportId) ?? null)
     : null;
-
-  async function handleSelect(file: File): Promise<void> {
-    setUploadErrorKey(undefined);
-    setIsPreparing(true);
-    try {
-      const prepared = await prepareSnapFile(file);
-      if (!prepared.ok) {
-        setUploadErrorKey(prepared.errorKey);
-        return;
-      }
-
-      // The dropzone is only shown for the 'post' kind, so it always creates a
-      // post report (campaign/monthly own their own create flow).
-      createReport.mutate(
-        {
-          blob: prepared.file.blob,
-          mime: prepared.file.mime,
-          reportType: SNAP_REPORT_TYPE.POST,
-        },
-        {
-          onSuccess: () => {
-            // The pending row is now in the list; extraction runs in the
-            // background and the row's status pill flips when it settles.
-            showToast("snap.toast.uploaded", "success");
-          },
-          onError: (error) => {
-            logger.error("SnapAnalyticsRoute.upload", error);
-            showToast("snap.toast.uploadError", "error");
-          },
-        },
-      );
-    } finally {
-      setIsPreparing(false);
-    }
-  }
 
   // Snap AI extraction is Pro-only — free users get the upgrade gate instead of
   // the upload/list UI (the extract-snap-report edge function enforces it too).
@@ -181,7 +135,6 @@ export function SnapAnalyticsRoute() {
           <div className="mb-3">
             <FilterChips
               items={[
-                { value: "post", label: t("snap.type.post") },
                 { value: "campaign", label: t("snap.type.campaign") },
                 { value: "monthly", label: t("snap.type.monthly") },
               ]}
@@ -192,19 +145,8 @@ export function SnapAnalyticsRoute() {
           </div>
           {uploadKind === "monthly" ? (
             <MonthlyUploadSlots />
-          ) : uploadKind === "campaign" ? (
-            <CampaignUploadSlots deals={linkableDeals} />
           ) : (
-            <>
-              <p className="mb-3 text-xs text-text-muted">{t("snap.upload.postHint")}</p>
-              <SnapDropzone
-                onSelect={(file) => {
-                  void handleSelect(file);
-                }}
-                errorKey={uploadErrorKey}
-                isBusy={isPreparing || createReport.isPending}
-              />
-            </>
+            <CampaignUploadSlots deals={linkableDeals} />
           )}
         </Card>
 
@@ -240,6 +182,8 @@ export function SnapAnalyticsRoute() {
           ) : openReport.scope === SNAP_SCOPE.MONTHLY ? (
             <MonthlySnapReportSheet report={openReport} />
           ) : (
+            // Legacy 24h-post + pre-0023 monthly rows (scope=NULL) still render
+            // and edit through the original fixed-field sheet.
             <SnapReportSheet report={openReport} deals={linkableDeals} />
           )
         ) : null}

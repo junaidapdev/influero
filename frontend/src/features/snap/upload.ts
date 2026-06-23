@@ -76,13 +76,6 @@ export function validateSnapPdf(file: FileFacts, bytes: Uint8Array): string | nu
   return null;
 }
 
-// Object name within the snap-uploads bucket. The first path segment is the
-// user id — the storage RLS policies gate reads AND writes on it. `fileId` is
-// caller-generated (crypto.randomUUID) so this stays pure.
-export function snapObjectPath(userId: string, fileId: string, mime: SnapMime): string {
-  return `${userId}/${fileId}.${SNAP_MIME_EXT[mime]}`;
-}
-
 // A multi-image report's files (monthly surfaces OR campaign frames) live under
 // one per-report folder, named by surface + index so the manifest path is
 // self-describing and uniquely keyed. `groupId` is caller-generated
