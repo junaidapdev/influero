@@ -3,13 +3,14 @@
 // so the web app, the extract-snap-report edge function, and the future React
 // Native app all reuse them untouched. Keep SNAP_EXTRACTION_STATUS in sync with
 // the CHECK constraint in 0010_snap_reports.sql, SNAP_REPORT_TYPE with the
-// CHECK in 0012_snap_report_types.sql, and the monthly-model columns (platform/
-// scope/period_label/metrics/images) with 0023_snap_monthly.sql.
+// CHECK in 0012_snap_report_types.sql, and the metric-dictionary columns
+// (platform/scope/period_label/metrics/images) with 0023_snap_monthly.sql. The
+// `scope` CHECK accepts 'monthly' (0023) and 'campaign_24h' (0024).
 
 import type {
-  SnapMonthlyMetrics,
   SnapPlatform,
   SnapReportImage,
+  SnapReportMetrics,
   SnapScope,
 } from "../analytics/snapMetricDictionary.ts";
 //
@@ -42,11 +43,12 @@ export type SnapReportType =
 
 // The canonical shape of a snap_reports row.
 //
-// Two models coexist (0023). LEGACY (post + old monthly): the fixed integer
-// columns below, with `scope` NULL. NEW monthly (the metric-dictionary model):
-// `scope = 'monthly'`, `metrics` jsonb nested by surface, `images` manifest,
-// `period_label` — and the fixed columns are left null/unwritten. A row is a
-// new-model monthly report iff `scope === SNAP_SCOPE.MONTHLY`.
+// Models coexist by `scope`. LEGACY (post + old monthly): the fixed integer
+// columns below, `scope` NULL. NEW monthly (metric-dictionary): `scope =
+// 'monthly'`, `metrics` nested by surface, `images` manifest, `period_label`.
+// NEW campaign (0024): `scope = 'campaign_24h'`, `metrics = { frames, computed }`,
+// `images` = the story frames, a required `deal_id`. For both new models the
+// fixed columns are left null/unwritten; narrow by `scope`.
 export type SnapReport = {
   id: string;
   user_id: string;
@@ -69,7 +71,7 @@ export type SnapReport = {
   platform: SnapPlatform | null;
   scope: SnapScope | null;
   period_label: string | null;
-  metrics: SnapMonthlyMetrics | null;
+  metrics: SnapReportMetrics | null;
   images: SnapReportImage[] | null;
 };
 

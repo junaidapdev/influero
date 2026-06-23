@@ -4,9 +4,11 @@ import { Camera } from "lucide-react";
 
 import { SnapDropzone } from "@/components/snap/SnapDropzone";
 import { MonthlyUploadSlots } from "@/components/snap/MonthlyUploadSlots";
+import { CampaignUploadSlots } from "@/components/snap/CampaignUploadSlots";
 import { SnapReportListItem } from "@/components/snap/SnapReportListItem";
 import { SnapReportSheet } from "@/components/snap/SnapReportSheet";
 import { MonthlySnapReportSheet } from "@/components/snap/MonthlySnapReportSheet";
+import { CampaignSnapReportSheet } from "@/components/snap/CampaignSnapReportSheet";
 import { InsightsTabs } from "@/components/insights/InsightsTabs";
 import { UpgradePrompt } from "@/components/billing/UpgradePrompt";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -33,8 +35,12 @@ import {
   SNAP_EXTRACTION_STATUS,
   SNAP_REPORT_TYPE,
   type SnapReport,
-  type SnapReportType,
 } from "@shared/types/snapReport.types";
+
+// The upload picker's three kinds. 'post' + 'monthly' are existing report
+// shapes; 'campaign' maps to scope='campaign_24h'. Local to the route — the row
+// stores report_type + scope, not this UI kind.
+type UploadKind = "post" | "campaign" | "monthly";
 
 function SnapSkeleton() {
   return (
@@ -58,12 +64,10 @@ export function SnapAnalyticsRoute() {
   const [uploadErrorKey, setUploadErrorKey] = useState<string | undefined>();
   // Covers the read-bytes + PDF-conversion stretch BEFORE the mutation starts.
   const [isPreparing, setIsPreparing] = useState(false);
-  // What the next upload IS (16B): one piece of content's 24h Insights, or the
-  // account's monthly Insights page. The row carries it; the edge function
-  // picks the extraction contract from the row, never from the client call.
-  const [uploadType, setUploadType] = useState<SnapReportType>(
-    SNAP_REPORT_TYPE.POST,
-  );
+  // Which upload surface is shown: a single post screenshot, the 3-surface
+  // monthly slots, or the 24h-campaign frames. The post dropzone always creates
+  // a 'post' report; campaign/monthly are self-contained components.
+  const [uploadKind, setUploadKind] = useState<UploadKind>("post");
 
   const reportsQuery = useSnapReports();
   const dealsQuery = useDeals({});
@@ -99,9 +103,6 @@ export function SnapAnalyticsRoute() {
     : null;
 
   async function handleSelect(file: File): Promise<void> {
-    // Capture the type now — if the user flips the chip during the async prep,
-    // the report must still be created as whatever was selected at pick time.
-    const reportType = uploadType;
     setUploadErrorKey(undefined);
     setIsPreparing(true);
     try {
@@ -111,8 +112,14 @@ export function SnapAnalyticsRoute() {
         return;
       }
 
+      // The dropzone is only shown for the 'post' kind, so it always creates a
+      // post report (campaign/monthly own their own create flow).
       createReport.mutate(
-        { blob: prepared.file.blob, mime: prepared.file.mime, reportType },
+        {
+          blob: prepared.file.blob,
+          mime: prepared.file.mime,
+          reportType: SNAP_REPORT_TYPE.POST,
+        },
         {
           onSuccess: () => {
             // The pending row is now in the list; extraction runs in the
@@ -174,16 +181,19 @@ export function SnapAnalyticsRoute() {
           <div className="mb-3">
             <FilterChips
               items={[
-                { value: SNAP_REPORT_TYPE.POST, label: t("snap.type.post") },
-                { value: SNAP_REPORT_TYPE.MONTHLY, label: t("snap.type.monthly") },
+                { value: "post", label: t("snap.type.post") },
+                { value: "campaign", label: t("snap.type.campaign") },
+                { value: "monthly", label: t("snap.type.monthly") },
               ]}
-              value={uploadType}
-              onChange={setUploadType}
+              value={uploadKind}
+              onChange={setUploadKind}
               label={t("snap.upload.typeLabel")}
             />
           </div>
-          {uploadType === SNAP_REPORT_TYPE.MONTHLY ? (
+          {uploadKind === "monthly" ? (
             <MonthlyUploadSlots />
+          ) : uploadKind === "campaign" ? (
+            <CampaignUploadSlots deals={linkableDeals} />
           ) : (
             <>
               <p className="mb-3 text-xs text-text-muted">{t("snap.upload.postHint")}</p>
@@ -225,7 +235,9 @@ export function SnapAnalyticsRoute() {
         title={t("snap.detail.title")}
       >
         {openReport ? (
-          openReport.scope === SNAP_SCOPE.MONTHLY ? (
+          openReport.scope === SNAP_SCOPE.CAMPAIGN_24H ? (
+            <CampaignSnapReportSheet report={openReport} deals={linkableDeals} />
+          ) : openReport.scope === SNAP_SCOPE.MONTHLY ? (
             <MonthlySnapReportSheet report={openReport} />
           ) : (
             <SnapReportSheet report={openReport} deals={linkableDeals} />

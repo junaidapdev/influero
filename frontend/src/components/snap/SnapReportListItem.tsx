@@ -30,10 +30,11 @@ export function SnapReportListItem({ report, onOpen }: Props) {
   const { t } = useTranslation();
   const { locale } = useLocale();
 
-  // New metric-dictionary monthly (scope) vs legacy fixed-column monthly vs post.
+  // Campaign (scope) vs new monthly (scope) vs legacy fixed-column monthly vs post.
+  const isCampaign = report.scope === SNAP_SCOPE.CAMPAIGN_24H;
   const isNewMonthly = report.scope === SNAP_SCOPE.MONTHLY;
   const isLegacyMonthly =
-    !isNewMonthly && report.report_type === SNAP_REPORT_TYPE.MONTHLY;
+    !isNewMonthly && !isCampaign && report.report_type === SNAP_REPORT_TYPE.MONTHLY;
   const isMonthlyKind = isNewMonthly || isLegacyMonthly;
 
   const monthTitle = isNewMonthly
@@ -51,27 +52,36 @@ export function SnapReportListItem({ report, onOpen }: Props) {
   const numOrDash = (value: number | null | undefined): string =>
     typeof value === "number" ? formatNumber(value, locale) : "—";
 
-  // New monthly leads with account followers + story views; post/legacy with
-  // the old views/reach pair.
+  // Campaign leads with the fused reach + clicks; new monthly with account
+  // followers + story views; post/legacy with the old views/reach pair.
   const followers = report.metrics?.profile?.followers;
   const storyViews = report.metrics?.public_stories?.snap_views;
-  const hasNumbers = isNewMonthly
-    ? typeof followers === "number" || typeof storyViews === "number"
-    : report.views !== null || report.reach !== null;
+  const campaignReach = report.metrics?.computed?.reach;
+  const campaignClicks = report.metrics?.computed?.clicks;
+  const hasNumbers = isCampaign
+    ? typeof campaignReach === "number" || typeof campaignClicks === "number"
+    : isNewMonthly
+      ? typeof followers === "number" || typeof storyViews === "number"
+      : report.views !== null || report.reach !== null;
 
   const subline = isPending
     ? t("snap.list.extracting")
     : !hasNumbers
       ? t("snap.list.noNumbers")
-      : isNewMonthly
-        ? t("snap.list.monthlyMetrics", {
-            followers: numOrDash(followers),
-            storyViews: numOrDash(storyViews),
+      : isCampaign
+        ? t("snap.list.campaignMetrics", {
+            reach: numOrDash(campaignReach),
+            clicks: numOrDash(campaignClicks),
           })
-        : t("snap.list.metrics", {
-            views: numOrDash(report.views),
-            reach: numOrDash(report.reach),
-          });
+        : isNewMonthly
+          ? t("snap.list.monthlyMetrics", {
+              followers: numOrDash(followers),
+              storyViews: numOrDash(storyViews),
+            })
+          : t("snap.list.metrics", {
+              views: numOrDash(report.views),
+              reach: numOrDash(report.reach),
+            });
 
   return (
     <button
@@ -94,7 +104,11 @@ export function SnapReportListItem({ report, onOpen }: Props) {
           </>
         ) : (
           <p className="truncate text-row font-semibold text-text-primary">
-            {isMonthlyKind ? t("snap.list.untitledMonthly") : t("snap.list.untitled")}
+            {isCampaign
+              ? t("snap.list.untitledCampaign")
+              : isMonthlyKind
+                ? t("snap.list.untitledMonthly")
+                : t("snap.list.untitled")}
           </p>
         )}
         <p
@@ -104,7 +118,11 @@ export function SnapReportListItem({ report, onOpen }: Props) {
         </p>
       </div>
       <span className="inline-flex shrink-0 items-center rounded-full border border-border-light bg-surface-secondary px-2.5 py-1 text-micro font-medium text-text-secondary">
-        {isMonthlyKind ? t("snap.type.monthly") : t("snap.type.post")}
+        {isCampaign
+          ? t("snap.type.campaign")
+          : isMonthlyKind
+            ? t("snap.type.monthly")
+            : t("snap.type.post")}
       </span>
       <SnapStatusPill status={report.extraction_status} />
       <ChevronRight

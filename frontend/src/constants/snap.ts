@@ -31,3 +31,7 @@ export const PDF_RENDER_WIDTH_PX = 1280;
 // Per-surface image cap for a monthly report (3 slots → ≤ 9 vision calls per
 // report). Bounds the OpenAI cost + the edge function's runtime per extraction.
 export const SNAP_MONTHLY_MAX_IMAGES_PER_SLOT = 3;
+
+// Frame cap for a 24-hour campaign report: a brand usually appears in only 1–3
+// story frames, and each frame is one vision call. Bounds cost + runtime.
+export const SNAP_CAMPAIGN_MAX_FRAMES = 3;

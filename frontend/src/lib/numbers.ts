@@ -23,6 +23,19 @@ export function formatNumber(value: number, locale: Locale): string {
   return new Intl.NumberFormat(INTL_LOCALE[locale]).format(value);
 }
 
+// Normalizes Arabic-Indic (٠–٩, U+0660–0669) and Extended/Persian (۰–۹,
+// U+06F0–06F9) digits to ASCII 0–9, so a value typed on an Arabic keypad
+// validates and parses like Western input. The edge extraction normalizes the
+// same way — this keeps the manual-entry path in parity. Non-digit characters
+// pass through unchanged.
+export function normalizeDigits(input: string): string {
+  return input.replace(/[٠-٩۰-۹]/g, (char) => {
+    const code = char.charCodeAt(0);
+    const base = code >= 0x06f0 ? 0x06f0 : 0x0660;
+    return String(code - base);
+  });
+}
+
 // Compact, locale-aware number (20000 → "20K" / "٢٠ ألف"). For dense axes where
 // a full grouped number would overflow — the Reports monthly-chart Y axis (its
 // first consumer). Money axes pass the raw SAR amount; the currency symbol is
