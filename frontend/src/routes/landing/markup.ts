@@ -437,7 +437,7 @@ export const LANDING_HTML = `
         <span class="badge-top" data-ar="الأكثر شيوعاً">Most popular</span>
         <div class="pn">Pro</div>
         <div class="pd" data-ar="لصنّاع المحتوى المتفرّغين الذين يعتمدون على صفقات العلامات.">For full-time creators running on brand deals.</div>
-        <div class="pr"><span class="amt" data-ar="٨٩ ر.س">SAR 89</span><span class="per" data-ar="/ شهرياً">/ month</span></div>
+        <div class="pr"><span class="amt" data-ar="١٤ دولار">$14</span><span class="per" data-ar="/ شهرياً">/ month</span></div>
         <ul>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صفقات وعلامات بلا حدود">Unlimited deals &amp; brands</span></li>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="استخراج تقارير سناب بالذكاء الاصطناعي">AI Snap report extraction</span></li>
