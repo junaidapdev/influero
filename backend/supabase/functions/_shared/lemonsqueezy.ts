@@ -117,3 +117,16 @@ export async function getCustomerPortalUrl(
   };
   return json.data.attributes.urls?.customer_portal ?? null;
 }
+
+// Cancels a subscription (LS DELETE = cancel at end of the current billing period,
+// not a hard delete — the row stays, status flips to "cancelled"). Used by
+// delete-account so erasing an account also stops its recurring charge. Throws on a
+// non-2xx so the caller can abort the deletion rather than orphan a billing sub.
+export async function cancelSubscription(subscriptionId: string): Promise<void> {
+  const res = await lsFetch(`/subscriptions/${subscriptionId}`, { method: "DELETE" });
+  if (!res.ok) {
+    throw new Error(
+      `LS cancel subscription failed: ${res.status} ${await res.text()}`,
+    );
+  }
+}

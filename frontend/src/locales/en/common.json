@@ -803,7 +803,8 @@
   },
   "common": {
     "dismiss": "Dismiss",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "billing": {
     "title": "Billing",
@@ -850,6 +851,25 @@
         "signedOut": "Your session expired — please sign in again.",
         "error": "Couldn't redeem the code. Please try again."
       }
+    }
+  },
+  "account": {
+    "delete": {
+      "title": "Delete account",
+      "help": "Permanently delete your account and all of your data.",
+      "action": "Delete account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "This permanently deletes your Influero account and everything in it.",
+      "item": {
+        "data": "All your brands, deals, payments, expenses, meetings and reminders",
+        "snap": "Your Snapchat reports and uploaded screenshots",
+        "subscription": "Your subscription (it will be cancelled)",
+        "login": "Your sign-in and profile"
+      },
+      "permanent": "This action is permanent and cannot be undone.",
+      "confirmAction": "Delete my account",
+      "error": "Couldn't delete your account. Please try again.",
+      "subscriptionActiveError": "We couldn't cancel your subscription automatically. Please cancel it under Manage billing first, then try again."
     }
   }
 }
