@@ -18,6 +18,11 @@ export const ROUTES = {
   ANALYTICS_SNAP: "/analytics/snap",
   REPORTS: "/reports",
   SETTINGS: "/settings",
+  // Public legal pages (reachable logged-out — required for the Google OAuth
+  // consent screen + LemonSqueezy merchant settings).
+  PRIVACY: "/privacy",
+  TERMS: "/terms",
+  REFUND: "/refund",
 } as const;
 
 export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];

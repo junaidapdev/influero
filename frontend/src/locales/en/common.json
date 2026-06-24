@@ -31,6 +31,7 @@
       "toSignIn": "Sign in"
     },
     "divider": "or",
+    "agreement": "By continuing, you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
     "verify": {
       "title": "Check your email",
       "body": "We sent a confirmation link to {{email}}. Open it on this device to finish creating your account.",
@@ -97,6 +98,11 @@
     "actions": {
       "signOut": "Sign out",
       "save": "Save changes"
+    },
+    "support": {
+      "title": "Legal & support",
+      "help": "Our policies and how to reach us.",
+      "contact": "Contact support"
     },
     "toast": {
       "saved": "Saved",
@@ -870,6 +876,16 @@
       "confirmAction": "Delete my account",
       "error": "Couldn't delete your account. Please try again.",
       "subscriptionActiveError": "We couldn't cancel your subscription automatically. Please cancel it under Manage billing first, then try again."
+    }
+  },
+  "legal": {
+    "back": "Back to home",
+    "updated": "Last updated: {{date}}",
+    "contactPrefix": "Questions? Email us at",
+    "nav": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "refund": "Refund Policy"
     }
   }
 }
