@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
 import { BillingSection } from "@/components/settings/BillingSection";
+import { DeleteAccountSection } from "@/components/settings/DeleteAccountSection";
 import { AvatarDropzone } from "@/components/settings/AvatarDropzone";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { Card } from "@/components/ui/Card";
@@ -259,6 +260,8 @@ export function SettingsRoute() {
         >
           {t("settings.actions.signOut")}
         </Button>
+
+        <DeleteAccountSection />
       </div>
     </main>
   );
