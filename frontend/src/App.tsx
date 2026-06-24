@@ -4,6 +4,9 @@ import { ROUTES } from "@/constants/routes";
 import { EntryRoute } from "@/routes/index";
 import { LoginRoute } from "@/routes/login";
 import { AuthCallbackRoute } from "@/routes/auth-callback";
+import { PrivacyRoute } from "@/routes/privacy";
+import { TermsRoute } from "@/routes/terms";
+import { RefundRoute } from "@/routes/refund";
 import { DashboardRoute } from "@/routes/dashboard";
 import { SettingsRoute } from "@/routes/settings";
 import { DealsRoute } from "@/routes/deals";
@@ -37,6 +40,9 @@ export function App() {
       <Route path={ROUTES.ROOT} element={<EntryRoute />} />
       <Route path={ROUTES.LOGIN} element={<LoginRoute />} />
       <Route path={ROUTES.AUTH_CALLBACK} element={<AuthCallbackRoute />} />
+      <Route path={ROUTES.PRIVACY} element={<PrivacyRoute />} />
+      <Route path={ROUTES.TERMS} element={<TermsRoute />} />
+      <Route path={ROUTES.REFUND} element={<RefundRoute />} />
 
       <Route element={<ProtectedLayout />}>
         <Route path={ROUTES.DASHBOARD} element={<DashboardRoute />} />

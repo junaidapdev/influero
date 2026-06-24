@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -194,6 +194,26 @@ export function LoginForm() {
       <Button type="submit" className="w-full" isLoading={isSubmitting}>
         {t(isSignUp ? "auth.actions.signUp" : "auth.actions.signIn")}
       </Button>
+
+      <p className="text-center text-xs text-text-muted">
+        <Trans
+          i18nKey="auth.agreement"
+          components={{
+            terms: (
+              <Link
+                to={ROUTES.TERMS}
+                className="font-medium text-accent underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              />
+            ),
+            privacy: (
+              <Link
+                to={ROUTES.PRIVACY}
+                className="font-medium text-accent underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              />
+            ),
+          }}
+        />
+      </p>
 
       <p className="text-center text-sm text-text-secondary">
         {t(isSignUp ? "auth.toggle.haveAccount" : "auth.toggle.noAccount")}{" "}

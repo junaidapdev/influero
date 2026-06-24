@@ -479,6 +479,12 @@ export const LANDING_HTML = `
     <p data-ar="مساحة العمل المتكاملة لصنّاع المحتوى والمؤثرين. تابِع الصفقات، واحصل على مستحقاتك، وأثبِت أثرك.">The all-in-one workspace for creators and influencers. Track deals, get paid, prove your impact.</p>
     <div class="foot-bot">
       <span data-ar="© ٢٠٢٦ Influero. جميع الحقوق محفوظة.">© 2026 Influero. All rights reserved.</span>
+      <nav style="display:flex;gap:18px;flex-wrap:wrap">
+        <a href="/privacy" style="color:var(--ink-2);font-weight:600" data-ar="الخصوصية">Privacy</a>
+        <a href="/terms" style="color:var(--ink-2);font-weight:600" data-ar="الشروط">Terms</a>
+        <a href="/refund" style="color:var(--ink-2);font-weight:600" data-ar="الاسترداد">Refunds</a>
+        <a href="mailto:junaidap.dev@gmail.com" style="color:var(--ink-2);font-weight:600" data-ar="تواصل">Contact</a>
+      </nav>
     </div>
   </div>
 </footer>
