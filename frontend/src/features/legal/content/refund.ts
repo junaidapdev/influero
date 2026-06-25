@@ -7,7 +7,7 @@ export const REFUND_DOC: LegalDoc = {
   title: { en: "Refund & Cancellation Policy", ar: "سياسة الاسترداد والإلغاء" },
   updated: "2026-06-24",
   intro: {
-    en: "How cancellations and refunds work for Influero Pro.",
+    en: "How cancellations and refunds work for Inflero Pro.",
     ar: "كيف يعمل الإلغاء والاسترداد لاشتراك إنفليرو Pro.",
   },
   sections: [

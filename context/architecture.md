@@ -21,7 +21,7 @@
 | Deploy — backend                 | Supabase (managed)                    | Postgres, auth, storage, edge functions, realtime         |
 | Language                         | TypeScript strict                     | Throughout                                                |
 
-> **Adaptation from the JobPilot reference:** Influero is a Vite SPA, not Next.js. There is no App Router, no Server Actions, no `middleware.ts`, no `@supabase/ssr` cookie bridge. The reference's layered Next.js patterns map cleanly onto Vite + edge functions, and the mapping is documented in *Client Pattern* and *Data Flow* below.
+> **Adaptation from the JobPilot reference:** Inflero is a Vite SPA, not Next.js. There is no App Router, no Server Actions, no `middleware.ts`, no `@supabase/ssr` cookie bridge. The reference's layered Next.js patterns map cleanly onto Vite + edge functions, and the mapping is documented in *Client Pattern* and *Data Flow* below.
 
 ---
 
@@ -412,7 +412,7 @@ Access: authenticated users only, **own paths only**. Bucket policies restrict s
 
 - Provider: Supabase Auth
 - Methods: Google OAuth + email/password (with email verification)
-- Protected routes: `/`, `/dashboard`, `/deals`, `/brands`, `/payments`, `/meetings`, `/analytics/snap`, `/reports`, `/settings`
+- Protected routes: `/`, `/dashboard`, `/deals`, `/brands`, `/payments`, `/expenses`, `/meetings`, `/analytics/snap`, `/reports`, `/settings`
 - Public routes: `/login`, `/auth-callback`
 - Protection is enforced client-side by a `ProtectedRoute` wrapper at the route tree, and *guaranteed* server-side by RLS. A user can technically navigate to a protected URL, but they cannot read or write any data without a valid session and matching `user_id`.
 - On first successful login → create `app_users` row (locale `ar`, currency `SAR`, lead time 60) → redirect to `/dashboard`.
@@ -467,7 +467,7 @@ export function createSupabaseAsUser(authHeader: string) {
 **Two distinct ownership patterns inside an edge function:**
 
 - **Acting as the user** (preferred default) — the function reads the caller's `Authorization` header and creates a client with that JWT, so all queries run under the user's identity and RLS still enforces ownership. This is what `mark-payment-received` uses, because the RPC checks `auth.uid()`.
-- **Acting as admin** (`service_role`) — bypasses RLS. Used only when the function genuinely needs cross-user access (e.g. system-level work) and after explicit ownership checks in code. Influero v1 does not need this anywhere; the service-role key still ships in the function env in case it's needed.
+- **Acting as admin** (`service_role`) — bypasses RLS. Used only when the function genuinely needs cross-user access (e.g. system-level work) and after explicit ownership checks in code. Inflero v1 does not need this anywhere; the service-role key still ships in the function env in case it's needed.
 
 > **Adaptation note:** The JobPilot reference uses `@supabase/ssr` with cookie bridging. A Vite SPA holds the session in memory + Supabase's own auth storage and sends the JWT as a header — no SSR cookies, no `next/headers`. The substance of "two clients, never mix" is identical; the mechanism is simpler.
 

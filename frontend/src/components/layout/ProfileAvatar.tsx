@@ -4,13 +4,16 @@ import type { AppUser } from "@shared/types/appUser.types";
 
 type Props = {
   appUser: AppUser | undefined;
-  size?: "sm" | "lg" | "xl";
+  size?: "sm" | "lg" | "xl" | "2xl";
   // "circle" (default) for the in-menu/snap-card avatar; "square" (rounded-2xl)
   // for the shell greeting header (F17 design).
   shape?: "circle" | "square";
   // false (default) = soft accent tint (bg-accent-light / text-accent);
   // true = solid accent fill (bg-accent / text-on-accent), the greeting avatar.
   solid?: boolean;
+  // Color family. "accent" (default) is the in-app violet; "snap" is the bright
+  // Snapchat yellow + dark ink used only by the exported Snap report card.
+  tone?: "accent" | "snap";
   // Suppress the network avatar image and render the initials / glyph only.
   // Used by the exported Snap report card (16B): html-to-image serializes the
   // DOM to a canvas, and a cross-origin avatar (e.g. a Google OAuth photo on
@@ -24,6 +27,7 @@ const SIZE = {
   sm: "size-9 text-sm",
   lg: "size-12 text-lg",
   xl: "size-14 text-xl",
+  "2xl": "size-16 text-2xl",
 } as const;
 
 // The signed-in user's avatar — the profile-menu trigger in the shell header and
@@ -36,6 +40,7 @@ export function ProfileAvatar({
   shape = "circle",
   solid = false,
   noImage = false,
+  tone = "accent",
 }: Props) {
   const name = appUser?.display_name?.trim();
   const initials = name
@@ -48,9 +53,12 @@ export function ProfileAvatar({
     : null;
 
   const shapeClass = shape === "square" ? "rounded-2xl" : "rounded-full";
-  const toneClass = solid
-    ? "bg-accent text-text-on-accent"
-    : "bg-accent-light text-accent";
+  const toneClass =
+    tone === "snap"
+      ? "bg-snap-yellow text-snap-ink"
+      : solid
+        ? "bg-accent text-text-on-accent"
+        : "bg-accent-light text-accent";
 
   return (
     <span

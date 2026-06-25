@@ -1,4 +1,4 @@
-// One-off placeholder-icon generator. Produces valid PNGs (solid Influero-violet
+// One-off placeholder-icon generator. Produces valid PNGs (solid Inflero-violet
 // tile with a centered white rounded square) so the PWA manifest + apple-touch
 // icons resolve. Dependency-free (Node's zlib only). Replace the output with
 // real brand artwork later. Run: node scripts/gen-icons.cjs

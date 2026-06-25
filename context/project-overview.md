@@ -2,7 +2,7 @@
 
 ## About the Project
 
-Influero is a full-stack, multi-tenant web app that runs the operational side of a Saudi influencer's brand-deal business in one place. Each influencer signs up, sets their language (Arabic or English) and currency (SAR), and works out of five connected views: ad deals, meetings & reminders, payment collection, Snapchat analytics, and reports.
+Inflero is a full-stack, multi-tenant web app that runs the operational side of a Saudi influencer's brand-deal business in one place. Each influencer signs up, sets their language (Arabic or English) and currency (SAR), and works out of six connected views: ad deals, meetings & reminders, payment collection, Snapchat analytics, reports, and a business-expense ledger.
 
 The influencer tracks every deal end to end — from agreeing deliverables with a brand, to marking each story/post as posted, to collecting payment in installments, to proving performance with Snap Insights numbers extracted automatically by GPT-4o vision. The whole picture rolls up onto a dashboard: money this month, what's due today, and what needs attention.
 
@@ -14,7 +14,7 @@ Arabic-first and bilingual from day one, with full RTL support and Hijri + Grego
 
 Running brand deals is death by a thousand scattered places. Agreements live in WhatsApp threads, deliverables in the notes app, payment promises in screenshots, meeting times in your head, and performance numbers buried in Snap Insights. It is easy to forget a story you owe, lose track of who has actually paid, miss a meeting, or never get around to invoicing a brand.
 
-Influero consolidates all of it. Deals, deliverables, payments, meetings, reminders, and Snap performance live in one system that knows what is overdue, what is unpaid, and how each brand has performed — so the influencer spends time creating, not chasing.
+Inflero consolidates all of it. Deals, deliverables, payments, meetings, reminders, and Snap performance live in one system that knows what is overdue, what is unpaid, and how each brand has performed — so the influencer spends time creating, not chasing.
 
 ---
 
@@ -30,6 +30,7 @@ Influero consolidates all of it. Deals, deliverables, payments, meetings, remind
 /meetings          → Meetings — calendar + list
 /analytics/snap    → Snapchat analytics — upload + AI extraction
 /reports           → Reports — monthly + per-brand
+/expenses          → Expenses (Pro) — business-expense ledger by category
 /settings          → Settings — language, reminder lead time, profile
 ```
 
@@ -62,7 +63,7 @@ Settings, profile, and sign-out live in a profile menu at the trailing edge of t
 
 ### Dashboard
 
-- Top-line numbers for the current month: total invoiced, total collected, outstanding, deals posted, deals pending.
+- Top-line numbers for the current month: total invoiced, total collected, outstanding, deals posted, deals pending; plus, for Pro users, a total-expenses figure and the derived net (collected − expenses).
 - "Today" panel — meetings and reminders due in the next 24 hours.
 - "Needs attention" panel — overdue payments, and deals past their deadline still un-posted.
 
@@ -161,6 +162,7 @@ Settings, profile, and sign-out live in a profile menu at the trailing edge of t
 - In-app reminders feeding the Today panel
 - Snapchat analytics: upload (screenshot or PDF), GPT-4o vision extraction, realtime result, manual override, link-to-deal
 - Reports: monthly invoiced-vs-collected chart + per-brand table with collection rate
+- Expenses (Pro): business-expense ledger with fixed bilingual categories, optional deal link, and dashboard expenses/net tiles
 - Recent activity feed and audit trail
 - Mobile-first responsive (usable at 375px) — the dry-run for a future React Native port
 
@@ -176,14 +178,32 @@ Settings, profile, and sign-out live in a profile menu at the trailing edge of t
 - Scheduled / automated agent runs — extractions are manually triggered only
 - Email or push notifications
 - Team or multi-user-per-account features
-- Payment or subscription system
+- ~~Payment or subscription system~~ → **now in scope (post-v1)**: a LemonSqueezy **Pro** plan. See *Plans & Monetization* below.
 - Browser extension
+
+---
+
+## Plans & Monetization (post-v1)
+
+Added after v1 (planned 2026-06-20). v1 shipped fully free; a paid **Pro** tier is layered on via **LemonSqueezy** — the **Merchant of Record**, so it handles checkout, cards, Saudi VAT, and invoicing (no PCI/tax burden on us).
+
+- **Free (default — no subscription):** all brands, payments, meetings, and manual data entry; capped at **5 in-flight deals**.
+- **Pro — SAR 89/mo** (charged ≈ USD 23.70 at the 3.75 SAR↔USD peg; LemonSqueezy charges in USD, SAR is display): unlimited deals, **Snap AI extraction**, **Reports**, **Expense tracking**, and reminder web-push.
+
+Principles (locked):
+
+- The **LemonSqueezy webhook is the source of truth** for entitlement — the post-checkout browser redirect is only UX.
+- **The gates that cost money or enforce limits are server-side** — a deal-limit `BEFORE INSERT` trigger and a Pro check inside the `extract-snap-report` edge function (it guards the *paid* OpenAI call). **Reports gate in the UI** — their aggregate RPC (`get_monthly_totals`) is shared with the *free* dashboard sparkline and report data is the user's own zero-marginal-cost data, so a blanket RPC gate would wrongly break a free surface. The UI gate elsewhere is convenience over the server gates.
+- The `subscriptions` table is **written only by the webhook** (service-role). Users can *read* their own entitlement, never forge it (RLS select-own only).
+- Because LemonSqueezy is a **reused account** (formerly "Narrate AI"), every webhook is **filtered by our store id + Pro variant id** — legacy/foreign events are ignored.
+
+Plan model **locked 2026-06-20**: Pro = unlimited deals + **Snap AI extraction + Reports + Expense tracking + web-push reminders**; Free is capped at **5 in-flight deals**; existing accounts are **grandfathered to Pro** at cutover; **monthly-only, no trial** (one SAR 89/mo variant). Full architecture (schema, edge functions, gating, build order) lives in `build-plan.md` → **Post-v1 Features → Subscription Billing**.
 
 ---
 
 ## Activity & Events
 
-Influero tracks key actions internally in an `activity_log` table that powers the dashboard's recent-activity feed and an audit trail. (Unlike the reference project, Influero does not ship a third-party product-analytics SDK in v1; adding one such as PostHog is an optional future choice.)
+Inflero tracks key actions internally in an `activity_log` table that powers the dashboard's recent-activity feed and an audit trail. (Unlike the reference project, Inflero does not ship a third-party product-analytics SDK in v1; adding one such as PostHog is an optional future choice.)
 
 ```typescript
 deal_created;        // { userId, dealId, brandId }

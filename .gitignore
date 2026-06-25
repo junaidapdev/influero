@@ -23,3 +23,8 @@ backend/supabase/.temp/
 
 # scratch notes
 *Fix.md
+.vercel
+.env*
+
+testsprite_tests/
+supabase/.temp/

@@ -7,7 +7,7 @@ export const TERMS_DOC: LegalDoc = {
   title: { en: "Terms of Service", ar: "شروط الخدمة" },
   updated: "2026-06-24",
   intro: {
-    en: "These Terms govern your use of Influero. By creating an account or using the service, you agree to them.",
+    en: "These Terms govern your use of Inflero. By creating an account or using the service, you agree to them.",
     ar: "تحكم هذه الشروط استخدامك لإنفليرو. وبإنشاء حساب أو استخدام الخدمة، فإنك توافق عليها.",
   },
   sections: [
@@ -15,7 +15,7 @@ export const TERMS_DOC: LegalDoc = {
       heading: { en: "The service", ar: "الخدمة" },
       paragraphs: [
         {
-          en: "Influero is a workspace for influencers to manage brand deals, deliverables, payments, meetings, reminders, expenses, and Snapchat analytics.",
+          en: "Inflero is a workspace for influencers to manage brand deals, deliverables, payments, meetings, reminders, expenses, and Snapchat analytics.",
           ar: "إنفليرو مساحة عمل لصنّاع المحتوى لإدارة صفقات العلامات التجارية والمُخرجات والمدفوعات والاجتماعات والتذكيرات والمصروفات وتحليلات سناب شات.",
         },
       ],
@@ -33,7 +33,7 @@ export const TERMS_DOC: LegalDoc = {
       heading: { en: "Acceptable use", ar: "الاستخدام المقبول" },
       paragraphs: [
         {
-          en: "Don't use Influero for any unlawful purpose, and don't attempt to disrupt, abuse, or gain unauthorized access to the service or other users' data.",
+          en: "Don't use Inflero for any unlawful purpose, and don't attempt to disrupt, abuse, or gain unauthorized access to the service or other users' data.",
           ar: "لا تستخدم إنفليرو لأي غرض غير قانوني، ولا تحاول تعطيل الخدمة أو إساءة استخدامها أو الوصول غير المصرّح به إليها أو إلى بيانات المستخدمين الآخرين.",
         },
       ],
@@ -42,7 +42,7 @@ export const TERMS_DOC: LegalDoc = {
       heading: { en: "Subscriptions and billing", ar: "الاشتراكات والفوترة" },
       paragraphs: [
         {
-          en: "Influero Pro costs USD $14 per month. Payments are processed by LemonSqueezy, our Merchant of Record, which handles billing, invoicing, and applicable taxes (including Saudi VAT). Your subscription renews monthly until you cancel it. See our Refund & Cancellation Policy for details.",
+          en: "Inflero Pro costs USD $14 per month. Payments are processed by LemonSqueezy, our Merchant of Record, which handles billing, invoicing, and applicable taxes (including Saudi VAT). Your subscription renews monthly until you cancel it. See our Refund & Cancellation Policy for details.",
           ar: "تبلغ تكلفة إنفليرو Pro ١٤ دولارًا أمريكيًا شهريًا. تُعالَج المدفوعات عبر LemonSqueezy، البائع المسجّل لدينا، الذي يتولّى الفوترة وإصدار الفواتير والضرائب المطبّقة (بما في ذلك ضريبة القيمة المضافة السعودية). يتجدّد اشتراكك شهريًا حتى تقوم بإلغائه. راجع سياسة الاسترداد والإلغاء لمزيد من التفاصيل.",
         },
       ],
@@ -69,7 +69,7 @@ export const TERMS_DOC: LegalDoc = {
       heading: { en: "Limitation of liability", ar: "تحديد المسؤولية" },
       paragraphs: [
         {
-          en: "To the maximum extent permitted by law, Influero is not liable for any indirect, incidental, or consequential damages arising from your use of the service.",
+          en: "To the maximum extent permitted by law, Inflero is not liable for any indirect, incidental, or consequential damages arising from your use of the service.",
           ar: "إلى أقصى حد يسمح به القانون، لا يتحمّل إنفليرو المسؤولية عن أي أضرار غير مباشرة أو عرَضية أو تبعية تنشأ عن استخدامك للخدمة.",
         },
       ],
@@ -96,7 +96,7 @@ export const TERMS_DOC: LegalDoc = {
       heading: { en: "Changes and contact", ar: "التغييرات والتواصل" },
       paragraphs: [
         {
-          en: `We may update these Terms from time to time; continued use of Influero means you accept the updated Terms. Questions? Email ${SUPPORT_EMAIL}.`,
+          en: `We may update these Terms from time to time; continued use of Inflero means you accept the updated Terms. Questions? Email ${SUPPORT_EMAIL}.`,
           ar: `قد نُحدّث هذه الشروط من وقت لآخر؛ ويعني استمرارك في استخدام إنفليرو قبولك للشروط المُحدّثة. لأي أسئلة، راسلنا على ${SUPPORT_EMAIL}.`,
         },
       ],

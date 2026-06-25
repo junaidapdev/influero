@@ -403,7 +403,7 @@ export function SnapReportSheet({ report, deals }: Props) {
           </h3>
           {/* The capture node — the wrapper's background becomes the PNG's
               margin, so the exported card never has transparent corners. */}
-          <div ref={cardRef} className="bg-background p-3">
+          <div ref={cardRef} className="bg-surface-secondary p-4">
             <SnapReportCard
               report={report}
               appUser={appUser.data}

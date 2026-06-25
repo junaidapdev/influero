@@ -4,7 +4,7 @@
 // own trusted static content (no user input), so there is no XSS surface.
 //
 // Edits vs. the design source:
-//   • brand name "Influency" → "Influero"
+//   • brand name "Influency" → "Inflero"
 //   • every CTA href "influency.html" → the app's auth routes (see below)
 //   • removed the <template id="__bundler_thumbnail"> design-tool artifact
 //   • removed the trailing <script> — that logic is ported into LandingPage.tsx
@@ -14,7 +14,7 @@
 //     their text in a <span data-ar> so the toggle swaps text without destroying
 //     the icon. Two-part headlines split lead/highlight spans that concatenate
 //     into one RTL sentence. Values use Arabic-Indic numerals + ر.س (after the
-//     number) + Arabic month names. Brand name "Influero" and plan names
+//     number) + Arabic month names. Brand name "Inflero" and plan names
 //     (Starter/Pro/Studio) stay Latin in both languages, so they carry no data-ar.
 //
 // CTA href map: Get started / Start free / trial → /login?mode=signup ;
@@ -27,7 +27,7 @@ export const LANDING_HTML = `
   <div class="nav-in">
     <a class="brand" href="#top">
       <span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-      Influero
+      Inflero
     </a>
     <nav class="nav-links">
       <a href="#features" data-ar="المزايا">Features</a>
@@ -344,7 +344,7 @@ export const LANDING_HTML = `
     <div class="feat-copy rv">
       <span class="eyebrow"><span class="dot"></span><span data-ar="المصروفات والأرباح"> Expenses &amp; profit</span></span>
       <h2 class="h-sec"><span data-ar="تتبع كل مصروف.. ">Track every cost. </span><span class="grad-text" data-ar="واعرف صافي أرباحك الحقيقي.">Know your real profit.</span></h2>
-      <p class="lead" data-ar="استلام دفعاتك الإعلانية هو نصف الحسبة بس! عشان تعرف انه مشروعك يربح فعلاً ولا لأ، سجّل جميع مصروفاتك مثل المصاريف التشغلية مثل تصوير، مونتاج، بنزين، ومعدات، وبرامج. والنظام يحسب لك الإيرادات ويطلع لك الرقم اللي يهمك: صافي ربحك الفعلي.">Getting paid is only half the picture. Log what each campaign costs you — production, travel, gear, software — and Influero turns revenue into the number that actually matters: your net profit.</p>
+      <p class="lead" data-ar="استلام دفعاتك الإعلانية هو نصف الحسبة بس! عشان تعرف انه مشروعك يربح فعلاً ولا لأ، سجّل جميع مصروفاتك مثل المصاريف التشغلية مثل تصوير، مونتاج، بنزين، ومعدات، وبرامج. والنظام يحسب لك الإيرادات ويطلع لك الرقم اللي يهمك: صافي ربحك الفعلي.">Getting paid is only half the picture. Log what each campaign costs you — production, travel, gear, software — and Inflero turns revenue into the number that actually matters: your net profit.</p>
       <ul class="feat-list">
         <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ترتيب التكاليف: صنّف كل مصروفاتك حسب نوعها (معدات، إنتاج، بنزين).">Categorize every cost — production, travel, gear, software</span></li>
         <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ربط آلي ومباشر: اربط أي مصروف بالصفقة الإعلانية الخاصة به عشان تضبط الحسبة.">Link any expense to the deal it belongs to</span></li>
@@ -402,7 +402,7 @@ export const LANDING_HTML = `
       <div class="step rv">
         <div class="num" data-ar="٢">2</div>
         <h3 data-ar="تابع مستحقاتك أول بأول">Track &amp; get paid</h3>
-        <p data-ar="حدّث حالة الستوري أو الريلز أول ما تنشرها، وأكّد استلام الدفعات، وخلي المنصة تتابع لك المبالغ المتأخرة وتذكّرك فيها.">Tick off stories and reels as you post. Mark payments received and let Influero chase the ones that are running late.</p>
+        <p data-ar="حدّث حالة الستوري أو الريلز أول ما تنشرها، وأكّد استلام الدفعات، وخلي المنصة تتابع لك المبالغ المتأخرة وتذكّرك فيها.">Tick off stories and reels as you post. Mark payments received and let Inflero chase the ones that are running late.</p>
       </div>
       <div class="step rv">
         <div class="num" data-ar="٣">3</div>
@@ -474,11 +474,11 @@ export const LANDING_HTML = `
   <div class="wrap">
     <a class="brand" href="#top">
       <span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-      Influero
+      Inflero
     </a>
     <p data-ar="مساحة العمل الذكية لصنّاع المحتوى والمؤثرين. تابع إعلاناتك، اضمن أرباحك، وجهّز تقاريرك بكل سهولة.">The all-in-one workspace for creators and influencers. Track deals, get paid, prove your impact.</p>
     <div class="foot-bot">
-      <span data-ar="© ٢٠٢٦ Influero. جميع الحقوق محفوظة.">© 2026 Influero. All rights reserved.</span>
+      <span data-ar="© ٢٠٢٦ Inflero. جميع الحقوق محفوظة.">© 2026 Inflero. All rights reserved.</span>
       <nav style="display:flex;gap:18px;flex-wrap:wrap">
         <a href="/privacy" style="color:var(--ink-2);font-weight:600" data-ar="الخصوصية">Privacy</a>
         <a href="/terms" style="color:var(--ink-2);font-weight:600" data-ar="الشروط">Terms</a>

@@ -182,7 +182,7 @@
     "viewExpenses": "عرض المصروفات"
   },
   "deals": {
-    "title": "الصفقات",
+    "title": "كل الصفقات",
     "count": "{{total}} صفقة",
     "addDeal": "ضيف صفقة",
     "noPostDate": "بدون تاريخ نشر",
@@ -210,6 +210,7 @@
       "reel": "ريل"
     },
     "filters": {
+      "toggle": "الفلاتر",
       "statusLabel": "تصفية حسب الحالة",
       "allStatuses": "عرض الكل",
       "brand": "العلامة التجارية",
@@ -742,6 +743,7 @@
       "titleCampaign": "تقرير حملة سناب",
       "titleMonthly": "تقرير سناب الشهري",
       "previewHeading": "معاينة التقرير",
+      "vsPrevious": "مقارنةً بآخر ٢٨ يوم",
       "footer": "أُنشئ بواسطة {{app}}"
     },
     "monthly": {
@@ -820,6 +822,7 @@
     "quickAdd": "إضافة سريعة",
     "openMenu": "فتح القائمة",
     "menuTitle": "القائمة",
+    "back": "رجوع",
     "barLabel": "التنقل الرئيسي"
   },
   "quickAdd": {
@@ -843,7 +846,7 @@
   },
   "billing": {
     "title": "الفوترة",
-    "help": "تحكّم في اشتراكك في Influero.",
+    "help": "تحكّم في اشتراكك في Inflero.",
     "loading": "جاري التحميل…",
     "loadError": "ما قدرنا نحمّل خطتك.",
     "plan": {
