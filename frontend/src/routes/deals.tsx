@@ -192,11 +192,23 @@ export function DealsRoute() {
               })}
             </p>
             {!pro && !hasActiveFilters ? (
-              <p className="text-body font-semibold text-accent">
-                {t("billing.dealUsage", {
-                  count: formatNumber(inFlightCount, locale),
-                })}
-              </p>
+              <Card className="flex flex-col gap-2">
+                <p className="text-body font-semibold text-accent">
+                  {t("billing.dealUsage", {
+                    count: formatNumber(inFlightCount, locale),
+                  })}
+                </p>
+                <p className="text-body text-text-secondary">
+                  {t("billing.dealUsageHint")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => openUpgrade("billing.upgradePrompt.deals")}
+                  className="inline-flex min-h-11 items-center self-start text-body font-semibold text-accent focus-visible:underline focus-visible:outline-none"
+                >
+                  {t("billing.upgrade")}
+                </button>
+              </Card>
             ) : null}
           </>
         ) : null}

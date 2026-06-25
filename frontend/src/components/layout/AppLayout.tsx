@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search } from "lucide-react";
 
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { QuickAddSheet } from "@/components/layout/QuickAddSheet";
@@ -16,12 +15,14 @@ type Props = {
 };
 
 // The in-app shell wrapping every protected page (App.tsx mounts it as the
-// layout route's element around the page Outlet): a sticky greeting header
-// (avatar → profile menu, leading; a presentational search button, trailing;
-// the "Hi, {name}" greeting only on the dashboard — F17 design), the page
-// content with bottom clearance for the fixed bar, the bottom tab bar, and the
-// Quick Add + profile menu sheets it owns. Other pages keep their own title
-// rows. (Payments is reached from the dashboard money tiles, not the header.)
+// layout route's element around the page Outlet): a sticky greeting header with
+// the "Hi, {name}" greeting at the LEADING edge (dashboard only — F17 design) and
+// the profile-avatar button (→ profile menu) pushed to the TRAILING edge via
+// `ms-auto` — the avatar reads right in LTR / mirrors left in RTL, an easier
+// thumb target than the leading corner. Then the page content with bottom
+// clearance for the fixed bar, the bottom tab bar, and the Quick Add + profile
+// menu sheets it owns. Other pages keep their own title rows (avatar still
+// trailing). (Payments now has its own tab bar slot.)
 export function AppLayout({ children }: Props) {
   const { t } = useTranslation();
   const location = useLocation();
@@ -45,20 +46,6 @@ export function AppLayout({ children }: Props) {
         {/* Same centered column as every page's content (mx-auto max-w-[640px])
             so the header never detaches from the page on wide viewports. */}
         <div className="mx-auto flex w-full max-w-[640px] items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setProfileOpen(true)}
-            aria-label={t("nav.openMenu")}
-            className="rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <ProfileAvatar
-              appUser={appUserQuery.data}
-              size="lg"
-              shape="square"
-              solid
-            />
-          </button>
-
           {isDashboard ? (
             <div className="min-w-0 leading-tight">
               <p className="text-body text-text-secondary">
@@ -70,18 +57,19 @@ export function AppLayout({ children }: Props) {
             </div>
           ) : null}
 
-          {/* Search stays presentational (no search feature in v1). Payments now
-              has a labelled home on the dashboard (the money tiles + a "View
-              payments" link), so the header no longer carries a payments entry. */}
-          <div className="ms-auto flex items-center gap-2">
-            <button
-              type="button"
-              aria-label={t("nav.search")}
-              className="grid size-12 place-items-center rounded-2xl border border-border bg-surface text-text-secondary shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <Search className="size-5" aria-hidden="true" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setProfileOpen(true)}
+            aria-label={t("nav.openMenu")}
+            className="ms-auto rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <ProfileAvatar
+              appUser={appUserQuery.data}
+              size="lg"
+              shape="square"
+              solid
+            />
+          </button>
         </div>
       </header>
 
