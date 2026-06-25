@@ -287,6 +287,7 @@
     "title": "Payments",
     "count": "{{total}} payments",
     "addPayment": "Add payment",
+    "editPayment": "Edit payment",
     "totalPending": "Total pending",
     "loadError": "Couldn't load your payments. Please refresh the page.",
     "needDealFirst": "A payment belongs to a deal — add an active deal to get started.",
@@ -326,8 +327,17 @@
     },
     "actions": {
       "add": "Add payment",
+      "save": "Save changes",
+      "edit": "Edit payment",
+      "delete": "Delete payment",
       "markReceived": "Mark received",
       "sendReminder": "Remind on WhatsApp"
+    },
+    "delete": {
+      "confirmTitle": "Delete this payment?",
+      "confirmBody": "This payment will be permanently removed. Your deal and its other payments are not affected.",
+      "permanent": "This cannot be undone.",
+      "confirmAction": "Delete payment"
     },
     "whatsapp": {
       "noPhone": "Add a phone number to this brand to send a reminder.",
@@ -341,7 +351,11 @@
       "dealPaid": "Payment received — deal fully paid",
       "createdNotReceived": "Payment saved — mark it received from the Pending tab.",
       "error": "Couldn't save the payment. Please try again.",
-      "receiveError": "Couldn't mark as received. Please try again."
+      "receiveError": "Couldn't mark as received. Please try again.",
+      "updated": "Payment updated",
+      "updateError": "Couldn't update the payment. Please try again.",
+      "deleted": "Payment deleted",
+      "deleteError": "Couldn't delete the payment. Please try again."
     },
     "errors": {
       "dealRequired": "Pick a deal",

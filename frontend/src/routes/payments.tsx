@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
   useCreatePayment,
+  useDeletePayment,
   useMarkPaymentReceived,
   usePayments,
+  useUpdatePayment,
 } from "@/hooks/usePayments";
 import { useDeals } from "@/hooks/useDeals";
 import { useBrands } from "@/hooks/useBrands";
@@ -44,6 +46,19 @@ const EMPTY_PAYMENT_FORM: PaymentFormInput = {
   notes: "",
 };
 
+// Seed the edit form from an existing row. markReceived is irrelevant in edit
+// mode (the toggle is hidden) — status is never changed here.
+function paymentToForm(payment: Payment): PaymentFormInput {
+  return {
+    dealId: payment.deal_id,
+    amount: String(payment.amount_sar),
+    expectedDate: payment.expected_date ?? "",
+    method: (payment.method ?? "") as PaymentFormInput["method"],
+    markReceived: false,
+    notes: payment.notes ?? "",
+  };
+}
+
 // Deals that can take a new installment (Decision 3): cancelled is dead,
 // paid only became paid because every payment was received.
 const ACTIVE_DEAL_STATUSES: ReadonlySet<Deal["status"]> = new Set([
@@ -72,11 +87,16 @@ export function PaymentsRoute() {
 
   const [tab, setTab] = useState<PaymentsTab>(PAYMENTS_TAB.PENDING);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // The pending payment currently being edited (its sheet is open when set).
+  const [editing, setEditing] = useState<Payment | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const paymentsQuery = usePayments(tab);
   const dealsQuery = useDeals({});
   const brandsQuery = useBrands();
   const createPayment = useCreatePayment();
+  const updatePayment = useUpdatePayment();
+  const deletePayment = useDeletePayment();
   const markReceived = useMarkPaymentReceived();
 
   // FAB Quick Add → Payment opens this route's Add sheet (even if already here).
@@ -85,6 +105,9 @@ export function PaymentsRoute() {
 
   const payments = paymentsQuery.data ?? [];
   const ready = !paymentsQuery.isLoading && !paymentsQuery.isError;
+  // The edit form needs the deal list — only offer the pencil once deals load,
+  // so the deal selector never opens blank with no matching option.
+  const dealsReady = !dealsQuery.isLoading && !dealsQuery.isError;
   const today = todayIsoLocal();
 
   const dealsById = useMemo(() => {
@@ -113,6 +136,18 @@ export function PaymentsRoute() {
     () => (dealsQuery.data ?? []).filter((deal) => ACTIVE_DEAL_STATUSES.has(deal.status)),
     [dealsQuery.data],
   );
+
+  // The edit form's deal options: the active deals PLUS the payment's current
+  // deal even if it's no longer active (a pending payment can belong to a
+  // cancelled deal), so the selector always shows its real current deal.
+  const editDeals = useMemo(() => {
+    if (!editing) return activeDeals;
+    const current = dealsById.get(editing.deal_id);
+    if (current && !activeDeals.some((deal) => deal.id === current.id)) {
+      return [current, ...activeDeals];
+    }
+    return activeDeals;
+  }, [editing, activeDeals, dealsById]);
 
   const totalPendingSar = payments.reduce(
     (sum, payment) => sum + payment.amount_sar,
@@ -168,6 +203,38 @@ export function PaymentsRoute() {
         );
 
     window.open(whatsappDeepLink(phone, message), "_blank", "noopener,noreferrer");
+  }
+
+  function handleUpdate(data: PaymentFormInput): void {
+    if (!editing) return;
+    updatePayment.mutate(
+      { paymentId: editing.id, input: data },
+      {
+        onSuccess: () => {
+          showToast("payments.toast.updated", "success");
+          setEditing(null);
+        },
+        onError: (error) => {
+          logger.error("PaymentsRoute.update", error);
+          showToast("payments.toast.updateError", "error");
+        },
+      },
+    );
+  }
+
+  function handleDelete(): void {
+    if (!editing) return;
+    deletePayment.mutate(editing.id, {
+      onSuccess: () => {
+        showToast("payments.toast.deleted", "success");
+        setConfirmDeleteOpen(false);
+        setEditing(null);
+      },
+      onError: (error) => {
+        logger.error("PaymentsRoute.delete", error);
+        showToast("payments.toast.deleteError", "error");
+      },
+    });
   }
 
   function handleMarkReceived(payment: Payment): void {
@@ -253,6 +320,7 @@ export function PaymentsRoute() {
                 dealTitle={dealsById.get(payment.deal_id)?.title}
                 isOverdue={isPaymentOverdue(payment, today)}
                 onMarkReceived={handleMarkReceived}
+                onEdit={dealsReady ? setEditing : undefined}
                 onSendReminder={handleSendReminder}
                 isMarking={markReceived.isPending && markReceived.variables === payment.id}
                 canSendReminder={Boolean(
@@ -289,6 +357,67 @@ export function PaymentsRoute() {
             submitLabel={t("payments.actions.add")}
           />
         )}
+      </BottomSheet>
+
+      <BottomSheet
+        open={editing !== null && !confirmDeleteOpen}
+        onClose={() => setEditing(null)}
+        title={t("payments.editPayment")}
+      >
+        {editing ? (
+          <div className="flex flex-col gap-6">
+            <PaymentForm
+              deals={editDeals}
+              defaultValues={paymentToForm(editing)}
+              onSubmit={handleUpdate}
+              isSubmitting={updatePayment.isPending}
+              submitLabel={t("payments.actions.save")}
+              allowMarkReceived={false}
+            />
+            <div className="border-t border-border pt-4">
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={() => setConfirmDeleteOpen(true)}
+              >
+                {t("payments.actions.delete")}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </BottomSheet>
+
+      <BottomSheet
+        open={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        title={t("payments.delete.confirmTitle")}
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-body text-text-secondary">
+            {t("payments.delete.confirmBody")}
+          </p>
+          <p className="text-body font-semibold text-error-foreground">
+            {t("payments.delete.permanent")}
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="destructive"
+              className="w-full"
+              isLoading={deletePayment.isPending}
+              onClick={handleDelete}
+            >
+              {t("payments.delete.confirmAction")}
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
+              disabled={deletePayment.isPending}
+              onClick={() => setConfirmDeleteOpen(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+          </div>
+        </div>
       </BottomSheet>
     </main>
   );

@@ -23,6 +23,10 @@ type Props = {
   onSubmit: (data: PaymentFormInput) => void;
   isSubmitting: boolean;
   submitLabel: string;
+  // The "Already received?" toggle is a CREATE-only concept (it routes through
+  // the mark-received RPC). In edit mode it's hidden — editing never changes
+  // status — and the expected-date field is always shown.
+  allowMarkReceived?: boolean;
 };
 
 const PAYMENT_METHODS = [
@@ -41,6 +45,7 @@ export function PaymentForm({
   onSubmit,
   isSubmitting,
   submitLabel,
+  allowMarkReceived = true,
 }: Props) {
   const { t } = useTranslation();
   const {
@@ -56,7 +61,7 @@ export function PaymentForm({
   // An expected date is only meaningful for money still owed — a received
   // payment is stamped with received_date by the RPC. Hide the field when the
   // user marks the payment already received (the advance/reservation case).
-  const markReceived = watch("markReceived");
+  const markReceived = allowMarkReceived && watch("markReceived");
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
@@ -106,17 +111,19 @@ export function PaymentForm({
         </Select>
       </div>
 
-      <label className="flex min-h-11 cursor-pointer items-center gap-3">
-        <input
-          id="payment-received"
-          type="checkbox"
-          className="size-5 shrink-0 accent-accent"
-          {...register("markReceived")}
-        />
-        <span className="flex-1 text-sm text-text-primary">
-          {t("payments.fields.alreadyReceived")}
-        </span>
-      </label>
+      {allowMarkReceived ? (
+        <label className="flex min-h-11 cursor-pointer items-center gap-3">
+          <input
+            id="payment-received"
+            type="checkbox"
+            className="size-5 shrink-0 accent-accent"
+            {...register("markReceived")}
+          />
+          <span className="flex-1 text-sm text-text-primary">
+            {t("payments.fields.alreadyReceived")}
+          </span>
+        </label>
+      ) : null}
 
       {!markReceived ? (
         <div>
