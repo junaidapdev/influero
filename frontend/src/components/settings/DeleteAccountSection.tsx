@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -16,7 +15,6 @@ import { logger } from "@/lib/logger";
 // cleared the local session, so we land on the public landing page.
 export function DeleteAccountSection() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const showToast = useToast();
   const deleteAccount = useDeleteAccount();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -24,7 +22,12 @@ export function DeleteAccountSection() {
   function handleConfirm(): void {
     deleteAccount.mutate(undefined, {
       onSuccess: () => {
-        navigate(ROUTES.ROOT, { replace: true });
+        // Hard redirect (not a client-side navigate): a full document load pulls
+        // fresh hashed assets — a lazy route loaded from a chunk a redeploy
+        // rotated away would otherwise fail to import and render blank — and it
+        // drops every bit of in-memory state for the now-deleted user. `replace`
+        // keeps the deleted account's pages out of the back/forward history.
+        window.location.replace(ROUTES.ROOT);
       },
       onError: (error) => {
         logger.error("DeleteAccountSection.delete", error);
