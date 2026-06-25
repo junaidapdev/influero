@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Pencil } from "lucide-react";
 
 import { PaymentStatusPill } from "@/components/payments/PaymentStatusPill";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +17,9 @@ type Props = {
   // whole list shares one "today".
   isOverdue: boolean;
   onMarkReceived: (payment: Payment) => void;
+  // Opens the edit sheet for this (pending) payment. Pending rows only; absent
+  // until the deals query is ready (the edit form needs the deal list).
+  onEdit?: (payment: Payment) => void;
   // Opens WhatsApp to the brand with a prewritten payment reminder — the parent
   // resolves the brand, builds the message, and does window.open.
   onSendReminder: (payment: Payment) => void;
@@ -41,6 +44,7 @@ export function PaymentListItem({
   dealTitle,
   isOverdue,
   onMarkReceived,
+  onEdit,
   onSendReminder,
   isMarking,
   canSendReminder,
@@ -67,7 +71,20 @@ export function PaymentListItem({
         <p className="min-w-0 flex-1 truncate text-row font-semibold text-text-primary">
           {dealTitle ?? "—"}
         </p>
-        <PaymentStatusPill status={displayStatus} />
+        <div className="-my-1 flex shrink-0 items-center gap-1">
+          {isPending && onEdit ? (
+            <button
+              type="button"
+              onClick={() => onEdit(payment)}
+              aria-label={t("payments.actions.edit")}
+              title={t("payments.actions.edit")}
+              className="-me-1 flex size-11 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <Pencil className="size-4" aria-hidden="true" />
+            </button>
+          ) : null}
+          <PaymentStatusPill status={displayStatus} />
+        </div>
       </div>
 
       <div className="flex items-end justify-between gap-3">

@@ -46,6 +46,13 @@ type OutstandingUser = {
   shoot_count: number;
   post_count: number;
   payment_count: number;
+  // Detail for the named digest body (0026). null when the category is empty.
+  meeting_first_title: string | null;
+  shoot_first_title: string | null;
+  post_first_title: string | null;
+  payment_first_brand_en: string | null;
+  payment_first_brand_ar: string | null;
+  payment_first_amount: number | string | null;
 };
 
 type Subscription = {

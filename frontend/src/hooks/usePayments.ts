@@ -203,6 +203,87 @@ export function useCreatePayment() {
   });
 }
 
+// Shared invalidation for plain edit/delete writes: a pending payment feeds the
+// payments lists, the deal's payment rollup, the dashboard pending total +
+// needs-attention, and the reports/aggregates — so refresh all four prefixes.
+function invalidatePaymentViews(
+  queryClient: ReturnType<typeof useQueryClient>,
+): void {
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PAYMENTS });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DEALS });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.DASHBOARD });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS });
+}
+
+// Edit a PENDING installment's plain fields (amount / expected date / method /
+// notes — and the deal it belongs to). Never touches status or received_date:
+// 'received' is owned solely by the mark_payment_received RPC. The
+// `.eq('status','pending')` guard is belt-and-suspenders — even a stale UI can't
+// mutate a received row (it matches 0 rows, so .single() errors → surfaced).
+export function useUpdatePayment() {
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+
+  return useMutation({
+    mutationFn: async ({
+      paymentId,
+      input,
+    }: {
+      paymentId: string;
+      input: PaymentFormInput;
+    }): Promise<Payment> => {
+      const userId = session?.user.id;
+      if (!userId) throw new Error("[useUpdatePayment] No authenticated user");
+
+      const { data, error } = await supabase
+        .from("payments")
+        .update(toPaymentColumns(input))
+        .eq("id", paymentId)
+        .eq("user_id", userId)
+        .eq("status", PAYMENT_STATUS.PENDING)
+        .select("*")
+        .single();
+      if (error) throw error;
+
+      return data as Payment;
+    },
+    onSuccess: () => invalidatePaymentViews(queryClient),
+  });
+}
+
+// Hard-delete a PENDING installment (no soft-delete). RLS scopes it to the
+// caller; the same pending guard keeps a received payment from being removed
+// (deleting it would strand the deal's paid flip + aggregates). FK-safe: the
+// RESTRICT is on deleting the DEAL, not its payments.
+export function useDeletePayment() {
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+
+  return useMutation({
+    mutationFn: async (paymentId: string): Promise<void> => {
+      const userId = session?.user.id;
+      if (!userId) throw new Error("[useDeletePayment] No authenticated user");
+
+      // .select() so we know whether a row actually matched — if the payment
+      // flipped to received between opening the sheet and confirming, the
+      // pending guard matches 0 rows and we surface an error instead of a false
+      // "deleted" toast (RLS's select-own policy lets the delete return rows).
+      const { data, error } = await supabase
+        .from("payments")
+        .delete()
+        .eq("id", paymentId)
+        .eq("user_id", userId)
+        .eq("status", PAYMENT_STATUS.PENDING)
+        .select("id");
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error("[useDeletePayment] No pending payment deleted");
+      }
+    },
+    onSuccess: () => invalidatePaymentViews(queryClient),
+  });
+}
+
 // Mark a payment received via the edge function → RPC (the ONLY write path for
 // payment status — never a direct PostgREST update). Optimistic: the row
 // leaves the Pending list immediately and is restored on error (build-plan:
