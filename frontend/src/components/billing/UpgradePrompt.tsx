@@ -10,9 +10,10 @@ type UpgradePromptProps = {
   messageKey: string;
 };
 
-// The in-page locked state for an entirely-Pro page (snap, reports). It's the
-// fallback the user sees behind / after the auto-opened upgrade modal; its button
-// re-opens that single modal, which owns the actual checkout CTA.
+// The in-page locked state for an entirely-Pro page (snap, reports, expenses).
+// It's the FIRST thing a free user sees on landing (card-first — the upgrade
+// modal no longer auto-pops); its button opens that single modal, which owns the
+// actual checkout CTA.
 export function UpgradePrompt({ messageKey }: UpgradePromptProps) {
   const { t } = useTranslation();
   const openUpgrade = useUpgradeModal();

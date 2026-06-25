@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Receipt } from "lucide-react";
 
@@ -21,7 +21,6 @@ import {
 } from "@/hooks/useExpenses";
 import { useDeals } from "@/hooks/useDeals";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
@@ -99,7 +98,6 @@ export function ExpensesRoute() {
   const updateExpense = useUpdateExpense();
   const deleteExpense = useDeleteExpense();
   const entitlement = useEntitlement();
-  const openUpgrade = useUpgradeModal();
 
   // FAB Quick Add → Expense opens the Add sheet (even if already here).
   const handleQuickAdd = useCallback(() => {
@@ -126,12 +124,10 @@ export function ExpensesRoute() {
     return [...months].sort((a, b) => b.localeCompare(a));
   }, [indexQuery.data]);
 
-  // Reports/Snap stance: gate in the UI, pop the single upgrade modal on landing,
-  // render the locked card behind it (its button re-opens the modal).
+  // Reports/Snap stance: gate in the UI. A free user lands on the in-page
+  // UpgradePrompt card; its button opens the upgrade modal (card-first — no modal
+  // auto-pops on landing).
   const gated = !entitlement.isLoading && !isPro(entitlement.data);
-  useEffect(() => {
-    if (gated) openUpgrade("billing.upgradePrompt.expenses");
-  }, [gated, openUpgrade]);
 
   function closeSheet(): void {
     setSheetOpen(false);

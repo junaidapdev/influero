@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Camera } from "lucide-react";
 
@@ -20,7 +20,6 @@ import {
 } from "@/hooks/useSnapReports";
 import { useDeals } from "@/hooks/useDeals";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 import { useLocale } from "@/hooks/useLocale";
 import { formatNumber } from "@/lib/numbers";
 import { isPro } from "@/features/billing/entitlement";
@@ -62,7 +61,6 @@ export function SnapAnalyticsRoute() {
   const reportsQuery = useSnapReports();
   const dealsQuery = useDeals({});
   const entitlement = useEntitlement();
-  const openUpgrade = useUpgradeModal();
 
   const reports = reportsQuery.data ?? [];
   const ready = !reportsQuery.isLoading && !reportsQuery.isError;
@@ -93,11 +91,9 @@ export function SnapAnalyticsRoute() {
 
   // Snap AI extraction is Pro-only — free users get the upgrade gate instead of
   // the upload/list UI (the extract-snap-report edge function enforces it too).
-  // The modal pops the moment a free user lands here; the card behind re-opens it.
+  // A free user lands on the in-page UpgradePrompt card; its button opens the
+  // upgrade modal (card-first — no modal auto-pops on landing).
   const gated = !entitlement.isLoading && !isPro(entitlement.data);
-  useEffect(() => {
-    if (gated) openUpgrade("billing.upgradePrompt.snap");
-  }, [gated, openUpgrade]);
 
   if (gated) {
     return (

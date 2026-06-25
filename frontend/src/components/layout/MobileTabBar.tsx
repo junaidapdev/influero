@@ -2,10 +2,10 @@ import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   BarChart3,
-  Calendar,
   Home,
   Megaphone,
   Plus,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -43,9 +43,10 @@ function TabButton({ tab }: { tab: Tab }) {
 }
 
 // The app's only navigation (ui-rules: bottom tab bar, no top navbar / sidebar).
-// Five slots — Home · Deals · [+ FAB] · Calendar · Insights — fixed to the
-// viewport bottom with a safe-area inset. Insights is active on either /reports
-// or /analytics/snap (the shared segmented control switches between them).
+// Five slots — Home · Deals · [+ FAB] · Payments · Insights — fixed to the
+// viewport bottom with a safe-area inset. Payments earns a primary slot (the
+// money mental model); Meetings moves to the profile menu. Insights is active on
+// either /reports or /analytics/snap (the shared segmented control switches them).
 // lucide is outline-only at this pin, so the active state reads via color +
 // label weight rather than a filled-glyph swap (ui-tokens' "icon filled").
 export function MobileTabBar({ onQuickAdd }: Props) {
@@ -64,11 +65,11 @@ export function MobileTabBar({ onQuickAdd }: Props) {
     icon: Megaphone,
     active: pathname === ROUTES.DEALS,
   };
-  const calendar: Tab = {
-    to: ROUTES.MEETINGS,
-    label: t("nav.calendar"),
-    icon: Calendar,
-    active: pathname === ROUTES.MEETINGS,
+  const payments: Tab = {
+    to: ROUTES.PAYMENTS,
+    label: t("nav.payments"),
+    icon: Wallet,
+    active: pathname === ROUTES.PAYMENTS,
   };
   const insights: Tab = {
     to: ROUTES.REPORTS,
@@ -95,7 +96,7 @@ export function MobileTabBar({ onQuickAdd }: Props) {
             <Plus className="size-6" aria-hidden="true" />
           </button>
         </div>
-        <TabButton tab={calendar} />
+        <TabButton tab={payments} />
         <TabButton tab={insights} />
       </div>
     </nav>

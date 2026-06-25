@@ -799,11 +799,10 @@
   "nav": {
     "home": "Home",
     "deals": "Deals",
-    "calendar": "Calendar",
+    "payments": "Payments",
     "insights": "Insights",
     "quickAdd": "Quick add",
     "openMenu": "Open menu",
-    "search": "Search",
     "menuTitle": "Menu",
     "barLabel": "Primary"
   },
@@ -850,6 +849,7 @@
     },
     "dealLimit": "The Free plan is limited to 5 active deals. Upgrade to Pro in Settings for unlimited deals.",
     "dealUsage": "{{count}} of 5 active deals used",
+    "dealUsageHint": "The Free plan includes 5 active deals. Upgrade to Pro for unlimited.",
     "upgradePrompt": {
       "title": "A Pro feature",
       "snap": "Turn your Snapchat screenshots into clean reports with AI — available on the Pro plan.",

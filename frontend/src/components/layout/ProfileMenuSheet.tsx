@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import {
   Bell,
   Building2,
+  Calendar,
   ChevronRight,
   LogOut,
   Receipt,
   Settings,
-  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,10 +34,10 @@ type MenuLink = {
 };
 
 // The profile menu (the shell header's avatar opens it). Reuses the BottomSheet
-// pattern. Holds the destinations deliberately kept OFF the tab bar
-// (Brands · Payments · Expenses · Reminders · Settings) plus Sign out — so
-// everything the app can reach has a persistent home now that the temp dashboard
-// quick-links are gone.
+// pattern. Holds the destinations kept OFF the tab bar
+// (Brands · Meetings · Expenses · Reminders · Settings) plus Sign out — so
+// everything the app can reach has a persistent home. (Payments moved to a tab
+// bar slot; Meetings moved here in its place.)
 export function ProfileMenuSheet({ open, onClose, appUser }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ export function ProfileMenuSheet({ open, onClose, appUser }: Props) {
 
   const links: MenuLink[] = [
     { key: "brands", label: t("brands.title"), icon: Building2, to: ROUTES.BRANDS },
-    { key: "payments", label: t("payments.title"), icon: Wallet, to: ROUTES.PAYMENTS },
+    { key: "meetings", label: t("meetings.title"), icon: Calendar, to: ROUTES.MEETINGS },
     { key: "expenses", label: t("expenses.title"), icon: Receipt, to: ROUTES.EXPENSES },
     { key: "reminders", label: t("reminders.title"), icon: Bell, to: ROUTES.REMINDERS },
     { key: "settings", label: t("settings.title"), icon: Settings, to: ROUTES.SETTINGS },
