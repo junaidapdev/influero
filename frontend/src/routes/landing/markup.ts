@@ -31,9 +31,9 @@ export const LANDING_HTML = `
     </a>
     <nav class="nav-links">
       <a href="#features" data-ar="المزايا">Features</a>
-      <a href="#how" data-ar="كيف يعمل">How it works</a>
+      <a href="#how" data-ar="كيف تعمل المنصة؟">How it works</a>
       <a href="#pricing" data-ar="الأسعار">Pricing</a>
-      <a href="/login" data-ar="تجربة حية">Live demo</a>
+      <a href="/login" data-ar="تجربة مجانية">Live demo</a>
     </nav>
     <div class="nav-cta">
       <div class="lang-pill" role="group" aria-label="Language">
@@ -53,8 +53,8 @@ export const LANDING_HTML = `
     <a href="#features" data-ar="المزايا">Features</a>
     <a href="#how" data-ar="كيف يعمل">How it works</a>
     <a href="#pricing" data-ar="الأسعار">Pricing</a>
-    <a href="/login" data-ar="تجربة حية">Live demo</a>
-    <a class="btn btn-primary" href="/login?mode=signup" data-ar="ابدأ مجاناً">Get started free</a>
+    <a href="/login" data-ar="تجربة مجانية">Live demo</a>
+    <a class="btn btn-primary" href="/login?mode=signup" data-ar="ابدأ مجانًا">Get started free</a>
   </div>
 </div>
 
@@ -66,11 +66,11 @@ export const LANDING_HTML = `
   <div class="glow b"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow rv"><span class="dot"></span><span data-ar="لصنّاع المحتوى والمؤثرين"> For creators &amp; influencers</span></span>
-      <h1 class="h-display rv"><span data-ar="أدِر تأثيرك مثل ">Run your influence like a </span><span class="grad-text" data-ar="مشروع تجاري.">business.</span></h1>
-      <p class="lead rv" data-ar="مساحة عمل واحدة هادئة لكل صفقة علامة تجارية — تابِع المُخرجات، واحصل على مستحقاتك في وقتها، وحوّل لقطات سناب شات إلى تقارير أنيقة بالذكاء الاصطناعي. مصمّمة للعربية والإنجليزية.">One calm workspace for every brand deal — track deliverables, get paid on time, and turn your Snapchat screenshots into clean reports with AI. Built for Arabic and English.</p>
+      <span class="eyebrow rv"><span class="dot"></span><span data-ar="لصناع المحتوى والمؤثرين"> For creators &amp; influencers</span></span>
+      <h1 class="h-display rv"><span data-ar="أدر تأثيرك مثل ">Run your influence like a </span><span class="grad-text" data-ar="مشروع تجاري.">business.</span></h1>
+      <p class="lead rv" data-ar="المنصة اللي تحول أعمالك الإعلانية من العشوائية إلى الاحترافية. مساحة عمل ذكية لإدارة إعلاناتك ومتابعة مخرجاتك، واستلام مستحقاتك بدون تأخير. وبنقرة زر، حوّل تفاعل المتابعين في سناب شات إلى تقرير احترافي بالذكاء الاصطناعي.">One calm workspace for every brand deal — track deliverables, get paid on time, and turn your Snapchat screenshots into clean reports with AI. Built for Arabic and English.</p>
       <div class="hero-cta rv">
-        <a class="btn btn-primary" href="/login?mode=signup"><span data-ar="ابدأ مجاناً">Start free</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-primary" href="/login?mode=signup"><span data-ar="ابدأ مجانًا">Start free</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
     </div>
 
@@ -181,13 +181,13 @@ export const LANDING_HTML = `
 <section class="feature">
   <div class="wrap feat-grid">
     <div class="feat-copy rv">
-      <span class="eyebrow"><span class="dot"></span><span data-ar="الصفقات والمُخرجات"> Deals &amp; deliverables</span></span>
-      <h2 class="h-sec" data-ar="لا تفقد أثر أي صفقة بعد اليوم.">Never lose track of a deal again.</h2>
-      <p class="lead" data-ar="كل حملة في مكان واحد — المبلغ المتفق عليه، الموعد النهائي، وقائمة مهام قابلة للتأشير من قصص ومنشورات وريلز. تتحدّث الحالة تلقائياً كلما أنجزت مهمة.">Every campaign in one place — agreed amount, deadline, and a tappable checklist of stories, posts and reels. Status updates itself as you tick things off.</p>
+      <span class="eyebrow"><span class="dot"></span><span data-ar="إعلاناتك كلها تحت عينك"> Deals &amp; deliverables</span></span>
+      <h2 class="h-sec" data-ar="من اليوم ورايح ماراح يفوتك أي إعلان">Never lose track of a deal again.</h2>
+      <p class="lead" data-ar="كل حملة إعلانية تفاصيلها في مكان واحد مثل الميزانية، موعد النشر، وقائمة المهام المطلوبة منك، والحلو إنه تتحدث حالة الحملة تلقائيًا بضغطة زر مع كل خطوة تخلصها.">Every campaign in one place — agreed amount, deadline, and a tappable checklist of stories, posts and reels. Status updates itself as you tick things off.</p>
       <ul class="feat-list">
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="حالة تلقائية: قيد الانتظار ← قيد التنفيذ ← منشورة ← مدفوعة">Auto status: pending → in progress → posted → paid</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تقدّم ومواعيد لكل مُخرَج على حدة">Per-deliverable progress and deadlines</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ملاحظات وأكواد خصم وموجزات العلامة مرفقة">Notes, promo codes and brand briefs attached</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تحديث مباشر: تتبع حالة الإعلان من الانتظار وحتى استلام الدفعات.">Auto status: pending → in progress → posted → paid</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تنظيم الإعلانات: جدول زمني ومواعيد تسليم مفصلة لكل إعلان.">Per-deliverable progress and deadlines</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تنبيهات ذكية أول بأول: إشعارات تجيك على طول تذكرك بالأرباح والمستحقات.">Notes, promo codes and brand briefs attached</span></li>
       </ul>
     </div>
     <div class="feat-art rv">
@@ -217,12 +217,12 @@ export const LANDING_HTML = `
   <div class="wrap feat-grid">
     <div class="feat-copy rv">
       <span class="eyebrow"><span class="dot"></span><span data-ar="المدفوعات"> Payments</span></span>
-      <h2 class="h-sec" data-ar="احصل على مستحقاتك في وقتها، دائماً.">Get paid on time, every time.</h2>
-      <p class="lead" data-ar="اعرف بالضبط ما المعلّق، وما المتأخّر، وما الذي وصل. نقرة واحدة لتأكيد الاستلام — أو أرسل تذكيراً لطيفاً قبل أن يفوت موعد الاستحقاق.">See exactly what's pending, what's overdue and what's landed. One tap to mark received — or send a polite reminder before the due date slips.</p>
+      <h2 class="h-sec" data-ar="استلم فلوسك في وقتها، دائمًا.">Get paid on time, every time.</h2>
+      <p class="lead" data-ar="اعرف بالضبط إيش المبالغ المعلقة، وإيش اللي تأخر، وإيش المستحق لك.">See exactly what's pending, what's overdue and what's landed. One tap to mark received — or send a polite reminder before the due date slips.</p>
       <ul class="feat-list">
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبّع الدُّفعات المقدّمة والأرصدة المتبقّية والأقساط">Advances, balances and installments tracked</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تنبيهات التأخّر تظهر على لوحة تحكّمك">Overdue alerts surface on your dashboard</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تذكيرات تلقائية وفق مهلة التذكير التي تحدّدها">Automated reminders with your reminder lead time</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تابع فلوسك أول بأول: تابع المبالغ المقدمة والأرصدة المتبقية لكل إعلان.">Advances, balances and installments tracked</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تنبيهات التأخر تظهر على لوحة تحكمك.">Overdue alerts surface on your dashboard</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تذكيرات تلقائية وفق مهلة التذكير التي تحددها.">Automated reminders with your reminder lead time</span></li>
       </ul>
     </div>
     <div class="feat-art rv">
@@ -258,13 +258,13 @@ export const LANDING_HTML = `
 <section class="feature">
   <div class="wrap feat-grid">
     <div class="feat-copy rv">
-      <span class="eyebrow"><span class="dot"></span><span data-ar="تحليلات سناب شات"> Snapchat analytics</span></span>
-      <h2 class="h-sec"><span data-ar="لقطات شاشة تدخل. ">Screenshots in. </span><span class="grad-text" data-ar="تقارير أنيقة تخرج.">Clean reports out.</span></h2>
-      <p class="lead" data-ar="سناب شات لا يصدّر أرقامك — لذا نقرؤها بدلاً عنك. أضِف لقطة شاشة أو ملف PDF، ويستخرج الذكاء الاصطناعي المشاهدات والوصول وعدد لقطات الشاشة والتمريرات في تقرير قابل للتعديل، جاهز لمشاركته مع العلامة.">Snapchat won't export your numbers — so we read them for you. Drop in a screenshot or PDF and AI pulls views, reach, screenshots and swipe-ups into an editable report, ready to share with the brand.</p>
+      <span class="eyebrow"><span class="dot"></span><span data-ar="تحليلات سناب شات."> Snapchat analytics</span></span>
+      <h2 class="h-sec"><span data-ar="من لقطة شاشة.. ">Screenshots in. </span><span class="grad-text" data-ar="إلى تقرير أداء أنيق.">Clean reports out.</span></h2>
+      <p class="lead" data-ar="السناب ما يصدّر أرقام إحصائياتك؟ بسيطة، كل اللي عليك ترفع صور الإحصائيات، والنظام يستخرج أرقام المشاهدات والوصول والتفاعل في تقرير منظم وجاهز للمشاركة مع عميلك.">Snapchat won't export your numbers — so we read them for you. Drop in a screenshot or PDF and AI pulls views, reach, screenshots and swipe-ups into an editable report, ready to share with the brand.</p>
       <ul class="feat-list">
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="يقرأ شاشات الإحصاءات بالعربية والإنجليزية">Reads Arabic and English Insights screens</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="كل رقم قابل للتعديل قبل أن تؤكّده">Every number editable before you confirm</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="مرتبط مباشرةً بالصفقة التي يخصّها">Linked straight back to the deal it belongs to</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="قراءة ذكية للإحصاءات: يتعرف على أرقام الصور باللغتين العربية والإنجليزية.">Reads Arabic and English Insights screens</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="مراجعة وتعديل دقيق: إمكانية تعديل الأرقام المستخرجة وتأكيدها بسهولة.">Every number editable before you confirm</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ربط ذكي: التقارير تترتب مباشرة وتتربط مع العميل والإعلان المناسب.">Linked straight back to the deal it belongs to</span></li>
       </ul>
     </div>
     <div class="feat-art rv">
@@ -343,11 +343,11 @@ export const LANDING_HTML = `
   <div class="wrap feat-grid">
     <div class="feat-copy rv">
       <span class="eyebrow"><span class="dot"></span><span data-ar="المصروفات والأرباح"> Expenses &amp; profit</span></span>
-      <h2 class="h-sec"><span data-ar="تابِع كل مصروف. ">Track every cost. </span><span class="grad-text" data-ar="واعرف ربحك الحقيقي.">Know your real profit.</span></h2>
-      <p class="lead" data-ar="أن تتقاضى مستحقاتك نصف الصورة فقط. سجّل تكلفة كل حملة — إنتاج، تنقّل، معدّات، برامج — ويحوّل Influero الإيراد إلى الرقم الذي يهم فعلاً: صافي ربحك.">Getting paid is only half the picture. Log what each campaign costs you — production, travel, gear, software — and Influero turns revenue into the number that actually matters: your net profit.</p>
+      <h2 class="h-sec"><span data-ar="تتبع كل مصروف.. ">Track every cost. </span><span class="grad-text" data-ar="واعرف صافي أرباحك الحقيقي.">Know your real profit.</span></h2>
+      <p class="lead" data-ar="استلام دفعاتك الإعلانية هو نصف الحسبة بس! عشان تعرف انه مشروعك يربح فعلاً ولا لأ، سجّل جميع مصروفاتك مثل المصاريف التشغلية مثل تصوير، مونتاج، بنزين، ومعدات، وبرامج. والنظام يحسب لك الإيرادات ويطلع لك الرقم اللي يهمك: صافي ربحك الفعلي.">Getting paid is only half the picture. Log what each campaign costs you — production, travel, gear, software — and Influero turns revenue into the number that actually matters: your net profit.</p>
       <ul class="feat-list">
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صنّف كل تكلفة — إنتاج، تنقّل، معدّات، برامج">Categorize every cost — production, travel, gear, software</span></li>
-        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="اربط أي مصروف بالصفقة التي يخصّه">Link any expense to the deal it belongs to</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ترتيب التكاليف: صنّف كل مصروفاتك حسب نوعها (معدات، إنتاج، بنزين).">Categorize every cost — production, travel, gear, software</span></li>
+        <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="ربط آلي ومباشر: اربط أي مصروف بالصفقة الإعلانية الخاصة به عشان تضبط الحسبة.">Link any expense to the deal it belongs to</span></li>
         <li><span class="ck"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صافي ربحك على لوحتك — الإيراد ناقص التكاليف">True net profit on your dashboard — revenue minus costs</span></li>
       </ul>
     </div>
@@ -389,25 +389,25 @@ export const LANDING_HTML = `
 <section class="how" id="how">
   <div class="wrap">
     <div class="how-head rv">
-      <span class="eyebrow"><span class="dot"></span><span data-ar="كيف يعمل"> How it works</span></span>
+      <span class="eyebrow"><span class="dot"></span><span data-ar="كيف تعمل المنصة؟"> How it works</span></span>
       <h2 class="h-sec" style="margin-top:18px" data-ar="من فوضى الرسائل إلى مساحة عمل واحدة منظّمة.">From inbox chaos to one clean workspace.</h2>
-      <p class="lead" data-ar="جهّز كل شيء في دقائق. لا جداول، ولا رسائل ضائعة.">Set up in minutes. No spreadsheets, no lost DMs.</p>
+      <p class="lead" data-ar="رتّب كل شيء في دقائق معدودة. ودّع حوسة جداول الإكسل، والرسائل الضائعة.">Set up in minutes. No spreadsheets, no lost DMs.</p>
     </div>
     <div class="steps">
       <div class="step rv">
         <div class="num" data-ar="١">1</div>
-        <h3 data-ar="أضِف صفقاتك">Add your deals</h3>
-        <p data-ar="سجّل كل تعاون مع علامة تجارية بمبلغه وموعده النهائي والمُخرجات المتفق عليها. أو ابدأ من علامة في دليلك.">Log each brand collaboration with its amount, deadline and the deliverables you agreed to. Or start from a brand in your directory.</p>
+        <h3 data-ar="سجل إعلاناتك">Add your deals</h3>
+        <p data-ar="سجّل كل تعاون جديد مع أي براند بقيمته المادية وتاريخ النشر والمحتوى المتفق عليه، أو اختر العميل مباشرة من قائمة عملائك المعتمدين.">Log each brand collaboration with its amount, deadline and the deliverables you agreed to. Or start from a brand in your directory.</p>
       </div>
       <div class="step rv">
         <div class="num" data-ar="٢">2</div>
-        <h3 data-ar="تابِع واحصل على مستحقاتك">Track &amp; get paid</h3>
-        <p data-ar="أشّر على القصص والريلز فور نشرها. أكّد استلام المدفوعات ودَع Influero يتابع المتأخّرة منها.">Tick off stories and reels as you post. Mark payments received and let Influero chase the ones that are running late.</p>
+        <h3 data-ar="تابع مستحقاتك أول بأول">Track &amp; get paid</h3>
+        <p data-ar="حدّث حالة الستوري أو الريلز أول ما تنشرها، وأكّد استلام الدفعات، وخلي المنصة تتابع لك المبالغ المتأخرة وتذكّرك فيها.">Tick off stories and reels as you post. Mark payments received and let Influero chase the ones that are running late.</p>
       </div>
       <div class="step rv">
         <div class="num" data-ar="٣">3</div>
-        <h3 data-ar="شارِك النتائج">Share the results</h3>
-        <p data-ar="أضِف لقطات سناب، ودَع الذكاء الاصطناعي يبني التقرير، وأرسل للعلامات أرقاماً أنيقة تكسبك الحملة التالية.">Drop in your Snap screenshots, let AI build the report, and send brands clean numbers that win you the next campaign.</p>
+        <h3 data-ar="شارك إحصائيات منصتك الاعلانية">Share the results</h3>
+        <p data-ar="ارفع كابتشر إحصائيات السناب، وخلي الذكاء الاصطناعي يبني لك التقرير فور سواء تقرير شهري او يومي.">Drop in your Snap screenshots, let AI build the report, and send brands clean numbers that win you the next campaign.</p>
       </div>
     </div>
   </div>
@@ -418,32 +418,32 @@ export const LANDING_HTML = `
   <div class="wrap">
     <div class="price-head rv">
       <span class="eyebrow"><span class="dot"></span><span data-ar="الأسعار"> Pricing</span></span>
-      <h2 class="h-sec" style="margin-top:18px" data-ar="ابدأ مجاناً. وارتقِ حين يغطّي التطبيق تكلفته بنفسه.">Start free. Upgrade when it pays for itself.</h2>
-      <p class="lead" data-ar="فاتورة واحدة تحصّلها تكفي لتغطية اشتراك سنة كاملة من Pro.">One chased invoice covers a year of Pro.</p>
+      <h2 class="h-sec" style="margin-top:18px" data-ar="ابدأ مجاناً الان..ولكن جرّب باقة Pro لأنها تستاهل كل ريال.">Start free. Upgrade when it pays for itself.</h2>
+      <p class="lead" data-ar="ارتقِ بإدارة إعلاناتك، ومن أول إعلان تضمن حقك وتستلم فلوسها">One chased invoice covers a year of Pro.</p>
     </div>
     <div class="plans">
       <div class="plan rv">
         <div class="pn">Starter</div>
-        <div class="pd" data-ar="لصنّاع المحتوى الذين بدؤوا للتوّ في التنظيم.">For creators just getting organized.</div>
+        <div class="pd" data-ar="لصنّاع المحتوى اللي توهم بادين يرتبون اعلاناتهم.">For creators just getting organized.</div>
         <div class="pr"><span class="amt" data-ar="مجاني">Free</span></div>
         <ul>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="حتى ٥ صفقات نشطة">Up to 5 active deals</span></li>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبّع المُخرجات والمدفوعات">Deliverables &amp; payment tracking</span></li>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="العربية والإنجليزية">Arabic &amp; English</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="حتى 5 إعلانات في نفس الوقت">Up to 5 active deals</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبع صفقاتك الإعلانية والأرباح">Deliverables &amp; payment tracking</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="يدعم اللغتين العربية والإنجليزية">Arabic &amp; English</span></li>
         </ul>
         <a class="btn btn-ghost" href="/login?mode=signup" data-ar="ابدأ الآن">Get started</a>
       </div>
       <div class="plan feat rv">
         <span class="badge-top" data-ar="الأكثر شيوعاً">Most popular</span>
         <div class="pn">Pro</div>
-        <div class="pd" data-ar="لصنّاع المحتوى المتفرّغين الذين يعتمدون على صفقات العلامات.">For full-time creators running on brand deals.</div>
+        <div class="pd" data-ar="لصنّاع المحتوى المحترفين واللي شغلهم قايم على الإعلان للبراندات.">For full-time creators running on brand deals.</div>
         <div class="pr"><span class="amt" data-ar="١٤ دولار">$14</span><span class="per" data-ar="/ شهرياً">/ month</span></div>
         <ul>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="صفقات وعلامات بلا حدود">Unlimited deals &amp; brands</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تسجيل اعلانات وعملاء بلا حدود">Unlimited deals &amp; brands</span></li>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="استخراج تقارير سناب بالذكاء الاصطناعي">AI Snap report extraction</span></li>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تذكيرات مدفوعات تلقائية">Automated payment reminders</span></li>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تقارير شهرية وحسب كل علامة">Monthly &amp; per-brand reports</span></li>
-          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبّع المصروفات وصافي الربح">Expense tracking &amp; net profit</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تذكيرات تلقائية لمستحقاتك المتأخرة">Automated payment reminders</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تقارير شهرية و يومية للمشاهدات">Monthly &amp; per-brand reports</span></li>
+          <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تتبع المصاريف وصافي أرباحك الحقيقي">Expense tracking &amp; net profit</span></li>
         </ul>
         <a class="btn btn-white" href="/login?mode=signup" data-ar="ابدأ الآن">Get started</a>
       </div>
@@ -458,11 +458,11 @@ export const LANDING_HTML = `
       <div class="cta-glow x"></div>
       <div class="cta-glow y"></div>
       <div style="position:relative;z-index:1">
-        <h2><span data-ar="تأثيرك مشروع تجاري.">Your influence is a business.</span><br><span data-ar="أدِرْه كأي مشروع.">Run it like one.</span></h2>
-        <p class="lead" data-ar="انضمّ إلى آلاف صنّاع المحتوى الذين توقّفوا عن التخمين وبدؤوا يتقاضون مستحقاتهم في وقتها.">Join thousands of creators who stopped guessing and started getting paid on time.</p>
+        <h2><span data-ar="جاهز تحوّل تأثيرك إعلاناتك لمشروع حقيقي؟">Your influence is a business.</span><br><span data-ar="ريّح راسك.. وخلّي إدارة إعلاناتك علينا.">Run it like one.</span></h2>
+        <p class="lead" data-ar="انضم للمحترفين اللي يوثقون صفقاتهم، ويصدرون تقارير الذكاء الاصطناعي، ويضمنون مستحقاتهم المالية بنقرة زر واحدة.">Join thousands of creators who stopped guessing and started getting paid on time.</p>
         <div class="row">
           <a class="btn btn-white" href="/login?mode=signup"><span data-ar="ابدأ مجاناً">Start free</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-          <a class="btn btn-light" href="/login" data-ar="استكشف العرض">Explore the demo</a>
+          <a class="btn btn-light" href="/login" data-ar="استكشف الباقات">Explore the demo</a>
         </div>
       </div>
     </div>
@@ -476,7 +476,7 @@ export const LANDING_HTML = `
       <span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
       Influero
     </a>
-    <p data-ar="مساحة العمل المتكاملة لصنّاع المحتوى والمؤثرين. تابِع الصفقات، واحصل على مستحقاتك، وأثبِت أثرك.">The all-in-one workspace for creators and influencers. Track deals, get paid, prove your impact.</p>
+    <p data-ar="مساحة العمل الذكية لصنّاع المحتوى والمؤثرين. تابع إعلاناتك، اضمن أرباحك، وجهّز تقاريرك بكل سهولة.">The all-in-one workspace for creators and influencers. Track deals, get paid, prove your impact.</p>
     <div class="foot-bot">
       <span data-ar="© ٢٠٢٦ Influero. جميع الحقوق محفوظة.">© 2026 Influero. All rights reserved.</span>
       <nav style="display:flex;gap:18px;flex-wrap:wrap">
