@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { BarChart3, Building2 } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
 import { PerBrandReportItem } from "@/components/reports/PerBrandReportItem";
 import { InsightsTabs } from "@/components/insights/InsightsTabs";
 import { Card } from "@/components/ui/Card";
@@ -74,10 +75,10 @@ export function ReportsRoute() {
 
   if (gated) {
     return (
-      <main className="min-h-dvh bg-background px-4 py-8">
+      <main className="min-h-dvh bg-background px-4 pb-8">
         <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+          <PageHeader title={t("nav.insights")} />
           <InsightsTabs />
-          <h1 className="text-2xl font-bold text-text-primary">{t("reports.title")}</h1>
           <UpgradePrompt messageKey="billing.upgradePrompt.reports" />
         </div>
       </main>
@@ -85,11 +86,11 @@ export function ReportsRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <InsightsTabs />
+        <PageHeader title={t("nav.insights")} />
 
-        <h1 className="text-2xl font-bold text-text-primary">{t("reports.title")}</h1>
+        <InsightsTabs />
 
         <section className="flex flex-col gap-3">
           <div>

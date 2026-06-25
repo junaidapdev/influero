@@ -2,6 +2,8 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bell, Plus } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HeaderIconButton } from "@/components/layout/HeaderIconButton";
 import { ReminderListItem } from "@/components/reminders/ReminderListItem";
 import { ReminderForm } from "@/components/reminders/ReminderForm";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -172,28 +174,25 @@ export function RemindersRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            {ready ? (
-              <p className="text-body text-text-secondary">
-                {t("reminders.count", {
-                  total: formatNumber(reminders.length, locale),
-                })}
-              </p>
-            ) : null}
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t("reminders.title")}
-            </h1>
-          </div>
-          {ready && reminders.length > 0 ? (
-            <Button onClick={handleQuickAdd} className="shrink-0">
-              <Plus className="size-4" aria-hidden="true" />
-              {t("reminders.addReminder")}
-            </Button>
-          ) : null}
-        </div>
+        <PageHeader
+          eyebrow={
+            ready
+              ? t("reminders.count", { total: formatNumber(reminders.length, locale) })
+              : undefined
+          }
+          title={t("reminders.title")}
+          action={
+            ready && reminders.length > 0 ? (
+              <HeaderIconButton
+                icon={Plus}
+                label={t("reminders.addReminder")}
+                onClick={handleQuickAdd}
+              />
+            ) : undefined
+          }
+        />
 
         {remindersQuery.isLoading ? (
           <RemindersSkeleton />

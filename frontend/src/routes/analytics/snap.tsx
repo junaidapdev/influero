@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Camera } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
 import { MonthlyUploadSlots } from "@/components/snap/MonthlyUploadSlots";
 import { CampaignUploadSlots } from "@/components/snap/CampaignUploadSlots";
 import { SnapReportListItem } from "@/components/snap/SnapReportListItem";
@@ -20,8 +21,6 @@ import {
 } from "@/hooks/useSnapReports";
 import { useDeals } from "@/hooks/useDeals";
 import { useEntitlement } from "@/hooks/useEntitlement";
-import { useLocale } from "@/hooks/useLocale";
-import { formatNumber } from "@/lib/numbers";
 import { isPro } from "@/features/billing/entitlement";
 import { SNAP_SCOPE } from "@shared/analytics/snapMetricDictionary";
 import { DEAL_STATUS, type Deal } from "@shared/types/deal.types";
@@ -51,7 +50,6 @@ function SnapSkeleton() {
 
 export function SnapAnalyticsRoute() {
   const { t } = useTranslation();
-  const { locale } = useLocale();
 
   const [openReportId, setOpenReportId] = useState<string | null>(null);
   // Which upload surface is shown: the 24h-campaign frames or the 3-surface
@@ -63,7 +61,6 @@ export function SnapAnalyticsRoute() {
   const entitlement = useEntitlement();
 
   const reports = reportsQuery.data ?? [];
-  const ready = !reportsQuery.isLoading && !reportsQuery.isError;
 
   // Live only while something is actually extracting — the subscription
   // delivers the settled row and the prefix invalidation refreshes the list.
@@ -97,10 +94,10 @@ export function SnapAnalyticsRoute() {
 
   if (gated) {
     return (
-      <main className="min-h-dvh bg-background px-4 py-8">
+      <main className="min-h-dvh bg-background px-4 pb-8">
         <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
+          <PageHeader title={t("nav.insights")} />
           <InsightsTabs />
-          <h1 className="text-2xl font-bold text-text-primary">{t("snap.title")}</h1>
           <UpgradePrompt messageKey="billing.upgradePrompt.snap" />
         </div>
       </main>
@@ -108,21 +105,11 @@ export function SnapAnalyticsRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <InsightsTabs />
+        <PageHeader title={t("nav.insights")} />
 
-        <div>
-          {ready ? (
-            <p className="text-body text-text-secondary">
-              {t("snap.count", {
-                count: reports.length,
-                total: formatNumber(reports.length, locale),
-              })}
-            </p>
-          ) : null}
-          <h1 className="text-2xl font-bold text-text-primary">{t("snap.title")}</h1>
-        </div>
+        <InsightsTabs />
 
         <Card>
           <h2 className="mb-3 text-base font-semibold text-text-primary">

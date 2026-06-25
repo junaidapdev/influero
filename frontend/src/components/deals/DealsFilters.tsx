@@ -17,6 +17,9 @@ type Props = {
   monthOptions: string[];
   filters: DealFilters;
   onChange: (next: DealFilters) => void;
+  // The status chips are always visible; the brand/month selects are revealed
+  // by the header funnel (kept collapsed by default so the list breathes).
+  advancedOpen: boolean;
 };
 
 // Status chips in pipeline order: See all · To-do · Shot · Posted · Paid. No
@@ -34,7 +37,13 @@ type StatusChip = (typeof STATUS_CHIPS)[number];
 // The search-controls card: status as scrollable segmented chips (ui-rules wins
 // over build-plan's "status dropdown" on form factor), brand and month as
 // native selects. Filter state lives in the parent — it feeds the DB query.
-export function DealsFilters({ brands, monthOptions, filters, onChange }: Props) {
+export function DealsFilters({
+  brands,
+  monthOptions,
+  filters,
+  onChange,
+  advancedOpen,
+}: Props) {
   const { t } = useTranslation();
   const { locale, isArabic } = useLocale();
 
@@ -46,7 +55,7 @@ export function DealsFilters({ brands, monthOptions, filters, onChange }: Props)
       : filters.status;
 
   return (
-    <Card className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <FilterChips
         items={STATUS_CHIPS.map((chip) => ({
           value: chip,
@@ -60,43 +69,45 @@ export function DealsFilters({ brands, monthOptions, filters, onChange }: Props)
         label={t("deals.filters.statusLabel")}
       />
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <Label htmlFor="deals-filter-brand">{t("deals.filters.brand")}</Label>
-          <Select
-            id="deals-filter-brand"
-            value={filters.brandId ?? ""}
-            onChange={(event) =>
-              onChange({ ...filters, brandId: event.target.value || undefined })
-            }
-          >
-            <option value="">{t("deals.filters.allBrands")}</option>
-            {brands.map((brand) => (
-              <option key={brand.id} value={brand.id}>
-                {isArabic ? brand.name_ar : brand.name_en}
-              </option>
-            ))}
-          </Select>
-        </div>
+      {advancedOpen ? (
+        <Card className="grid grid-cols-2 gap-3">
+          <div>
+            <Label htmlFor="deals-filter-brand">{t("deals.filters.brand")}</Label>
+            <Select
+              id="deals-filter-brand"
+              value={filters.brandId ?? ""}
+              onChange={(event) =>
+                onChange({ ...filters, brandId: event.target.value || undefined })
+              }
+            >
+              <option value="">{t("deals.filters.allBrands")}</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {isArabic ? brand.name_ar : brand.name_en}
+                </option>
+              ))}
+            </Select>
+          </div>
 
-        <div>
-          <Label htmlFor="deals-filter-month">{t("deals.filters.month")}</Label>
-          <Select
-            id="deals-filter-month"
-            value={filters.month ?? ""}
-            onChange={(event) =>
-              onChange({ ...filters, month: event.target.value || undefined })
-            }
-          >
-            <option value="">{t("deals.filters.allMonths")}</option>
-            {monthOptions.map((month) => (
-              <option key={month} value={month}>
-                {formatMonthYear(month, locale)}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </div>
-    </Card>
+          <div>
+            <Label htmlFor="deals-filter-month">{t("deals.filters.month")}</Label>
+            <Select
+              id="deals-filter-month"
+              value={filters.month ?? ""}
+              onChange={(event) =>
+                onChange({ ...filters, month: event.target.value || undefined })
+              }
+            >
+              <option value="">{t("deals.filters.allMonths")}</option>
+              {monthOptions.map((month) => (
+                <option key={month} value={month}>
+                  {formatMonthYear(month, locale)}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </Card>
+      ) : null}
+    </div>
   );
 }
