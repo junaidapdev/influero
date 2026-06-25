@@ -1,0 +1,1832 @@
+[
+  {
+    "id": "TC001",
+    "title": "Log in and reach the dashboard",
+    "description": "A logged-out visitor can sign in with email and password and land on the protected dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Show the authenticated dashboard home",
+    "description": "A signed-in user can open the dashboard and see the main worklist, attention cards, and profile guidance sections.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current-month dashboard summary is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the today worklist and needs-attention sections are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Redirect unauthenticated users away from the dashboard",
+    "description": "A logged-out visitor who tries to open the dashboard is blocked from protected content and sent to the login page.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access to protected content is blocked"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Mark a payment installment as received and close the deal",
+    "description": "This verifies that receiving the last outstanding installment updates the payment and flips the related deal to paid.",
+    "category": "Payments",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /payments"
+      },
+      {
+        "type": "action",
+        "description": "Open the pending payments tab"
+      },
+      {
+        "type": "action",
+        "description": "Mark the last outstanding installment as received"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment moves to the received state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the related deal is marked as paid"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Sign out from Settings",
+    "description": "A signed-in user can sign out from Settings and is prevented from accessing protected pages afterward.",
+    "category": "Settings and Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "action",
+        "description": "Sign out of the account"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify protected content is not accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Complete the email verification callback",
+    "description": "After returning from email verification, the app establishes a session and shows the authenticated dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /auth-callback"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the authenticated session is established"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Load saved settings and profile values",
+    "description": "A signed-in user can open Settings and see their saved language, reminder, and profile details loaded for editing.",
+    "category": "Settings and Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved settings and profile information are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the billing and sign-out controls are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Add a deal for a brand and see it in the list",
+    "description": "This verifies that a user can create a valid deal for an existing brand and see it appear in the deals list.",
+    "category": "Ad Deals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /deals"
+      },
+      {
+        "type": "action",
+        "description": "Open the add deal form"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing brand for the deal"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a valid deal amount"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid deal dates"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid deliverables"
+      },
+      {
+        "type": "action",
+        "description": "Submit the deal form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new deal appears in the deals list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deals money rollup is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Show profile completion guidance for an incomplete account",
+    "description": "A newly signed-in user with missing profile data sees the dashboard prompt to complete their profile.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile completion banner is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Update language and profile details",
+    "description": "A signed-in user can change the app language and profile details in Settings and save the updates successfully.",
+    "category": "Settings and Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "action",
+        "description": "Change the language setting"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile details"
+      },
+      {
+        "type": "action",
+        "description": "Save the settings changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated language and profile values are persisted"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Switch language in settings and see the interface update",
+    "description": "Verifies that a signed-in user can change the app language in Settings and immediately see the interface re-render in the new language.",
+    "category": "Internationalization and RTL",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Change the language preference to English"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the visible interface text updates to English"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page direction updates for a left-to-right layout"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Create a meeting and schedule its reminder",
+    "description": "This verifies that a signed-in user can create a meeting with the required details and the meeting appears with an auto-scheduled reminder.",
+    "category": "Meetings and Reminders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the meetings page"
+      },
+      {
+        "type": "action",
+        "description": "Create a new meeting with a title, a valid time, and an optional brand or deal link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the meeting is displayed in the meetings view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the linked reminder is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Reject invalid sign-in credentials",
+    "description": "A visitor who enters invalid email and password values sees an authentication error and stays on the login page.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with invalid@example.com"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an authentication error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login page remains displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Advance a deal through Shot and Posted",
+    "description": "This verifies that a user can move a deal from pending to shot to posted using the row actions.",
+    "category": "Ad Deals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /deals"
+      },
+      {
+        "type": "action",
+        "description": "Open the actions for an existing pending deal"
+      },
+      {
+        "type": "action",
+        "description": "Mark the deal as Shot"
+      },
+      {
+        "type": "action",
+        "description": "Mark the deal as Posted"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deal status advances to posted"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the deal row reflects the updated lifecycle state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Persist a language change across sessions",
+    "description": "Verifies that saving a locale choice in Settings keeps the preference active after leaving and returning to the app.",
+    "category": "Internationalization and RTL",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Change the language preference to English"
+      },
+      {
+        "type": "action",
+        "description": "Leave the settings screen and return to the app later in the same session"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved language preference is still applied"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the interface remains in the selected language"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Add a brand and open its detail page",
+    "description": "This verifies that an authenticated user can create a brand from the directory and then view the brand’s detail rollups.",
+    "category": "Brands",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /brands"
+      },
+      {
+        "type": "action",
+        "description": "Open the add brand form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required brand name field with a unique brand name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required contact field with a valid contact value"
+      },
+      {
+        "type": "action",
+        "description": "Submit the brand form"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created brand details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the brand detail page shows rollup metrics"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify related deal information is displayed for the brand"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Upload a Snap report and see extraction begin",
+    "description": "This verifies that a Pro user can upload a valid Snap screenshot or PDF and the report enters extraction with extracted data appearing in the UI.",
+    "category": "Snap Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the Snap Analytics page"
+      },
+      {
+        "type": "action",
+        "description": "Upload a valid Snap screenshot or PDF"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a pending report is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify extracted metrics are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Move a meeting and keep the reminder in sync",
+    "description": "This verifies that editing a meeting time updates the associated reminder to match the new schedule.",
+    "category": "Meetings and Reminders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the meetings page"
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing meeting to a new valid time"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the meeting is still displayed after the edit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder time is updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Keep Arabic digit and date formatting on the dashboard",
+    "description": "Verifies that the dashboard renders locale-aware digits and date presentation for an Arabic session.",
+    "category": "Internationalization and RTL",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard dates are displayed in the Arabic locale format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify numeric values are displayed using Arabic-Indic digits"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "View reports with charts and safe collection rates",
+    "description": "This verifies that a Pro user can open reports and see monthly performance along with per-brand collection rates rendered safely.",
+    "category": "Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the reports page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the monthly report chart is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the per-brand report table is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Cancel a meeting and clear its reminder",
+    "description": "This verifies that cancelling a meeting updates its status and removes the associated reminder from the schedule.",
+    "category": "Meetings and Reminders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the meetings page"
+      },
+      {
+        "type": "action",
+        "description": "Cancel an existing meeting"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the meeting shows a cancelled status"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder is no longer displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Change reminder lead time for future reminders",
+    "description": "A signed-in user can update the reminder lead time in Settings and save the preference for future reminders.",
+    "category": "Settings and Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "action",
+        "description": "Change the reminder lead time setting"
+      },
+      {
+        "type": "action",
+        "description": "Save the settings changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reminder lead time is updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Mirror the brands experience in Arabic layout",
+    "description": "Verifies that the brands directory uses a right-to-left layout when the app is in Arabic.",
+    "category": "Internationalization and RTL",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the brands directory"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the brands page uses a right-to-left layout"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the navigation and content spacing appear mirrored for Arabic"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "View an existing brand’s detail rollups",
+    "description": "This verifies that a user can open an existing brand and see its deal summary and engagement metrics.",
+    "category": "Brands",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /brands"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing brand from the directory"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the brand detail page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify deal rollup metrics are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Block free users from enabling web push notifications",
+    "description": "Verifies that a free user cannot enable web push from Settings and is shown the paid-feature gate instead.",
+    "category": "Web Push Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to enable web push notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a Pro gate or upgrade prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify web push notifications are not enabled"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Show a Pro gate when a free user opens Snap Analytics",
+    "description": "This verifies that a free user is blocked from Snap Analytics and sees an upgrade prompt instead of the upload workflow.",
+    "category": "Snap Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the Snap Analytics page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a Pro gate or upgrade prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the upload workflow is not available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Show an all-clear dashboard when there is no urgent work",
+    "description": "A signed-in user with no due items or overdue attention sees empty-state messaging instead of task cards on the dashboard.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard shows empty-state content for today"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard shows empty-state content for attention"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Block reports access for a free user",
+    "description": "This verifies that a free user sees a Pro gate or upgrade prompt instead of the full reports experience.",
+    "category": "Reports",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the reports page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a Pro gate or upgrade prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reports charts are not available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Enable web push notifications from settings",
+    "description": "Verifies that a Pro user can turn on web push notifications from Settings and see the subscription state become enabled.",
+    "category": "Web Push Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Enable web push notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify web push notifications are shown as enabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the settings page reflects an active subscription state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Send a reminder for a pending payment",
+    "description": "This verifies that sending a payment reminder creates an in-app reminder for the user.",
+    "category": "Payments",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /payments"
+      },
+      {
+        "type": "action",
+        "description": "Open the pending payments tab"
+      },
+      {
+        "type": "action",
+        "description": "Send a reminder for a pending payment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an in-app reminder is created"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment remains pending"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Override extracted Snap data and preserve the manual value",
+    "description": "This verifies that a user can edit an extracted Snap field and the manual override remains the source of truth on the report.",
+    "category": "Snap Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the Snap Analytics page"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing Snap report with extracted data"
+      },
+      {
+        "type": "action",
+        "description": "Update one extracted field with a manual value"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the overridden value is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report reflects the manual override as the active value"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Open the brands directory and see saved brand entries",
+    "description": "This verifies that an authenticated user can reach the brand directory and view the saved brand list.",
+    "category": "Brands",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /brands"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the brand directory is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify saved brands are listed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "View pending and received payments",
+    "description": "This verifies that the payments page shows both pending and received payment states.",
+    "category": "Payments",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /payments"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify pending payments are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify received payments are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Switch the landing page language",
+    "description": "A logged-out visitor can toggle the public landing page between English and Arabic and see the page re-render in the selected direction.",
+    "category": "Public Landing Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Select Arabic language"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify Arabic content is displayed on the landing page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page layout switches to RTL"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Link a Snap report to a deal and export it for sharing",
+    "description": "This verifies that a Snap report can be associated with a deal and exported as a branded PNG for sharing.",
+    "category": "Snap Analytics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the Snap Analytics page"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing Snap report"
+      },
+      {
+        "type": "action",
+        "description": "Link the report to a deal"
+      },
+      {
+        "type": "action",
+        "description": "Export the report as a branded PNG"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the report shows the linked deal"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an export confirmation is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Disable web push notifications from settings",
+    "description": "Verifies that a user with web push enabled can turn it off from Settings and see the subscription state removed.",
+    "category": "Web Push Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "action",
+        "description": "Disable web push notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify web push notifications are shown as disabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the settings page reflects that push delivery is no longer active"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Block a sixth in-flight deal on a free account",
+    "description": "This verifies that a free user who already has five in-flight deals cannot create another one and sees a limit or upgrade prompt.",
+    "category": "Ad Deals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /deals"
+      },
+      {
+        "type": "action",
+        "description": "Open the add deal form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid deal details for a new in-flight deal"
+      },
+      {
+        "type": "action",
+        "description": "Submit the deal form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a limit or upgrade prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new deal is not created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Reject an invalid deal submission",
+    "description": "This verifies that invalid deal input shows validation errors and prevents the deal from being saved.",
+    "category": "Ad Deals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /deals"
+      },
+      {
+        "type": "action",
+        "description": "Open the add deal form"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing brand for the deal"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a negative deal amount"
+      },
+      {
+        "type": "action",
+        "description": "Fill in invalid deliverables"
+      },
+      {
+        "type": "action",
+        "description": "Submit the deal form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify deal validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no new deal is created"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Start the app in the default landing language",
+    "description": "A logged-out visitor opening the public landing page sees the default language and layout when no locale has been chosen.",
+    "category": "Public Landing Page",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the default landing page is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the default language content is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Block meeting creation when required details are missing",
+    "description": "This verifies that the meeting form shows validation feedback and does not create a meeting when required fields are omitted.",
+    "category": "Meetings and Reminders",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the meetings page"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to submit the meeting form without the required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify validation errors are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no meeting is created"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "See validation when required brand fields are missing",
+    "description": "This verifies that submitting the brand form without required information shows validation errors and does not create a brand.",
+    "category": "Brands",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /brands"
+      },
+      {
+        "type": "action",
+        "description": "Open the add brand form"
+      },
+      {
+        "type": "action",
+        "description": "Submit the brand form without filling required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify brand validation errors are visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no new brand appears in the directory"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "Reject an invalid avatar upload",
+    "description": "A signed-in user sees validation feedback when trying to save an invalid profile image in Settings and the avatar is not updated.",
+    "category": "Settings and Profile",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /settings"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to set an invalid avatar file"
+      },
+      {
+        "type": "action",
+        "description": "Save the settings changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an avatar validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile image is not saved"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "Keep payment state unchanged after an invalid payment action",
+    "description": "This verifies that an invalid payment action shows an error and does not change payment status.",
+    "category": "Payments",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /payments"
+      },
+      {
+        "type": "action",
+        "description": "Attempt an invalid payment action on a visible payment"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a payment error state is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment status does not change"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC044",
+    "title": "Handle a missing or inaccessible brand record",
+    "description": "This verifies that opening a brand that is unavailable to the user shows an access or not-found state.",
+    "category": "Brands",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /brands"
+      },
+      {
+        "type": "action",
+        "description": "Open a brand record that is not available to the user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an access or not-found state is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC045",
+    "title": "Show unsupported web push state when the browser cannot use it",
+    "description": "Verifies that Settings shows the unsupported-state UI when push-related browser capabilities are unavailable.",
+    "category": "Web Push Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the settings navigation item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the web push section shows an unsupported state"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the enable control is not available"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "See an empty deals list state when no deals exist",
+    "description": "This verifies that the deals page shows an empty state when there are no deals to display.",
+    "category": "Ad Deals",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /deals"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an empty deals state is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]
