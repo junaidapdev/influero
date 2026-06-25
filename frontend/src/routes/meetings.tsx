@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CalendarDays, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HeaderIconButton } from "@/components/layout/HeaderIconButton";
 import { MeetingListItem } from "@/components/meetings/MeetingListItem";
 import { MeetingForm } from "@/components/meetings/MeetingForm";
 import { MeetingCalendar } from "@/components/meetings/MeetingCalendar";
@@ -21,7 +23,6 @@ import { useDeals } from "@/hooks/useDeals";
 import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useQuickAddOpen } from "@/hooks/useQuickAddOpen";
-import { formatNumber } from "@/lib/numbers";
 import {
   formatDualDate,
   toDatetimeLocalValue,
@@ -224,29 +225,21 @@ export function MeetingsRoute() {
   const selectedDayDual = formatDualDate(selectedDay, locale);
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            {ready ? (
-              <p className="text-body text-text-secondary">
-                {t("meetings.count", {
-                  count: meetings.length,
-                  total: formatNumber(meetings.length, locale),
-                })}
-              </p>
-            ) : null}
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t("meetings.title")}
-            </h1>
-          </div>
-          {ready ? (
-            <Button onClick={openCreate} className="shrink-0">
-              <Plus className="size-4" aria-hidden="true" />
-              {t("meetings.addMeeting")}
-            </Button>
-          ) : null}
-        </div>
+        <PageHeader
+          eyebrow={formatMonthYear(month, locale)}
+          title={t("meetings.title")}
+          action={
+            ready ? (
+              <HeaderIconButton
+                icon={Plus}
+                label={t("meetings.addMeeting")}
+                onClick={openCreate}
+              />
+            ) : undefined
+          }
+        />
 
         <div className="flex items-center justify-between gap-3">
           <button

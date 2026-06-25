@@ -182,7 +182,7 @@
     "viewExpenses": "عرض المصروفات"
   },
   "deals": {
-    "title": "الصفقات",
+    "title": "كل الصفقات",
     "count": "{{total}} صفقة",
     "addDeal": "ضيف صفقة",
     "noPostDate": "بدون تاريخ نشر",
@@ -210,6 +210,7 @@
       "reel": "ريل"
     },
     "filters": {
+      "toggle": "الفلاتر",
       "statusLabel": "تصفية حسب الحالة",
       "allStatuses": "عرض الكل",
       "brand": "العلامة التجارية",
@@ -820,6 +821,7 @@
     "quickAdd": "إضافة سريعة",
     "openMenu": "فتح القائمة",
     "menuTitle": "القائمة",
+    "back": "رجوع",
     "barLabel": "التنقل الرئيسي"
   },
   "quickAdd": {

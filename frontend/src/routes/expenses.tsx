@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Receipt } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HeaderIconButton } from "@/components/layout/HeaderIconButton";
 import { ExpenseListItem } from "@/components/expenses/ExpenseListItem";
 import { ExpenseForm } from "@/components/expenses/ExpenseForm";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -189,9 +191,9 @@ export function ExpensesRoute() {
   // `gated` stays false while loading, so the upgrade modal doesn't pop early.)
   if (entitlement.isLoading) {
     return (
-      <main className="min-h-dvh bg-background px-4 py-8">
+      <main className="min-h-dvh bg-background px-4 pb-8">
         <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-          <h1 className="text-2xl font-bold text-text-primary">{t("expenses.title")}</h1>
+          <PageHeader title={t("expenses.title")} />
           <ExpensesSkeleton />
         </div>
       </main>
@@ -200,9 +202,9 @@ export function ExpensesRoute() {
 
   if (gated) {
     return (
-      <main className="min-h-dvh bg-background px-4 py-8">
+      <main className="min-h-dvh bg-background px-4 pb-8">
         <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-          <h1 className="text-2xl font-bold text-text-primary">{t("expenses.title")}</h1>
+          <PageHeader title={t("expenses.title")} />
           <UpgradePrompt messageKey="billing.upgradePrompt.expenses" />
         </div>
       </main>
@@ -213,28 +215,25 @@ export function ExpensesRoute() {
     filters.category ?? EXPENSE_CATEGORY_ALL;
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            {ready ? (
-              <p className="text-body text-text-secondary">
-                {t("expenses.count", {
-                  total: formatNumber(expenses.length, locale),
-                })}
-              </p>
-            ) : null}
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t("expenses.title")}
-            </h1>
-          </div>
-          {ready && (expenses.length > 0 || hasActiveFilters) ? (
-            <Button onClick={handleQuickAdd} className="shrink-0">
-              <Plus className="size-4" aria-hidden="true" />
-              {t("expenses.addExpense")}
-            </Button>
-          ) : null}
-        </div>
+        <PageHeader
+          eyebrow={
+            ready
+              ? t("expenses.count", { total: formatNumber(expenses.length, locale) })
+              : undefined
+          }
+          title={t("expenses.title")}
+          action={
+            ready && (expenses.length > 0 || hasActiveFilters) ? (
+              <HeaderIconButton
+                icon={Plus}
+                label={t("expenses.addExpense")}
+                onClick={handleQuickAdd}
+              />
+            ) : undefined
+          }
+        />
 
         {ready && (expenses.length > 0 || hasActiveFilters) ? (
           <div className="flex flex-col gap-3">

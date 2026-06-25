@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
 import { BrandAvatar } from "@/components/brands/BrandAvatar";
 import { BrandForm } from "@/components/brands/BrandForm";
 import { DealListItem } from "@/components/deals/DealListItem";
@@ -143,15 +144,12 @@ export function BrandDetailRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <Link
-          to={ROUTES.BRANDS}
-          className="inline-flex items-center gap-1.5 self-start text-sm font-semibold text-text-secondary hover:text-text-primary focus-visible:underline focus-visible:outline-none"
-        >
-          <ArrowLeft className="size-4 rtl:-scale-x-100" aria-hidden="true" />
-          {t("brands.detail.back")}
-        </Link>
+        <PageHeader
+          title={brand ? (isArabic ? brand.name_ar : brand.name_en) : t("brands.title")}
+          onBack={() => navigate(ROUTES.BRANDS)}
+        />
 
         {brandQuery.isLoading ? (
           <DetailSkeleton />
@@ -179,10 +177,9 @@ export function BrandDetailRoute() {
               <div className="flex items-start gap-4">
                 <BrandAvatar brand={brand} size="lg" />
                 <div className="min-w-0 flex-1">
-                  <h1 className="truncate text-xl font-bold text-text-primary">
-                    {isArabic ? brand.name_ar : brand.name_en}
-                  </h1>
-                  <p className="truncate text-sm text-text-secondary">
+                  {/* The active-locale name leads the page header now; the card
+                      shows its other-locale counterpart (the bilingual pairing). */}
+                  <p className="truncate text-xl font-bold text-text-primary">
                     {isArabic ? brand.name_en : brand.name_ar}
                   </p>
                   {brand.category ? (

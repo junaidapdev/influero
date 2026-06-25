@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 
@@ -24,7 +25,10 @@ const FOCUSABLE =
 // scrim, Escape, or the close button. While open it locks body scroll, traps
 // Tab focus, and moves focus inside. position: fixed is sanctioned by ui-rules'
 // fixed-element allowlist (the bottom-sheet scrim). Capped at 640px and centered
-// to stay phone-shaped on wider screens.
+// to stay phone-shaped on wider screens. **Portaled to <body>** so a transformed
+// / blurred / sticky ancestor (e.g. the sticky PageHeader that hosts the profile
+// avatar) can't become the fixed-position containing block and trap the sheet in
+// a small box — an overlay must escape every ancestor stacking/containing context.
 export function BottomSheet({ open, onClose, title, children }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -89,7 +93,7 @@ export function BottomSheet({ open, onClose, title, children }: Props) {
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-scrim" aria-hidden="true" onClick={onClose} />
       <div
@@ -121,6 +125,7 @@ export function BottomSheet({ open, onClose, title, children }: Props) {
         </div>
         <div className="max-h-[70vh] overflow-y-auto">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

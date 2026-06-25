@@ -182,7 +182,7 @@
     "viewExpenses": "View expenses"
   },
   "deals": {
-    "title": "Deals",
+    "title": "All Deals",
     "count": "{{total}} deals",
     "addDeal": "Add deal",
     "noPostDate": "No post date",
@@ -210,6 +210,7 @@
       "reel": "Reel"
     },
     "filters": {
+      "toggle": "Filters",
       "statusLabel": "Filter by status",
       "allStatuses": "See all",
       "brand": "Brand",
@@ -804,6 +805,7 @@
     "quickAdd": "Quick add",
     "openMenu": "Open menu",
     "menuTitle": "Menu",
+    "back": "Back",
     "barLabel": "Primary"
   },
   "quickAdd": {

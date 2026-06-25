@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { PageHeader } from "@/components/layout/PageHeader";
 import { SettingsSection } from "@/components/settings/SettingsSection";
 import { NotificationsSection } from "@/components/settings/NotificationsSection";
 import { BillingSection } from "@/components/settings/BillingSection";
@@ -153,11 +154,9 @@ export function SettingsRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <h1 className="text-2xl font-bold text-text-primary">
-          {t("settings.title")}
-        </h1>
+        <PageHeader title={t("settings.title")} onBack={() => navigate(-1)} />
 
         {appUserQuery.isLoading ? (
           <SettingsSkeleton />

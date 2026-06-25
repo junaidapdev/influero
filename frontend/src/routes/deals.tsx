@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Handshake, Plus } from "lucide-react";
+import { Handshake, Plus, SlidersHorizontal } from "lucide-react";
 
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HeaderIconButton } from "@/components/layout/HeaderIconButton";
 import { DealListItem } from "@/components/deals/DealListItem";
 import { DealForm } from "@/components/deals/DealForm";
 import { DealsFilters } from "@/components/deals/DealsFilters";
@@ -82,6 +84,9 @@ export function DealsRoute() {
 
   const [filters, setFilters] = useState<DealFilters>({});
   const [sheetOpen, setSheetOpen] = useState(false);
+  // The header funnel reveals the brand/month selects; the status chips stay
+  // visible at all times.
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
 
   const dealsQuery = useDeals(filters);
   const indexQuery = useDealsIndex();
@@ -151,26 +156,26 @@ export function DealsRoute() {
   }
 
   return (
-    <main className="min-h-dvh bg-background px-4 py-8">
+    <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            {ready ? (
-              <p className="text-body text-text-secondary">
-                {t("deals.count", { total: formatNumber(deals.length, locale) })}
-              </p>
-            ) : null}
-            <h1 className="text-2xl font-bold text-text-primary">
-              {t("deals.title")}
-            </h1>
-          </div>
-          {ready && (deals.length > 0 || hasActiveFilters) ? (
-            <Button onClick={() => setSheetOpen(true)} className="shrink-0">
-              <Plus className="size-4" aria-hidden="true" />
-              {t("deals.addDeal")}
-            </Button>
-          ) : null}
-        </div>
+        <PageHeader
+          eyebrow={
+            ready
+              ? t("deals.count", { total: formatNumber(deals.length, locale) })
+              : undefined
+          }
+          title={t("deals.title")}
+          action={
+            ready && (deals.length > 0 || hasActiveFilters) ? (
+              <HeaderIconButton
+                icon={SlidersHorizontal}
+                label={t("deals.filters.toggle")}
+                onClick={() => setAdvancedFiltersOpen((open) => !open)}
+                active={hasActiveFilters}
+              />
+            ) : undefined
+          }
+        />
 
         {ready && (deals.length > 0 || hasActiveFilters) ? (
           <>
@@ -179,6 +184,7 @@ export function DealsRoute() {
               monthOptions={monthOptions}
               filters={filters}
               onChange={setFilters}
+              advancedOpen={advancedFiltersOpen}
             />
             {indexQuery.isError || brandsQuery.isError ? (
               <p className="text-body text-text-muted">
