@@ -287,59 +287,8 @@ export const LANDING_HTML = `
   </div>
 </section>
 
-<!-- Feature 4 — bilingual -->
-<section class="feature rev">
-  <div class="wrap feat-grid">
-    <div class="feat-copy rv">
-      <span class="eyebrow"><span class="dot"></span><span data-ar="العربية والإنجليزية"> Arabic &amp; English</span></span>
-      <h2 class="h-sec" data-ar="ثنائي اللغة بالكامل، وبدعم عربي أصيل.">Fully bilingual, properly RTL.</h2>
-      <p class="lead" data-ar="ليست ترجمة مُضافة على عجل — كل شاشة تنعكس للعربية، بأرقام عربية وتنسيق للريال وتواريخ متوافقة مع التقويم الهجري. بدّل اللغة وقتما شئت.">Not a translation bolted on — every screen mirrors for Arabic, with native numerals, SAR formatting and Hijri-friendly dates. Switch anytime.</p>
-      <div style="display:flex;gap:10px;margin-top:24px">
-        <div class="lang-pill" style="box-shadow:0 0 0 1px var(--hair);font-size:14px">
-          <button class="on" data-lang="en">English</button>
-          <button data-lang="ar">العربية</button>
-        </div>
-      </div>
-    </div>
-    <div class="feat-art rv">
-      <div class="art-panel tint" id="bi-demo" dir="ltr">
-        <div class="bi-cards" style="grid-template-columns:1fr;gap:12px">
-          <div class="bi-card" style="box-shadow:var(--sh-sm)">
-            <div class="u-row" style="margin-bottom:12px">
-              <div class="av lav" style="width:44px;height:44px;border-radius:14px;font-size:17px" data-en="N" data-ar="ن">N</div>
-              <div style="flex:1">
-                <div style="font-weight:800;font-size:15px" data-en="Eid collection haul" data-ar="هول مجموعة العيد">Eid collection haul</div>
-                <div style="font-size:12px;color:var(--ink-3);font-weight:600" data-en="Namshi · deadline Jun 19" data-ar="نمشي · الموعد ١٩ يونيو">Namshi · deadline Jun 19</div>
-              </div>
-              <span class="pill pending"><span class="pdot"></span><span data-en="Pending" data-ar="معلّق">Pending</span></span>
-            </div>
-            <div class="u-row" style="gap:10px;border-top:1px solid var(--hair-2);padding-top:12px">
-              <div style="flex:1">
-                <div style="font-size:11px;color:var(--ink-3);font-weight:700" data-en="Agreed amount" data-ar="المبلغ المتفق">Agreed amount</div>
-                <div style="font-weight:800;font-size:17px;letter-spacing:-.02em" data-en="SAR 52,000" data-ar="٥٢٬٠٠٠ ر.س">SAR 52,000</div>
-              </div>
-              <div>
-                <div style="font-size:11px;color:var(--ink-3);font-weight:700" data-en="Deliverables" data-ar="المُخرجات">Deliverables</div>
-                <div style="font-weight:800;font-size:17px" data-en="3 items" data-ar="٣ عناصر">3 items</div>
-              </div>
-            </div>
-          </div>
-          <div class="bi-card" style="box-shadow:var(--sh-sm);display:flex;align-items:center;gap:12px">
-            <div class="av mint" style="width:40px;height:40px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
-            <div style="flex:1">
-              <div style="font-weight:700;font-size:13.5px" data-en="Payment received" data-ar="تم استلام الدفعة">Payment received</div>
-              <div style="font-size:11.5px;color:var(--ink-3);font-weight:600" data-en="Tamara · 2 days ago" data-ar="تمارا · قبل يومين">Tamara · 2 days ago</div>
-            </div>
-            <span style="font-weight:800;font-size:15px;color:var(--paid)" data-en="SAR 27,000" data-ar="٢٧٬٠٠٠ ر.س">SAR 27,000</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Feature 5 — expenses & profit -->
-<section class="feature">
+<section class="feature rev">
   <div class="wrap feat-grid">
     <div class="feat-copy rv">
       <span class="eyebrow"><span class="dot"></span><span data-ar="المصروفات والأرباح"> Expenses &amp; profit</span></span>
@@ -437,7 +386,7 @@ export const LANDING_HTML = `
         <span class="badge-top" data-ar="الأكثر شيوعاً">Most popular</span>
         <div class="pn">Pro</div>
         <div class="pd" data-ar="لصنّاع المحتوى المحترفين واللي شغلهم قايم على الإعلان للبراندات.">For full-time creators running on brand deals.</div>
-        <div class="pr"><span class="amt" data-ar="١٤ دولار">$14</span><span class="per" data-ar="/ شهرياً">/ month</span></div>
+        <div class="pr"><span class="amt"><span data-ar="٥٠">50</span><span class="icon-saudi_riyal" aria-label="SAR" style="margin-inline-start:6px">&#xea;</span></span><span class="per" data-ar="/ شهرياً">/ month</span></div>
         <ul>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="تسجيل اعلانات وعملاء بلا حدود">Unlimited deals &amp; brands</span></li>
           <li><span class="ck"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></span><span data-ar="استخراج تقارير سناب بالذكاء الاصطناعي">AI Snap report extraction</span></li>

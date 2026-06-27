@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import { LANDING_HTML } from "./markup";
 import "./landing.css";
+// The new Saudi Riyal symbol font (the Pro price renders ﷼ via `.icon-saudi_riyal`).
+// Imported here so it ships in the lazy landing chunk, not the main app bundle.
+import "@abdulrysr/saudi-riyal-new-symbol-font/style.css";
 
 // Public marketing landing page. The design is a self-contained visual system
 // (its own palette/type/animation) imported from Claude Design — so it is
@@ -12,8 +15,8 @@ import "./landing.css";
 // (querySelectors never touch the rest of the document) with full teardown.
 //
 // dir="ltr" lang="en" is forced on the wrapper because the app defaults to
-// Arabic RTL on <html>; the design is LTR English (its in-page EN/AR control only
-// flips the small bilingual demo, via data-en/data-ar).
+// Arabic RTL on <html>; the design is LTR English (its in-page EN/AR control
+// flips the page text via data-en/data-ar).
 
 const FONT_LINK_ID = "lp-fonts";
 const LANG_KEY = "inflero.lp.lang";
@@ -128,8 +131,8 @@ export function LandingPage() {
 
     // --- language toggle: flip the WHOLE page between English and Arabic ---
     // English is the inline baseline; every translatable node carries data-ar and
-    // gets its English cached into data-en on first apply. Clicking either lang
-    // pill (nav or the bilingual demo) switches the entire page + dir/lang/font,
+    // gets its English cached into data-en on first apply. Clicking the nav lang
+    // pill switches the entire page + dir/lang/font,
     // and the choice persists across remounts (own key, independent of app i18n).
     const langBtns = Array.from(root.querySelectorAll<HTMLElement>("[data-lang]"));
     const applyLang = (lang: "en" | "ar") => {
@@ -141,7 +144,6 @@ export function LandingPage() {
         const next = lang === "ar" ? el.dataset.ar : el.dataset.en;
         if (next !== undefined) el.textContent = next;
       });
-      root.querySelector("#bi-demo")?.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
     };
     const onLangClick = (e: Event) => {
       const lang = (e.currentTarget as HTMLElement).dataset.lang === "ar" ? "ar" : "en";
