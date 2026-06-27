@@ -169,7 +169,16 @@ export function SettingsRoute() {
           <SettingsSkeleton />
         ) : appUserQuery.isError ? (
           <Card>
-            <p className="text-sm text-error-foreground">{t("settings.loadError")}</p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-sm text-error-foreground">{t("settings.loadError")}</p>
+              <Button
+                variant="secondary"
+                onClick={() => void appUserQuery.refetch()}
+                isLoading={appUserQuery.isFetching}
+              >
+                {t("settings.actions.retry")}
+              </Button>
+            </div>
           </Card>
         ) : (
           <>

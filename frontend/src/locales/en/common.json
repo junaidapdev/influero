@@ -97,7 +97,8 @@
     },
     "actions": {
       "signOut": "Sign out",
-      "save": "Save changes"
+      "save": "Save changes",
+      "retry": "Try again"
     },
     "support": {
       "title": "Legal & support",
