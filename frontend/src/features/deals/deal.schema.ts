@@ -1,6 +1,12 @@
 import { z } from "zod";
 
 import { DELIVERABLE_TYPE } from "@shared/types/deal.types";
+import { normalizeDigits } from "@/lib/numbers";
+
+// Normalize an Arabic-Indic / Persian numeral string to ASCII before validating,
+// so the Arabic-first audience can type counts/amounts on their native keypad.
+const toAsciiDigits = (value: unknown): unknown =>
+  typeof value === "string" ? normalizeDigits(value.trim()) : value;
 
 // Deal create-form validation. Error messages are i18n catalog KEYS (resolved
 // with t() at render), matching brand.schema.ts. Lives in features/ for now
@@ -31,14 +37,16 @@ export const deliverableLineSchema = z.object({
     DELIVERABLE_TYPE.POST,
     DELIVERABLE_TYPE.REEL,
   ]),
-  count: z
-    .string()
-    .trim()
-    .regex(COUNT_PATTERN, "deals.errors.countInvalid")
-    .refine((value) => {
-      const count = Number(value);
-      return count >= 1 && count <= MAX_COUNT;
-    }, "deals.errors.countRange"),
+  count: z.preprocess(
+    toAsciiDigits,
+    z
+      .string()
+      .regex(COUNT_PATTERN, "deals.errors.countInvalid")
+      .refine((value) => {
+        const count = Number(value);
+        return count >= 1 && count <= MAX_COUNT;
+      }, "deals.errors.countRange"),
+  ),
 });
 
 export const dealSchema = z.object({
@@ -51,15 +59,17 @@ export const dealSchema = z.object({
   deliverables: z
     .array(deliverableLineSchema)
     .min(1, "deals.errors.deliverablesRequired"),
-  agreedAmount: z
-    .string()
-    .trim()
-    .min(1, "deals.errors.amountRequired")
-    .refine((value) => {
-      if (!AMOUNT_PATTERN.test(value)) return false;
-      const amount = Number(value);
-      return amount >= 0 && amount <= MAX_AMOUNT_SAR;
-    }, "deals.errors.amountInvalid"),
+  agreedAmount: z.preprocess(
+    toAsciiDigits,
+    z
+      .string()
+      .min(1, "deals.errors.amountRequired")
+      .refine((value) => {
+        if (!AMOUNT_PATTERN.test(value)) return false;
+        const amount = Number(value);
+        return amount >= 0 && amount <= MAX_AMOUNT_SAR;
+      }, "deals.errors.amountInvalid"),
+  ),
   // Both optional — empty string means "not set". A native datetime-local input
   // yields YYYY-MM-DDTHH:MM (date + time); the format check guards manual/
   // unsupported-browser entry. shoot_date drives the shoot reminder; post_date

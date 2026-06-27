@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+import { normalizeDigits } from "@/lib/numbers";
+
+// Normalize Arabic-Indic / Persian numerals to ASCII before validating, so a
+// value typed on an Arabic keypad parses like Western input (matches the
+// campaign sheet + the edge extraction).
+const toAsciiDigits = (value: unknown): unknown =>
+  typeof value === "string" ? normalizeDigits(value.trim()) : value;
+
 // Manual-override form validation (the edit pencils + the failed→manual entry
 // path share it). Error messages are i18n catalog KEYS resolved with t() at
 // render, matching payment.schema.ts.
@@ -13,14 +21,14 @@ const COUNT_PATTERN = /^\d+$/;
 const MAX_COUNT = 1_000_000_000;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-const countField = z
-  .string()
-  .trim()
-  .refine((value) => {
+const countField = z.preprocess(
+  toAsciiDigits,
+  z.string().refine((value) => {
     if (value === "") return true;
     if (!COUNT_PATTERN.test(value)) return false;
     return Number(value) <= MAX_COUNT;
-  }, "snap.errors.countInvalid");
+  }, "snap.errors.countInvalid"),
+);
 
 export const snapReportSchema = z.object({
   views: countField,
@@ -34,13 +42,15 @@ export const snapReportSchema = z.object({
   newFollowers: countField,
   watchTimeMinutes: countField,
   // Native date input yields YYYY-MM-DD; empty string means "no date".
-  reportDate: z
-    .string()
-    .trim()
-    .refine(
-      (value) => value === "" || DATE_PATTERN.test(value),
-      "snap.errors.dateInvalid",
-    ),
+  reportDate: z.preprocess(
+    toAsciiDigits,
+    z
+      .string()
+      .refine(
+        (value) => value === "" || DATE_PATTERN.test(value),
+        "snap.errors.dateInvalid",
+      ),
+  ),
   // Empty string means "not linked to a deal" (column is nullable).
   dealId: z.string(),
 });
