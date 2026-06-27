@@ -46,7 +46,7 @@
   --color-text-darkest: #111827;
   --color-text-on-accent: #ffffff;     /* text on top of the violet hero card */
 
-  /* Primary accent — Influero violet (slightly cooler than JobPilot's purple) */
+  /* Primary accent — Inflero violet (slightly cooler than JobPilot's purple) */
   --color-accent: #6e56f5;
   --color-accent-dark: #5340e6;
   --color-accent-darker: #3f2cc7;
@@ -95,7 +95,7 @@
   --color-brand-tint-pink:   #f7dde2;
   --color-brand-tint-neutral:#eceef5;
 
-  /* Border radius — Influero leans larger than JobPilot */
+  /* Border radius — Inflero leans larger than JobPilot */
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  16px;
@@ -107,6 +107,17 @@
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-hero: 0 8px 24px rgba(110, 86, 245, 0.25);
   --shadow-fab:  0 6px 16px rgba(110, 86, 245, 0.35);
+  --shadow-snap: 0 16px 40px rgba(202, 138, 4, 0.20);   /* warm lift under the Snap export card */
+
+  /* Snap report export card — the Snapchat-branded PNG an influencer downloads
+     and sends to a brand. The ONLY yellow in the app, and (with the card's
+     top→white gradient) the ONLY gradient besides the Home hero. Scoped to this
+     one export artifact — never the in-app chrome. See ui-tokens.md §Snap card. */
+  --color-snap-yellow: #ffe81f;        /* avatar fill, footer bolt, decorative sparkles */
+  --color-snap-yellow-soft: #fdf3b4;   /* metric-icon circles */
+  --color-snap-frame-from: #fdee74;    /* card gradient — top (most saturated) */
+  --color-snap-frame-via:  #fef9c3;    /* card gradient — mid (pale) */
+  --color-snap-ink: #1c2433;           /* dark text / icon glyph on yellow */
 
   /* Overlay scrim behind the bottom sheet / dialog (value from ui-rules) */
   --color-scrim: rgba(0, 0, 0, 0.45);

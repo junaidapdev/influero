@@ -1,6 +1,6 @@
 # UI Tokens
 
-Design tokens for Influero. All colors, typography, spacing, and component values extracted from the delivered mobile mocks. Use these exact values throughout the codebase — never hardcode colors or use raw Tailwind color classes in components.
+Design tokens for Inflero. All colors, typography, spacing, and component values extracted from the delivered mobile mocks. Use these exact values throughout the codebase — never hardcode colors or use raw Tailwind color classes in components.
 
 ---
 
@@ -8,7 +8,7 @@ Design tokens for Influero. All colors, typography, spacing, and component value
 
 This project uses **Tailwind CSS v4** with Vite. All design tokens are defined using the `@theme` directive in `src/index.css`. No `tailwind.config.ts` needed for colors or tokens — v4 reads them from CSS.
 
-> **Adaptation from the JobPilot reference:** the reference puts tokens in `app/globals.css` and loads the font with `next/font/google`. Influero is Vite + React, so tokens live in `src/index.css` and the font is loaded via Google Fonts `@import`. The `@theme` mechanism is identical.
+> **Adaptation from the JobPilot reference:** the reference puts tokens in `app/globals.css` and loads the font with `next/font/google`. Inflero is Vite + React, so tokens live in `src/index.css` and the font is loaded via Google Fonts `@import`. The `@theme` mechanism is identical.
 
 Tailwind v4 automatically generates utility classes from `@theme` variables:
 
@@ -78,7 +78,7 @@ className="bg-purple-500 text-gray-600"
   --color-text-darkest: #111827;
   --color-text-on-accent: #ffffff;     /* text on top of the violet hero card */
 
-  /* Primary accent — Influero violet (slightly cooler than JobPilot's purple) */
+  /* Primary accent — Inflero violet (slightly cooler than JobPilot's purple) */
   --color-accent: #6e56f5;
   --color-accent-dark: #5340e6;
   --color-accent-darker: #3f2cc7;
@@ -127,7 +127,7 @@ className="bg-purple-500 text-gray-600"
   --color-brand-tint-pink:   #f7dde2;
   --color-brand-tint-neutral:#eceef5;
 
-  /* Border radius — Influero leans larger than JobPilot */
+  /* Border radius — Inflero leans larger than JobPilot */
   --radius-sm:  6px;
   --radius-md:  10px;
   --radius-lg:  16px;
@@ -139,6 +139,17 @@ className="bg-purple-500 text-gray-600"
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
   --shadow-hero: 0 8px 24px rgba(110, 86, 245, 0.25);
   --shadow-fab:  0 6px 16px rgba(110, 86, 245, 0.35);
+  --shadow-snap: 0 16px 40px rgba(202, 138, 4, 0.20);   /* warm lift under the Snap export card */
+
+  /* Snap report export card — the Snapchat-branded PNG an influencer downloads
+     and sends to a brand. The ONLY yellow in the app, and (with the card's
+     top→white gradient) the ONLY gradient besides the Home hero. Scoped to this
+     one export artifact — never the in-app chrome. See §Snap Report Card below. */
+  --color-snap-yellow: #ffe81f;        /* avatar fill, footer bolt, decorative sparkles */
+  --color-snap-yellow-soft: #fdf3b4;   /* metric-icon circles */
+  --color-snap-frame-from: #fdee74;    /* card gradient — top (most saturated) */
+  --color-snap-frame-via:  #fef9c3;    /* card gradient — mid (pale) */
+  --color-snap-ink: #1c2433;           /* dark text / icon glyph on yellow */
 
   /* Overlay scrim behind the bottom sheet / dialog — generates `bg-scrim` */
   --color-scrim: rgba(0, 0, 0, 0.45);
@@ -240,11 +251,13 @@ Every row-card (Today items on Home, meetings list, calendar day detail) carries
 
 Each tile has a 2px colored top stripe + a single bold number + a muted caption.
 
-| Tile          | Stripe color  | Caption color           |
-| ------------- | ------------- | ----------------------- |
-| Collected     | `bg-success`  | `text-text-secondary`   |
-| Outstanding   | `bg-warning`  | `text-text-secondary`   |
-| Posted        | `bg-accent`   | `text-text-secondary`   |
+| Tile                | Stripe color  | Caption color           |
+| ------------------- | ------------- | ----------------------- |
+| Collected           | `bg-success`  | `text-text-secondary`   |
+| Outstanding         | `bg-warning`  | `text-text-secondary`   |
+| Posted              | `bg-accent`   | `text-text-secondary`   |
+| Expenses (Pro)      | `bg-error`    | `text-text-secondary`   |
+| Net (Pro, derived)  | `bg-accent`   | value `text-success-foreground` / `text-error-foreground` by sign |
 
 ### Brand Avatars
 
@@ -284,7 +297,7 @@ border-radius: rounded-full
 box-shadow: var(--shadow-fab)
 ```
 
-Opens the **Quick Add** bottom sheet (Brand · Deal · Meeting · Payment · Snap report).
+Opens the **Quick Add** bottom sheet (Brand · Deal · Meeting · Payment · Expense · Snap report).
 
 ---
 
@@ -337,7 +350,7 @@ All sizes except `text-hero` are font-size only — line-height stays inherited.
 
 ## Direction (RTL / LTR)
 
-Influero is Arabic-first. **All layout uses logical Tailwind utilities** — never `left-*` / `right-*` for spacing or positioning. The `<html dir>` attribute switches at the root:
+Inflero is Arabic-first. **All layout uses logical Tailwind utilities** — never `left-*` / `right-*` for spacing or positioning. The `<html dir>` attribute switches at the root:
 
 ```html
 <html lang="ar" dir="rtl">  <!-- Arabic -->
@@ -504,7 +517,7 @@ background: bg-surface
 border-radius: var(--radius-2xl) var(--radius-2xl) 0 0
 padding: 20px
 handle bar: 36x4px, bg-border-muted, centered at top, margin-bottom: 16px
-grid: 2 columns, gap-3, five tiles (Brand · Deal · Meeting · Payment · Snap report — Snap col-span-2 on the last row)
+grid: 2 columns, gap-3, six tiles (Brand · Deal · Meeting · Payment · Expense · Snap report — a clean 3×2, so no tile spans)
 tile: bg-surface-secondary, p-4, rounded-lg, icon in colored circle (uses brand-tint tokens)
 ```
 
@@ -534,6 +547,33 @@ edge-case: when invoiced is 0, render an em dash (—), never NaN/Infinity
 | Axis labels            | `var(--color-text-muted)`, 12px             |
 | RTL                    | mirror axis orientation when `lang="ar"`    |
 
+### Snap Report Card (export)
+
+The Snapchat-branded PNG an influencer downloads and sends to a brand (`SnapReportCard`). The **one** place the app uses Snapchat yellow, and — with the card's top→white background fade — the **only** gradient besides the Home hero. Both are deliberate, scoped exceptions to the "violet only / hero gradient only" invariants, justified by it being a Snapchat-branded, off-app deliverable. Never reuse these tokens in the in-app chrome.
+
+```text
+root:        rounded-3xl, relative isolate overflow-hidden
+background:  linear-gradient(180deg, var(--color-snap-frame-from) 0,
+                             var(--color-snap-frame-via) 96px,
+                             var(--color-surface) 210px)
+box-shadow:  var(--shadow-snap)        /* warm amber lift */
+avatar:      ProfileAvatar tone="snap" → bg-snap-yellow / text-snap-ink
+metric tile: bg-surface, border-border-light, shadow-card, rounded-2xl, p-4
+icon circle: bg-snap-yellow-soft, text-snap-ink, size-11 rounded-full
+change pill: bg-success-light/text-success-foreground (up) or
+             bg-error-light/text-error-foreground (down) + arrow + unsigned %
+ghost mark:  Snapchat silhouette, text-snap-ink (it's a Snapchat report)
+footer bolt: Zap, fill-snap-yellow
+```
+
+| Element                      | Token                                 |
+| ---------------------------- | ------------------------------------- |
+| Avatar fill / footer bolt    | `--color-snap-yellow`                 |
+| Metric-icon circle           | `--color-snap-yellow-soft`            |
+| Card gradient (top → mid)    | `--color-snap-frame-from` → `--color-snap-frame-via` → `--color-surface` |
+| Dark text / glyph on yellow  | `--color-snap-ink`                    |
+| Card lift                    | `--shadow-snap`                       |
+
 ---
 
 ## Touch & Accessibility
@@ -550,8 +590,8 @@ edge-case: when invoiced is 0, render an em dash (—), never NaN/Infinity
 - Never use hex values directly in components — always use CSS variables via Tailwind v4 generated utilities
 - Latin font is Inter; Arabic font is Tajawal — load both via the Google Fonts `@import` in `src/index.css`. Never substitute a system font
 - Never use raw Tailwind color classes like `bg-purple-500` or `text-gray-600` — use project tokens only
-- `--color-accent` (#6E56F5) is the only violet — never use Tailwind's built-in purple scale, never introduce a second violet
-- The hero gradient is the **only** gradient in the app — no other gradient surfaces
+- `--color-accent` (#6E56F5) is the only violet — never use Tailwind's built-in purple scale, never introduce a second violet. The **one** exception is the Snap export card's Snapchat yellow (`--color-snap-*`), scoped to that off-app deliverable (see §Snap Report Card)
+- The hero gradient is the **only** in-app gradient — no other gradient surfaces. The **one** exception is the Snap export card's top→white fade (see §Snap Report Card), which is a downloadable artifact, not app chrome
 - Status pills always pull from the **Status Pills — Deals / Payments** tables — never invent ad-hoc pill colors
 - Row-card stripes always pull from the **Row-Card Left Stripe** table
 - Brand avatars always use one of `--color-brand-tint-*` — picked deterministically from brand id so the same brand renders the same color across the app

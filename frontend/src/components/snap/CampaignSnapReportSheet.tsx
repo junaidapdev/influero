@@ -429,7 +429,7 @@ export function CampaignSnapReportSheet({ report, deals }: Props) {
           <h3 className="text-body font-medium text-text-secondary">
             {t("snap.card.previewHeading")}
           </h3>
-          <div ref={cardRef} className="bg-background p-3">
+          <div ref={cardRef} className="bg-surface-secondary p-4">
             <SnapReportCard
               report={report}
               appUser={appUser.data}

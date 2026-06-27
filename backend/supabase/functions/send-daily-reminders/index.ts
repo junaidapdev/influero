@@ -168,12 +168,12 @@ Deno.serve(async (req) => {
           body: message.body,
           url: message.url,
           lang: message.lang,
-          tag: `influero-${slot}`,
+          tag: `inflero-${slot}`,
         });
 
         for (const sub of (subs ?? []) as Subscription[]) {
           try {
-            await sendPush(appServer, sub, payload, `influero-${slot}`);
+            await sendPush(appServer, sub, payload, `inflero-${slot}`);
             pushesSent += 1;
           } catch (pushError) {
             if (isSubscriptionGone(pushError)) {

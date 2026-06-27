@@ -7,7 +7,7 @@ export const PRIVACY_DOC: LegalDoc = {
   title: { en: "Privacy Policy", ar: "سياسة الخصوصية" },
   updated: "2026-06-24",
   intro: {
-    en: "This Privacy Policy explains what data Influero collects, how we use it, and the choices you have. Influero is a workspace that helps influencers manage brand deals, payments, meetings, expenses, and Snapchat analytics.",
+    en: "This Privacy Policy explains what data Inflero collects, how we use it, and the choices you have. Inflero is a workspace that helps influencers manage brand deals, payments, meetings, expenses, and Snapchat analytics.",
     ar: "توضّح سياسة الخصوصية هذه البيانات التي يجمعها إنفليرو، وكيف نستخدمها، والخيارات المتاحة لك. إنفليرو مساحة عمل تساعد صنّاع المحتوى على إدارة صفقات العلامات التجارية والمدفوعات والاجتماعات والمصروفات وتحليلات سناب شات.",
   },
   sections: [
@@ -42,7 +42,7 @@ export const PRIVACY_DOC: LegalDoc = {
       heading: { en: "How we use your information", ar: "كيف نستخدم معلوماتك" },
       paragraphs: [
         {
-          en: "We use your information to provide and operate Influero — to run your account, store and display your data, extract metrics from the screenshots you upload, process your subscription, and provide support.",
+          en: "We use your information to provide and operate Inflero — to run your account, store and display your data, extract metrics from the screenshots you upload, process your subscription, and provide support.",
           ar: "نستخدم معلوماتك لتقديم وتشغيل إنفليرو — لإدارة حسابك وتخزين بياناتك وعرضها، واستخراج المقاييس من اللقطات التي ترفعها، ومعالجة اشتراكك، وتقديم الدعم.",
         },
       ],
@@ -51,7 +51,7 @@ export const PRIVACY_DOC: LegalDoc = {
       heading: { en: "Service providers we share data with", ar: "مزوّدو الخدمة الذين نشارك معهم البيانات" },
       paragraphs: [
         {
-          en: "We rely on trusted providers to run the service. They process your data only to provide their part of Influero:",
+          en: "We rely on trusted providers to run the service. They process your data only to provide their part of Inflero:",
           ar: "نعتمد على مزوّدين موثوقين لتشغيل الخدمة. وهم يعالجون بياناتك فقط لتقديم الجزء الخاص بهم من إنفليرو:",
         },
       ],
@@ -101,7 +101,7 @@ export const PRIVACY_DOC: LegalDoc = {
       heading: { en: "Cookies and analytics", ar: "ملفات تعريف الارتباط والتحليلات" },
       paragraphs: [
         {
-          en: "We use Microsoft Clarity, which may set cookies and record session activity (such as clicks and page views) to help us understand how Influero is used and improve it.",
+          en: "We use Microsoft Clarity, which may set cookies and record session activity (such as clicks and page views) to help us understand how Inflero is used and improve it.",
           ar: "نستخدم Microsoft Clarity، الذي قد يضع ملفات تعريف ارتباط ويسجّل نشاط الجلسة (مثل النقرات ومشاهدات الصفحات) لمساعدتنا على فهم كيفية استخدام إنفليرو وتحسينه.",
         },
       ],
@@ -110,7 +110,7 @@ export const PRIVACY_DOC: LegalDoc = {
       heading: { en: "Children", ar: "الأطفال" },
       paragraphs: [
         {
-          en: "Influero is not intended for anyone under 18, and we do not knowingly collect data from children.",
+          en: "Inflero is not intended for anyone under 18, and we do not knowingly collect data from children.",
           ar: "إنفليرو غير موجّه لمن هم دون 18 عامًا، ولا نجمع عن قصد بيانات من الأطفال.",
         },
       ],

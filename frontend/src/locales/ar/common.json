@@ -743,6 +743,10 @@
       "titleCampaign": "تقرير حملة سناب",
       "titleMonthly": "تقرير سناب الشهري",
       "previewHeading": "معاينة التقرير",
+      "vsPrevious": "مقارنةً بآخر ٢٨ يوم",
+      "changeUp": "ارتفاع {{value}} مقارنةً بآخر ٢٨ يوم",
+      "changeDown": "انخفاض {{value}} مقارنةً بآخر ٢٨ يوم",
+      "changeFlat": "بدون تغيير مقارنةً بآخر ٢٨ يوم",
       "footer": "أُنشئ بواسطة {{app}}"
     },
     "monthly": {
@@ -845,7 +849,7 @@
   },
   "billing": {
     "title": "الفوترة",
-    "help": "تحكّم في اشتراكك في Influero.",
+    "help": "تحكّم في اشتراكك في Inflero.",
     "loading": "جاري التحميل…",
     "loadError": "ما قدرنا نحمّل خطتك.",
     "plan": {

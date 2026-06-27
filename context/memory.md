@@ -1,43 +1,105 @@
-# Memory — Influero post-v1: Web-Push Daily Reminders (PWA) — BUILT + LIVE-CONFIRMED
+# Memory — Header redesign (PR #20) + the standing rename/branch gotchas
 
-Last updated: 2026-06-17
+Last updated: 2026-06-25
 
-## What was built / done this session
-A full **web-push twice-daily reminder system** (PWA): `/architect`-planned → developer-approved → built in two phases → static-verified → **live-confirmed on real devices (macOS Chrome + iPhone iOS 18.7)** → committed + pushed to `main`. It's a notification *delivery* layer distinct from the in-app `reminders` table.
-- **Phase A (subscribe + install):** migration `0015_push_notifications.sql` (`push_subscriptions` + `notification_sends`, both standard 4-policy own-row RLS). Hand-rolled PWA: `frontend/public/manifest.webmanifest` + minimal `sw.js` (push + notificationclick→/dashboard, NO precache) + placeholder icons (`frontend/scripts/gen-icons.cjs`). `lib/pushClient.ts`; hooks `usePushNotifications` + `useInstallPrompt`; `components/settings/{NotificationsSection,InstallAppButton}.tsx` mounted in `/settings`; optional `VITE_VAPID_PUBLIC_KEY` in `config/env.ts`; SW registered in `main.tsx`; i18n `settings.notifications.*` (en+ar). Shared `backend/shared/types/pushSubscription.types.ts`.
-- **Phase B (scheduled send):** migration `0016_daily_reminders_rpc.sql` (`get_users_with_outstanding()` — security invoker, granted to `service_role` ONLY, computes "today" in Asia/Riyadh; + enables pg_cron/pg_net). `backend/config/env.ts` gains lazy `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT`/`CRON_SECRET`. `_shared/webpush.ts` (uses `jsr:@negrel/webpush@0.5.0`; base64→JWK conversion; `getApplicationServer`/`sendPush`/`isSubscriptionGone`). Edge fn `send-daily-reminders/index.ts` (CRON_SECRET header gate; service-role; per-user idempotent claim; bilingual `digest.ts`; prune gone subs). Ops `README.md`.
-- **Commits on `main`:** `f814b21` (feature) → `4f174c5` (VAPID decoder hardening + tracker). **Local-uncommitted at session end:** README time fix (→10 AM), tracker park note, and this memory file — offered to commit, developer hadn't said yes yet.
+⚠️ **READ FIRST — git/branch state before any work:**
+1. **`origin/main` = `fd6216e`** and **already contains the UX-polish commit `a5e3691`** (merged via PR #17),
+   plus PR #18 (docs/tests) + PR #19 (blank-page fix). So branch new work off **`origin/main`** — it has the
+   UX-polish nav restructure that the header work depends on, AND no uncommitted rename.
+2. **Local branch `feat/ux-polish` (HEAD = `a5e3691`) is 6 commits BEHIND `origin/main`** and its working tree
+   still carries the **uncommitted Influero→Inflero rename** (Codex's, separate concern) — logos, `index.html`,
+   `manifest.webmanifest`, locale JSON *brand* strings (`app.name`, `billing.help`, `iosInstallRequired`,
+   `deleteAccount.confirmBody`), landing, backend, `index.css`, legal copy, several `context/*.md`, untracked
+   `frontend/public/inflero-logo.*`. **It ALSO now carries an uncommitted DUPLICATE of the header-redesign edits**
+   (the same 21 files that are committed on PR #20). When committing the rename, do NOT re-commit the header edits
+   — merge PR #20 first, then `git checkout origin/main -- <the 21 header files>` / rebase to drop the dupes.
+3. No secrets in this file. Prod project ref `uvueoypezcjtyazzibbu`; `gh` + `supabase` CLIs available.
 
-## Decisions made (still in force)
-- **Web push now; email fallback later** (designed into the same `send-daily-reminders` loop beside `sendPush`). The WhatsApp-to-BRAND payment reminder is a SEPARATE parked feature (outbound to the client) — NOT this.
-- **Library = `@negrel/webpush`** (Deno/Web-Crypto-native) over `npm:web-push` (Node stack, unreliable on the edge). VAPID keys kept as the base64url pair from `npx web-push generate-vapid-keys`; converted base64→JWK in `_shared/webpush.ts`.
-- **Scheduling = fixed 2 cron jobs at 10:00 & 18:00 Riyadh** (07:00 & 15:00 UTC). Per-user configurable times PARKED (backlog).
-- Idempotency via `notification_sends (user_id, slot, sent_on)` unique + claim-first.
-- The cron job runs as **service-role** (documented system/cross-user exception); the RPC is granted to service_role only. No `auth.uid()` in it.
-- Per send = "today's outstanding" (meetings + shoot/post due + payment awareness), same payload both slots; nothing sent to users with nothing.
+## What was built
 
-## Problems solved (don't re-debug — the live-gate gauntlet; all ENVIRONMENT, not logic)
-1. A VAPID key secret carried a stray char → `atob InvalidCharacterError`. Fixed by (a) hardening `base64UrlToBytes` to strip non-base64url chars (committed `4f174c5`) AND (b) regenerating keys cleanly by capturing into shell vars (never hand-paste).
-2. `VAPID_SUBJECT` wasn't set — it's a required lazy getter, throws right after the keys. Must be a `mailto:`.
-3. `supabase` CLI must run from **`backend/`** (the only `supabase/config.toml`), NOT the repo root — else deploy/secrets silently target nothing.
-4. **macOS suppresses Chrome notifications at the OS level** even when web `Notification.permission` is `granted` → enable System Settings → Notifications → Chrome. (Chrome DevTools → Application → Service Workers → **Push** button = fastest local display test.)
-5. **iOS web push requires the PWA installed from Safari** (Share → Add to Home Screen). Chrome's "Add to Home Screen" on iOS yields a non-push-capable shortcut (`Notification`/`showNotification` are `undefined` there).
-6. A user only gets a push if **their own** account has outstanding items that day — the long final red herring: devices subscribed under one account while test data sat under another (`pushesSent:0`, no log error).
+- **PR #20 — Header redesign (`feat/page-headers`, OPEN, base `main`).** https://github.com/junaidapdev/influero/pull/20
+  Fixes the developer's complaint that the in-app top bar was ugly/empty (a near-empty sticky strip with a lone
+  trailing avatar, then each page repeating its own title row below). Collapsed the two bands into ONE per-page
+  header; realigns with `ui-rules` ("every page has a title row with a muted line above it"). Built off `origin/main`
+  in an isolated worktree so the uncommitted rename never contaminated the PR. **Verified clean:** PR diff = exactly
+  21 files, `grep -i nflero` on the PR diff is EMPTY, locale diffs are ONLY the 3 new keys each; `tsc -b` + `eslint`
+  + `vite build` all clean.
+  - **3 new components** (`frontend/src/components/layout/`): `PageHeader.tsx` (eyebrow + title leading; contextual
+    action + `ProfileButton` trailing; optional leading back chevron; **sticky** `top-0 z-30`, full-bleed blurred
+    bg via `-mx-4 bg-background/90 backdrop-blur-sm`, owns the notch via `pt-[calc(env(safe-area-inset-top)+8px)]`),
+    `HeaderIconButton.tsx` (square white 48px `rounded-2xl border bg-surface shadow-card` back/filter/add button;
+    `active` → accent + `aria-pressed`; `mirror` → RTL chevron flip), `ProfileButton.tsx` (self-contained avatar →
+    profile menu; reads `useAppUser`, owns the `ProfileMenuSheet`).
+  - **`AppLayout.tsx`** stripped of its shell header + `ProfileMenuSheet` (moved into `ProfileButton`); now only
+    provides the bottom inset + `MobileTabBar` + `QuickAddSheet` + the one `useEntitlementRealtime()`. Every in-app
+    page's `<main>` dropped its TOP padding (`py-8` → `pb-8`) so the sticky header sits flush under the notch.
+  - **Wired into all 11 pages:** Dashboard (`Hi,`+name), Deals (`{n} deals`+"All Deals"+filter funnel), Meetings
+    (month+title+add), Settings (back+title), Insights = reports+snap (`Insights` title above `InsightsTabs`, old
+    per-tab `Reports`/`Snap` h1 dropped), Payments/Brands/Expenses/Reminders (count+title+add), brand detail
+    (back + brand name in header; card now leads with the OTHER-locale name so the name isn't duplicated).
+  - **`DealsFilters.tsx`:** status chips now always visible (free-standing, no Card); brand/month selects render
+    only when `advancedOpen` (toggled by the header filter funnel).
+  - **`BottomSheet.tsx` now portals to `document.body`** (`createPortal`) — REQUIRED because the sticky header's
+    `backdrop-blur` makes it the containing block for `position: fixed`, which had trapped the profile menu in a
+    thin strip at the top with its `z-50` stuck under the `z-40` tab bar. The portal also hardens every other sheet.
+  - **i18n:** new `nav.back` ("Back"/"رجوع") + `deals.filters.toggle` ("Filters"/"الفلاتر"); `deals.title`
+    "Deals"→"All Deals" / "الصفقات"→"كل الصفقات" (en + ar Saudi).
+  - `ui-registry.md` + `progress-tracker.md` updated.
+
+## Decisions made
+
+- **Profile avatar on EVERY page header** (developer choice over "Home only") — reachable from anywhere; sits at the
+  far-trailing edge, contextual action to its left.
+- **Headers are sticky** (developer asked) — pinned under the notch, content scrolls beneath; the bottom tab bar
+  stays the persistent nav at `z-40`.
+- **Brand detail shows the name in the header** (developer asked); the identity card drops the duplicate primary
+  name and leads with the other-locale name instead (bilingual pairing, no dup).
+- **A bottom sheet/overlay must portal to body** — the correct, durable fix (not removing the header blur).
+- **Header PR built off `origin/main`, not `feat/ux-polish`** — `origin/main` already has the UX-polish deps and
+  none of the uncommitted rename.
+
+## Problems solved
+
+- **Profile menu rendered broken (trapped strip at the top).** Root cause: the new sticky header uses
+  `backdrop-blur` (a `backdrop-filter`), which becomes the containing block for `position: fixed` descendants, AND
+  its `z-30` traps the sheet's `z-50` under the `z-40` tab bar. Since `ProfileButton` (inside the header) rendered
+  the `ProfileMenuSheet`, the fixed sheet got confined to the thin header box. Fixed by portaling `BottomSheet`.
+- **Isolating a clean header-only PR from the uncommitted rename + the mixed files.** Worktree off `origin/main`;
+  copied the PURE files (all .tsx + ui-registry — verified their base is unchanged a5e3691→origin/main, so the copy
+  reproduces the exact intended diff); RE-APPLIED the 3 locale keys + the progress-tracker note onto the clean
+  `origin/main` versions (the working-tree locale/tracker files are mixed with the rename); verified `grep -i nflero`
+  empty before committing.
 
 ## Current state
-- Feature **done + live-confirmed** — a real push delivered "Today's tasks · 1 meeting" to Mac Chrome AND iPhone.
-- **Cron NOT yet scheduled** — developer runs the 10 AM/6 PM `cron.schedule(...)` SQL from the editor (in the function README; consolidated SQL also given in chat). Until then it fires only on a manual curl.
-- Test meetings titled `'Push test'` / `'Test reminder meeting'` may still exist (cleanup SQL provided, scoped to the junaidap.dev account).
-- `CRON_SECRET` is a **throwaway test value — rotate before real use** (value intentionally not stored here; no VAPID keys/secrets in this file).
+
+- **PR #20 OPEN** against `main`, build green, clean diff. Not yet merged. UI-only — no backend/migration/data change.
+- The main working tree is back on `feat/ux-polish` (untouched) — still holds the uncommitted rename + the duplicate
+  header edits. The temporary worktree was removed.
 
 ## Next session starts with
-- Confirm cron is scheduled + firing at 10 AM/6 PM Riyadh (`select jobname, schedule, active from cron.job;`); run the schedule SQL if not yet done.
-- Run the test-data cleanup if not done; rotate `CRON_SECRET`.
-- (Optional) commit the local doc changes (README time + tracker park + this memory).
-- **Backlog (needs `/architect`): per-user reminder times in Settings** — swap the 2 fixed crons for a 15–30 min heartbeat + a `get_users_due_now()` RPC + `reminder_morning_at`/`reminder_evening_at` on `app_users` + two Settings time pickers. Cost negligible (~1,440 invocations/mo at 30-min; scales with ticks not users; push is free). Full sketch in `progress-tracker.md`.
-- Email fallback channel is the other documented next phase.
 
-## Open questions / parked
-- **Per-user reminder times** — parked, build later (architecture sketched in the tracker).
-- WhatsApp-to-brand payment reminder — separate future feature.
-- Whether to commit `seed_demo_data.sql` (still intentionally local-only, pre-existing).
+1. **375px + RTL visual eyeball of PR #20** (the standard UI gate): sticky blurred header pins under the notch;
+   back-chevron pages mirror; the Deals funnel toggles the brand/month panel; avatar far-trailing on every page;
+   Insights title above the segmented control; profile menu (and all sheets) open correctly as full bottom sheets.
+2. **Merge PR #20.**
+3. **Then untangle the working tree:** commit the Influero→Inflero rename as its OWN commit/PR WITHOUT
+   re-committing the 21 header files (they'll be on main after #20) — `git checkout origin/main -- <header files>`
+   or rebase to drop the dupes. Watch the locale JSONs + `progress-tracker.md` (mixed: rename + header keys).
+4. `git pull` local `main` (behind `origin/main`).
+
+## Open questions / standing backlog (carried)
+
+- **Investigate `customer-portal` 404** on the authed call (likely benign — Settings billing on a no-subscription
+  account); confirm it's not a broken portal link.
+- **Payment edit/delete live-gate** (PR #15) — prod check.
+- **At public launch:** flip LS Pro variant **$1.50 → $14**; refund+cancel the $14 test sub
+  (`trynarrate@gmail.com`); delete stale TEST-mode `subscriptions` rows in prod.
+- **Legal:** lawyer-review pages; confirm KSA governing law; add `/privacy` to Google OAuth consent screen +
+  LemonSqueezy store settings; 375px + RTL eyeball.
+- **Unconfirmed prod migration state:** `0021` (expenses deal-owner guard) + `0022` (promo) applied? — promo
+  silently errors without `0022`. Possible stale non-Riyadh-tz `get_dashboard_stats` in prod.
+- Audit follow-ups: **Sentry** error monitoring; **cookie/consent banner** for Clarity; confirm the LS webhook is
+  live-mode + 200.
+- **Promo-code grant-engine** (designed, not built — entitlement_grants table + additive `is_pro()`; next step
+  `/architect`).
+- **Rename hygiene (optional, external):** GitHub repo + git remote + Supabase project still named `influero`.

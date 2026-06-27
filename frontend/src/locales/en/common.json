@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Influero"
+    "name": "Inflero"
   },
   "auth": {
     "signIn": {
@@ -73,7 +73,7 @@
       "blocked": "Notifications are blocked. Turn them on in your browser settings, then reload.",
       "unsupported": "This browser doesn't support notifications.",
       "unavailable": "Notifications aren't set up yet — check back soon.",
-      "iosInstallRequired": "Add Influero to your Home Screen to receive reminders on iPhone.",
+      "iosInstallRequired": "Add Inflero to your Home Screen to receive reminders on iPhone.",
       "enableError": "Couldn't enable notifications. Please try again.",
       "disableError": "Couldn't turn off notifications. Please try again.",
       "toast": {
@@ -731,6 +731,10 @@
       "titleCampaign": "Campaign Snap report",
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
+      "vsPrevious": "vs Previous 28 Days",
+      "changeUp": "Up {{value}} vs previous 28 days",
+      "changeDown": "Down {{value}} vs previous 28 days",
+      "changeFlat": "No change vs previous 28 days",
       "footer": "Generated with {{app}}"
     },
     "monthly": {
@@ -829,7 +833,7 @@
   },
   "billing": {
     "title": "Billing",
-    "help": "Manage your Influero plan.",
+    "help": "Manage your Inflero plan.",
     "loading": "Loading…",
     "loadError": "Couldn't load your plan.",
     "plan": {
@@ -881,7 +885,7 @@
       "help": "Permanently delete your account and all of your data.",
       "action": "Delete account",
       "confirmTitle": "Delete your account?",
-      "confirmBody": "This permanently deletes your Influero account and everything in it.",
+      "confirmBody": "This permanently deletes your Inflero account and everything in it.",
       "item": {
         "data": "All your brands, deals, payments, expenses, meetings and reminders",
         "snap": "Your Snapchat reports and uploaded screenshots",

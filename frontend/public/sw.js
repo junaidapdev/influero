@@ -1,4 +1,4 @@
-// Influero service worker — web push only.
+// Inflero service worker — web push only.
 //
 // Deliberately NO offline/precaching: this is a frequently-updated SPA, and a
 // cached app shell is exactly what caused the stale-tab bug the team hit before.
@@ -27,14 +27,14 @@ self.addEventListener("push", (event) => {
     payload = {};
   }
 
-  const title = payload.title || "Influero";
+  const title = payload.title || "Inflero";
   const options = {
     body: payload.body || "",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     lang: payload.lang || "ar",
     dir: "auto",
-    tag: payload.tag || "influero-daily",
+    tag: payload.tag || "inflero-daily",
     renotify: true,
     data: { url: payload.url || "/" },
   };

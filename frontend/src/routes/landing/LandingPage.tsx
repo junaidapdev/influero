@@ -16,7 +16,7 @@ import "./landing.css";
 // flips the small bilingual demo, via data-en/data-ar).
 
 const FONT_LINK_ID = "lp-fonts";
-const LANG_KEY = "influero.lp.lang";
+const LANG_KEY = "inflero.lp.lang";
 
 // The two Google Fonts the design uses, injected on mount so they don't load on
 // every in-app page (only the landing needs them). Idempotent via the id guard.

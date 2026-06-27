@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -50,6 +50,7 @@ function SettingsSkeleton() {
 export function SettingsRoute() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const showToast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -156,7 +157,17 @@ export function SettingsRoute() {
   return (
     <main className="min-h-dvh bg-background px-4 pb-8">
       <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6">
-        <PageHeader title={t("settings.title")} onBack={() => navigate(-1)} />
+        <PageHeader
+          title={t("settings.title")}
+          // `location.key === "default"` means this is the first entry (opened
+          // directly / refreshed), so there's no in-app history to pop — fall
+          // back to the dashboard instead of stranding the user.
+          onBack={() =>
+            location.key === "default"
+              ? navigate(ROUTES.DASHBOARD)
+              : navigate(-1)
+          }
+        />
 
         {appUserQuery.isLoading ? (
           <SettingsSkeleton />

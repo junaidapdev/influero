@@ -12,9 +12,9 @@
 --      (your PRIMARY account — NOT the second account used for the RLS test).
 --      Sign in once first so the auth.users row exists.
 --   2. Paste the whole file into the Supabase SQL editor and Run.
---   3. Re-running is safe: it deletes its own fixed-id rows first, then re-inserts
---      (so edits re-apply). It only ever touches these seed rows, never data you
---      create by hand in the app.
+--   3. Re-running is safe: it deletes its own per-user seed rows first, then
+--      re-inserts (so edits re-apply). It only ever touches THIS account's seed
+--      rows — never data you create by hand, and never another account's rows.
 --
 -- Money dates are fixed in 2026 so the dashboard hand-calc below holds when run
 -- in June 2026. Meetings/reminders use now()-relative times so the "Today" panel
@@ -41,57 +41,78 @@
 do $$
 declare
   -- >>> CHANGE THIS to the email you log in with on the deployed app <<<
-  v_email text := lower('junaidap.dev@gmail.com');
+  -- Left as a placeholder on purpose — the script refuses to run until you set it.
+  v_email text := lower('you@example.com');
   v_user  uuid;
 
-  -- Fixed ids so the script is re-runnable and FK references are stable.
-  b_nike    uuid := 'b0000001-0000-4000-8000-000000000001';
-  b_almarai uuid := 'b0000002-0000-4000-8000-000000000002';
-  b_stc     uuid := 'b0000003-0000-4000-8000-000000000003';
-  b_nodeals uuid := 'b0000004-0000-4000-8000-000000000004';
+  -- Per-user ids, assigned in the body once v_user is known (see below). Derived
+  -- from the user id so they're stable across re-runs for one account, yet
+  -- distinct per account — seeding a second user never collides with, or deletes,
+  -- the first user's rows (safe on a shared database). FK references stay stable.
+  b_nike uuid; b_almarai uuid; b_stc uuid; b_nodeals uuid;
 
-  d_summer  uuid := 'd0000001-0000-4000-8000-000000000001'; -- Nike, paid
-  d_ramadan uuid := 'd0000002-0000-4000-8000-000000000002'; -- Nike, shot (not yet posted)
-  d_review  uuid := 'd0000003-0000-4000-8000-000000000003'; -- Almarai, posted (overdue payment)
-  d_event   uuid := 'd0000004-0000-4000-8000-000000000004'; -- Almarai, pending (post-overdue)
-  d_aware   uuid := 'd0000005-0000-4000-8000-000000000005'; -- STC, cancelled
-  d_unbox   uuid := 'd0000006-0000-4000-8000-000000000006'; -- STC, pending (shoot-overdue, 2 installments)
+  d_summer uuid;   -- Nike, paid
+  d_ramadan uuid;  -- Nike, shot (not yet posted)
+  d_review uuid;   -- Almarai, posted (overdue payment)
+  d_event uuid;    -- Almarai, pending (post-overdue)
+  d_aware uuid;    -- STC, cancelled
+  d_unbox uuid;    -- STC, pending (shoot-overdue, 2 installments)
 
-  p_adv  uuid := 'c0000001-0000-4000-8000-000000000001';
-  p_bal  uuid := 'c0000002-0000-4000-8000-000000000002';
-  p_ram  uuid := 'c0000003-0000-4000-8000-000000000003';
-  p_rev  uuid := 'c0000004-0000-4000-8000-000000000004';
-  p_unb1 uuid := 'c0000005-0000-4000-8000-000000000005';
-  p_unb2 uuid := 'c0000006-0000-4000-8000-000000000006';
-
-  m_nike    uuid := 'e0000001-0000-4000-8000-000000000001';
-  m_almarai uuid := 'e0000002-0000-4000-8000-000000000002';
-  m_stc     uuid := 'e0000003-0000-4000-8000-000000000003';
-  m_cancel  uuid := 'e0000004-0000-4000-8000-000000000004';
-
-  r_mnike   uuid := 'f0000001-0000-4000-8000-000000000001';
-  r_malmarai uuid := 'f0000002-0000-4000-8000-000000000002';
-  r_pay     uuid := 'f0000003-0000-4000-8000-000000000003';
-  r_deliv   uuid := 'f0000004-0000-4000-8000-000000000004';
-  r_shoot   uuid := 'f0000005-0000-4000-8000-000000000005';
-  r_post    uuid := 'f0000006-0000-4000-8000-000000000006';
-
-  s_post    uuid := 'a0000001-0000-4000-8000-000000000001';
-  s_monthly uuid := 'a0000002-0000-4000-8000-000000000002';
-  s_failed  uuid := 'a0000003-0000-4000-8000-000000000003';
+  p_adv uuid; p_bal uuid; p_ram uuid; p_rev uuid; p_unb1 uuid; p_unb2 uuid;
+  m_nike uuid; m_almarai uuid; m_stc uuid; m_cancel uuid;
+  r_mnike uuid; r_malmarai uuid; r_pay uuid; r_deliv uuid; r_shoot uuid; r_post uuid;
+  s_post uuid; s_monthly uuid; s_failed uuid;
 begin
+  if v_email = 'you@example.com' then
+    raise exception 'Set v_email (top of this script) to the address you sign in with first.';
+  end if;
+
   select id into v_user from auth.users where lower(email) = v_email;
   if v_user is null then
     raise exception 'No auth user found for %. Sign in on the app once first, then set v_email to that address.', v_email;
   end if;
 
-  -- Clean prior seed (FK-safe order) so re-runs refresh cleanly.
-  delete from public.snap_reports where id in (s_post, s_monthly, s_failed);
-  delete from public.reminders where id in (r_mnike, r_malmarai, r_pay, r_deliv, r_shoot, r_post);
-  delete from public.payments where id in (p_adv, p_bal, p_ram, p_rev, p_unb1, p_unb2);
-  delete from public.meetings where id in (m_nike, m_almarai, m_stc, m_cancel);
-  delete from public.ad_deals where id in (d_summer, d_ramadan, d_review, d_event, d_aware, d_unbox);
-  delete from public.brands where id in (b_nike, b_almarai, b_stc, b_nodeals);
+  -- Stable per-user ids: md5(user id + a key) cast to uuid → deterministic per
+  -- (user, key). Same user re-running gets the same ids (so the deletes+inserts
+  -- below refresh cleanly); a different user gets entirely different ids (so
+  -- seeding a second account never touches the first account's rows).
+  b_nike    := md5(v_user::text || ':b_nike')::uuid;
+  b_almarai := md5(v_user::text || ':b_almarai')::uuid;
+  b_stc     := md5(v_user::text || ':b_stc')::uuid;
+  b_nodeals := md5(v_user::text || ':b_nodeals')::uuid;
+  d_summer  := md5(v_user::text || ':d_summer')::uuid;
+  d_ramadan := md5(v_user::text || ':d_ramadan')::uuid;
+  d_review  := md5(v_user::text || ':d_review')::uuid;
+  d_event   := md5(v_user::text || ':d_event')::uuid;
+  d_aware   := md5(v_user::text || ':d_aware')::uuid;
+  d_unbox   := md5(v_user::text || ':d_unbox')::uuid;
+  p_adv     := md5(v_user::text || ':p_adv')::uuid;
+  p_bal     := md5(v_user::text || ':p_bal')::uuid;
+  p_ram     := md5(v_user::text || ':p_ram')::uuid;
+  p_rev     := md5(v_user::text || ':p_rev')::uuid;
+  p_unb1    := md5(v_user::text || ':p_unb1')::uuid;
+  p_unb2    := md5(v_user::text || ':p_unb2')::uuid;
+  m_nike    := md5(v_user::text || ':m_nike')::uuid;
+  m_almarai := md5(v_user::text || ':m_almarai')::uuid;
+  m_stc     := md5(v_user::text || ':m_stc')::uuid;
+  m_cancel  := md5(v_user::text || ':m_cancel')::uuid;
+  r_mnike   := md5(v_user::text || ':r_mnike')::uuid;
+  r_malmarai := md5(v_user::text || ':r_malmarai')::uuid;
+  r_pay     := md5(v_user::text || ':r_pay')::uuid;
+  r_deliv   := md5(v_user::text || ':r_deliv')::uuid;
+  r_shoot   := md5(v_user::text || ':r_shoot')::uuid;
+  r_post    := md5(v_user::text || ':r_post')::uuid;
+  s_post    := md5(v_user::text || ':s_post')::uuid;
+  s_monthly := md5(v_user::text || ':s_monthly')::uuid;
+  s_failed  := md5(v_user::text || ':s_failed')::uuid;
+
+  -- Clean prior seed for THIS user (FK-safe order) so re-runs refresh cleanly.
+  delete from public.snap_reports where user_id = v_user and id in (s_post, s_monthly, s_failed);
+  delete from public.reminders where user_id = v_user and id in (r_mnike, r_malmarai, r_pay, r_deliv, r_shoot, r_post);
+  delete from public.payments where user_id = v_user and id in (p_adv, p_bal, p_ram, p_rev, p_unb1, p_unb2);
+  delete from public.meetings where user_id = v_user and id in (m_nike, m_almarai, m_stc, m_cancel);
+  delete from public.ad_deals where user_id = v_user and id in (d_summer, d_ramadan, d_review, d_event, d_aware, d_unbox);
+  delete from public.brands where user_id = v_user and id in (b_nike, b_almarai, b_stc, b_nodeals);
 
   -- ---- Brands -------------------------------------------------------------
   -- category: post-v1; b_nodeals left NULL on purpose (tests the no-chip path).
@@ -193,17 +214,27 @@ end $$;
 -- TEARDOWN — run this block alone to remove all seed rows (FK-safe order).
 -- ===========================================================================
 -- do $$
+-- declare
+--   v_email text := lower('you@example.com');  -- the SAME address you seeded
+--   v_user  uuid;
 -- begin
---   delete from public.snap_reports where id in
---     ('a0000001-0000-4000-8000-000000000001','a0000002-0000-4000-8000-000000000002','a0000003-0000-4000-8000-000000000003');
---   delete from public.reminders where id in
---     ('f0000001-0000-4000-8000-000000000001','f0000002-0000-4000-8000-000000000002','f0000003-0000-4000-8000-000000000003','f0000004-0000-4000-8000-000000000004','f0000005-0000-4000-8000-000000000005','f0000006-0000-4000-8000-000000000006');
---   delete from public.payments where id in
---     ('c0000001-0000-4000-8000-000000000001','c0000002-0000-4000-8000-000000000002','c0000003-0000-4000-8000-000000000003','c0000004-0000-4000-8000-000000000004','c0000005-0000-4000-8000-000000000005','c0000006-0000-4000-8000-000000000006');
---   delete from public.meetings where id in
---     ('e0000001-0000-4000-8000-000000000001','e0000002-0000-4000-8000-000000000002','e0000003-0000-4000-8000-000000000003','e0000004-0000-4000-8000-000000000004');
---   delete from public.ad_deals where id in
---     ('d0000001-0000-4000-8000-000000000001','d0000002-0000-4000-8000-000000000002','d0000003-0000-4000-8000-000000000003','d0000004-0000-4000-8000-000000000004','d0000005-0000-4000-8000-000000000005','d0000006-0000-4000-8000-000000000006');
---   delete from public.brands where id in
---     ('b0000001-0000-4000-8000-000000000001','b0000002-0000-4000-8000-000000000002','b0000003-0000-4000-8000-000000000003','b0000004-0000-4000-8000-000000000004');
+--   select id into v_user from auth.users where lower(email) = v_email;
+--   if v_user is null then raise exception 'No auth user for %', v_email; end if;
+--   delete from public.snap_reports where user_id = v_user and id in (
+--     md5(v_user::text||':s_post')::uuid, md5(v_user::text||':s_monthly')::uuid, md5(v_user::text||':s_failed')::uuid);
+--   delete from public.reminders where user_id = v_user and id in (
+--     md5(v_user::text||':r_mnike')::uuid, md5(v_user::text||':r_malmarai')::uuid, md5(v_user::text||':r_pay')::uuid,
+--     md5(v_user::text||':r_deliv')::uuid, md5(v_user::text||':r_shoot')::uuid, md5(v_user::text||':r_post')::uuid);
+--   delete from public.payments where user_id = v_user and id in (
+--     md5(v_user::text||':p_adv')::uuid, md5(v_user::text||':p_bal')::uuid, md5(v_user::text||':p_ram')::uuid,
+--     md5(v_user::text||':p_rev')::uuid, md5(v_user::text||':p_unb1')::uuid, md5(v_user::text||':p_unb2')::uuid);
+--   delete from public.meetings where user_id = v_user and id in (
+--     md5(v_user::text||':m_nike')::uuid, md5(v_user::text||':m_almarai')::uuid,
+--     md5(v_user::text||':m_stc')::uuid, md5(v_user::text||':m_cancel')::uuid);
+--   delete from public.ad_deals where user_id = v_user and id in (
+--     md5(v_user::text||':d_summer')::uuid, md5(v_user::text||':d_ramadan')::uuid, md5(v_user::text||':d_review')::uuid,
+--     md5(v_user::text||':d_event')::uuid, md5(v_user::text||':d_aware')::uuid, md5(v_user::text||':d_unbox')::uuid);
+--   delete from public.brands where user_id = v_user and id in (
+--     md5(v_user::text||':b_nike')::uuid, md5(v_user::text||':b_almarai')::uuid,
+--     md5(v_user::text||':b_stc')::uuid, md5(v_user::text||':b_nodeals')::uuid);
 -- end $$;

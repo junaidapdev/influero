@@ -54,3 +54,14 @@ export function formatSnapChangePct(value: number, locale: Locale): string {
     maximumFractionDigits: 1,
   }).format(value / 100);
 }
+
+// The change MAGNITUDE, unsigned ("6.7%" / "٦٫٧٪") — for the export card's pills,
+// which convey direction with an up/down arrow + color instead of a +/− sign.
+// (formatSnapChangePct keeps the sign for the inline edit-sheet rows.)
+export function formatSnapChangeMagnitude(value: number, locale: Locale): string {
+  return new Intl.NumberFormat(INTL_LOCALE[locale], {
+    style: "percent",
+    signDisplay: "never",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(value) / 100);
+}
