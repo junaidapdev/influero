@@ -30,7 +30,6 @@ import {
   CHECKOUT_SUCCESS_PARAM,
   CHECKOUT_SUCCESS_VALUE,
 } from "@/constants/billing";
-import { APP_USER_DEFAULTS } from "@/constants/appUser";
 import type { Locale } from "@/constants/locale";
 import { logger } from "@/lib/logger";
 
@@ -75,8 +74,6 @@ export function SettingsRoute() {
     // after a successful save invalidates + refetches.
     values: {
       displayName: appUser?.display_name ?? "",
-      reminderLeadMinutes:
-        appUser?.reminder_lead_minutes ?? APP_USER_DEFAULTS.reminderLeadMinutes,
     },
   });
 
@@ -114,7 +111,6 @@ export function SettingsRoute() {
       {
         patch: {
           display_name: data.displayName === "" ? null : data.displayName,
-          reminder_lead_minutes: data.reminderLeadMinutes,
         },
         avatarFile,
       },
@@ -189,35 +185,6 @@ export function SettingsRoute() {
             <BillingSection />
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6" noValidate>
-              <SettingsSection
-                title={t("settings.reminders.title")}
-                description={t("settings.reminders.help")}
-              >
-                <Label htmlFor="reminderLead">{t("settings.reminders.label")}</Label>
-                <div className="flex items-center gap-2">
-                  <div className="w-32">
-                    <Input
-                      id="reminderLead"
-                      type="number"
-                      min={0}
-                      dir="ltr"
-                      hasError={Boolean(errors.reminderLeadMinutes)}
-                      {...register("reminderLeadMinutes", { valueAsNumber: true })}
-                    />
-                  </div>
-                  <span className="text-sm text-text-secondary">
-                    {t("settings.reminders.unit")}
-                  </span>
-                </div>
-                <FieldError
-                  message={
-                    errors.reminderLeadMinutes?.message
-                      ? t(errors.reminderLeadMinutes.message)
-                      : undefined
-                  }
-                />
-              </SettingsSection>
-
               <SettingsSection title={t("settings.profile.title")}>
                 <div className="flex flex-col gap-4">
                   <div>

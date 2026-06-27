@@ -9,15 +9,9 @@ import { z } from "zod";
 // pattern library-docs.md describes.
 //
 // display_name may be blank (the user can clear it); the empty string is mapped
-// to null at the write layer. reminder_lead_minutes is coerced because a number
-// input still hands react-hook-form a value that needs a hard integer guard.
+// to null at the write layer.
 export const settingsSchema = z.object({
   displayName: z.string().trim().max(80, "settings.errors.displayNameMax"),
-  reminderLeadMinutes: z.coerce
-    .number()
-    .int("settings.errors.reminderInvalid")
-    .min(0, "settings.errors.reminderMin")
-    .max(10080, "settings.errors.reminderMax"),
 });
 
 export type SettingsInput = z.infer<typeof settingsSchema>;
