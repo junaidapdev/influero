@@ -17,17 +17,17 @@ Everywhere else, the JobPilot pattern holds: UI mock → verify visually → wir
 
 ### 01 Homepage / Entry
 
-Build the entry behavior. No marketing site in v1 — Inflero is an authed app for one specific user type.
+Build the entry behavior. `/` now serves a **public marketing landing page** for signed-out visitors (added after this initial plan, which was auth-only); the authed app itself lives behind `/dashboard` and the protected routes.
 
 **UI:**
 
-- `/` is a thin router page that decides where the user goes
+- `/` renders the public landing page for signed-out visitors (lazy-loaded into its own chunk)
 - Skeleton placeholder during the auth check (no flash of unauthenticated content)
 
 **Logic:**
 
 - Logged-in users → redirect to `/dashboard`
-- Logged-out users → redirect to `/login`
+- Logged-out users → see the landing page at `/` (its CTAs deep-link to `/login` and `/login?mode=signup`)
 
 ---
 

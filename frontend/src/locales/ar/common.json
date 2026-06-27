@@ -744,6 +744,9 @@
       "titleMonthly": "تقرير سناب الشهري",
       "previewHeading": "معاينة التقرير",
       "vsPrevious": "مقارنةً بآخر ٢٨ يوم",
+      "changeUp": "ارتفاع {{value}} مقارنةً بآخر ٢٨ يوم",
+      "changeDown": "انخفاض {{value}} مقارنةً بآخر ٢٨ يوم",
+      "changeFlat": "بدون تغيير مقارنةً بآخر ٢٨ يوم",
       "footer": "أُنشئ بواسطة {{app}}"
     },
     "monthly": {

@@ -31,7 +31,7 @@ Mobile-first. The mocks are iPhone-sized (≤ 414px). Every page must be fully u
 - Bottom safe area: respect `env(safe-area-inset-bottom)` on the bottom tab bar.
 - Every page has a sticky page title row at the top (e.g. "Meetings", "All Deals") with the date or count in muted text immediately above it (e.g. "June 2026", "8 deals").
 
-> **Adaptation:** JobPilot's `max-width: 1440px` desktop rule doesn't apply — Inflero has no desktop layout in v1.
+> **Adaptation:** JobPilot's `max-width: 1440px` desktop rule doesn't apply — Inflero doesn't widen to a desktop layout in v1; on larger screens the content simply stays centered at ≤ 640px (see above).
 
 ---
 
@@ -243,7 +243,7 @@ The FAB opens a sheet, not a modal page.
 
 - Slides up from the bottom edge, full width, rounded top corners (`var(--radius-2xl)`).
 - 36×4px handle bar at the top, centered.
-- Two-column grid of tiles: Brand · Deal · Meeting · Payment · Expense · Snap report (six tiles = a clean 3×2 grid, so no tile needs to span). Brand leads — a deal requires a brand, so the prerequisite sits one tap from the thing that needs it; Expense sits next to Payment (money out beside money in). Each tile = colored circle icon + label.
+- Two-column grid of tiles: Brand · Deal · Meeting · Payment · Expense · Snap report · Reminder (seven tiles in two columns — the last row holds a single tile; the old six-tile 3×2 no-span layout is gone). Brand leads — a deal requires a brand, so the prerequisite sits one tap from the thing that needs it; Expense sits next to Payment (money out beside money in); Reminder is last (free, a personal to-do). Each tile = colored circle icon + label.
 - Dismiss by tapping the scrim, dragging down, or tapping outside.
 - Backdrop is `rgba(0,0,0,0.45)`.
 

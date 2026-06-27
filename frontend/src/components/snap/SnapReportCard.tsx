@@ -7,6 +7,7 @@ import {
   Eye,
   Heart,
   MessageCircle,
+  Minus,
   MousePointerClick,
   Smartphone,
   Sparkle,
@@ -393,19 +394,39 @@ function MetricTile({
   );
 }
 
-// The "vs Previous 28 Days" pill — green up / red down, direction shown by the
-// arrow + color, magnitude unsigned, tabular figures.
+// The "vs Previous 28 Days" pill — up (green) / down (red) / flat (muted),
+// direction shown by the arrow + color. Magnitude is unsigned (no +/−), tabular
+// figures; an aria-label announces the direction since the arrow is decorative
+// and the magnitude alone ("6.7%") would read direction-less to a screen reader.
 function ChangePill({ value, locale }: { value: number; locale: Locale }) {
-  const up = value >= 0;
-  const Arrow = up ? ArrowUpRight : ArrowDownRight;
+  const { t } = useTranslation();
+  const magnitude = formatSnapChangeMagnitude(value, locale);
+  const direction = value > 0 ? "up" : value < 0 ? "down" : "flat";
+  const Arrow =
+    direction === "up" ? ArrowUpRight : direction === "down" ? ArrowDownRight : Minus;
+  const toneClass =
+    direction === "up"
+      ? "bg-success-light text-success-foreground"
+      : direction === "down"
+        ? "bg-error-light text-error-foreground"
+        : "bg-surface-secondary text-text-muted";
+  const ariaLabel = t(
+    direction === "up"
+      ? "snap.card.changeUp"
+      : direction === "down"
+        ? "snap.card.changeDown"
+        : "snap.card.changeFlat",
+    { value: magnitude },
+  );
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-caption font-semibold ${
-        up ? "bg-success-light text-success-foreground" : "bg-error-light text-error-foreground"
-      }`}
+      className={`inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-caption font-semibold ${toneClass}`}
+      aria-label={ariaLabel}
     >
       <Arrow className="size-3.5" aria-hidden />
-      <span className="money">{formatSnapChangeMagnitude(value, locale)}</span>
+      <span className="money" aria-hidden>
+        {magnitude}
+      </span>
     </span>
   );
 }

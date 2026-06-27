@@ -732,6 +732,9 @@
       "titleMonthly": "Monthly Snap report",
       "previewHeading": "Report preview",
       "vsPrevious": "vs Previous 28 Days",
+      "changeUp": "Up {{value}} vs previous 28 days",
+      "changeDown": "Down {{value}} vs previous 28 days",
+      "changeFlat": "No change vs previous 28 days",
       "footer": "Generated with {{app}}"
     },
     "monthly": {

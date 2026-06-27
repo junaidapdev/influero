@@ -551,7 +551,7 @@ edge-case: when invoiced is 0, render an em dash (—), never NaN/Infinity
 
 The Snapchat-branded PNG an influencer downloads and sends to a brand (`SnapReportCard`). The **one** place the app uses Snapchat yellow, and — with the card's top→white background fade — the **only** gradient besides the Home hero. Both are deliberate, scoped exceptions to the "violet only / hero gradient only" invariants, justified by it being a Snapchat-branded, off-app deliverable. Never reuse these tokens in the in-app chrome.
 
-```
+```text
 root:        rounded-3xl, relative isolate overflow-hidden
 background:  linear-gradient(180deg, var(--color-snap-frame-from) 0,
                              var(--color-snap-frame-via) 96px,

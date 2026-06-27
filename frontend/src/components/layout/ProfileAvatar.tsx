@@ -30,6 +30,16 @@ const SIZE = {
   "2xl": "size-16 text-2xl",
 } as const;
 
+// The neutral User-glyph fallback scales with the avatar from the same size
+// contract, so a large (xl/2xl) avatar never falls back to a tiny icon. The
+// initials are the usual fill; this only shows for the no-name, no-image case.
+const GLYPH_SIZE = {
+  sm: "size-5",
+  lg: "size-6",
+  xl: "size-7",
+  "2xl": "size-8",
+} as const;
+
 // The signed-in user's avatar — the profile-menu trigger in the shell header and
 // the menu's own header. Presentational: the uploaded avatar image when set,
 // else up to two initials of the display name, else a neutral User glyph. Uses
@@ -70,7 +80,7 @@ export function ProfileAvatar({
       ) : initials ? (
         initials
       ) : (
-        <User className={size === "sm" ? "size-5" : "size-6"} aria-hidden="true" />
+        <User className={GLYPH_SIZE[size]} aria-hidden="true" />
       )}
     </span>
   );

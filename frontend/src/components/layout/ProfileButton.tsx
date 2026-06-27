@@ -20,6 +20,8 @@ export function ProfileButton() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t("nav.openMenu")}
+        aria-haspopup="dialog"
+        aria-expanded={open}
         className="shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <ProfileAvatar appUser={appUserQuery.data} size="lg" shape="square" solid />

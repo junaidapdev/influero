@@ -28,7 +28,6 @@ frontend/testsprite_tests/tmp/
 # scratch notes
 *Fix.md
 .vercel
-.env*
 
 testsprite_tests/
 supabase/.temp/

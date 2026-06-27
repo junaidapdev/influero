@@ -54,6 +54,12 @@ export function DealsFilters({
       ? "all"
       : filters.status;
 
+  // Reveal the advanced selects when the funnel opens them OR when a brand/month
+  // filter is already applied — so an active filter is never hidden behind a
+  // collapsed funnel (the user can always see and clear it).
+  const showAdvanced =
+    advancedOpen || Boolean(filters.brandId) || Boolean(filters.month);
+
   return (
     <div className="flex flex-col gap-3">
       <FilterChips
@@ -69,7 +75,7 @@ export function DealsFilters({
         label={t("deals.filters.statusLabel")}
       />
 
-      {advancedOpen ? (
+      {showAdvanced ? (
         <Card className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="deals-filter-brand">{t("deals.filters.brand")}</Label>
