@@ -135,12 +135,17 @@ async function syncDealDateReminders(
   // very reminders the cancel flow deleted, reviving it on the Today worklist.
   // Delete-only and return, so a re-edit also clears any stragglers.
   if (isLifecycleLocked(deal.status)) {
-    try {
-      await deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id);
-      await deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id);
-    } catch (error) {
-      reminderFailed = true;
-      logger.error("[useDeals] terminal deal reminder clear", error);
+    // Attempt BOTH deletes independently — a failure on one must not skip the
+    // other and leave the terminal deal partially armed.
+    const results = await Promise.allSettled([
+      deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id),
+      deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id),
+    ]);
+    for (const result of results) {
+      if (result.status === "rejected") {
+        reminderFailed = true;
+        logger.error("[useDeals] terminal deal reminder clear", result.reason);
+      }
     }
     return { reminderFailed };
   }
