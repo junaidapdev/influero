@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import { App } from "@/App";
+import { ErrorBoundary } from "@/components/feedback/ErrorBoundary";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import { UpgradeModalProvider } from "@/components/providers/UpgradeModalProvider";
@@ -22,19 +23,21 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <SessionProvider>
-          <ToastProvider>
-            <UpgradeModalProvider>
-              <App />
-              <Analytics />
-              <SpeedInsights />
-            </UpgradeModalProvider>
-          </ToastProvider>
-        </SessionProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <SessionProvider>
+            <ToastProvider>
+              <UpgradeModalProvider>
+                <App />
+                <Analytics />
+                <SpeedInsights />
+              </UpgradeModalProvider>
+            </ToastProvider>
+          </SessionProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
 

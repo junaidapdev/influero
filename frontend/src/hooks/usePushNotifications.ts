@@ -6,7 +6,7 @@ import { useSession } from "@/hooks/useSession";
 import { ENV } from "@/config/env";
 import { logger } from "@/lib/logger";
 import {
-  getExistingSubscription,
+  getExistingSubscriptionKeys,
   getNotificationPermission,
   isPushSupported,
   requestPermissionAndSubscribe,
@@ -28,17 +28,35 @@ export function usePushNotifications() {
   );
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  // Reconcile with the browser's actual subscription on mount.
+  // Reconcile with the browser's actual subscription on mount, and SELF-HEAL the
+  // server row: a device can be subscribed in the browser while its
+  // push_subscriptions row was pruned (or its first write failed) — which shows
+  // "Enabled" while the daily digest reaches nothing. Re-upsert so delivery works.
   useEffect(() => {
     if (!supported) return;
     let active = true;
-    void getExistingSubscription().then((sub) => {
-      if (active) setIsSubscribed(sub !== null);
+    const userId = session?.user.id;
+    void getExistingSubscriptionKeys().then(async (keys) => {
+      if (!active) return;
+      setIsSubscribed(keys !== null);
+      if (!keys || !userId) return;
+      const { error } = await supabase.from("push_subscriptions").upsert(
+        {
+          user_id: userId,
+          endpoint: keys.endpoint,
+          p256dh: keys.p256dh,
+          auth: keys.auth,
+          user_agent: navigator.userAgent,
+          last_seen_at: new Date().toISOString(),
+        },
+        { onConflict: "endpoint" },
+      );
+      if (error) logger.error("usePushNotifications.reconcile", error);
     });
     return () => {
       active = false;
     };
-  }, [supported]);
+  }, [supported, session?.user.id]);
 
   const enable = useMutation({
     mutationFn: async (): Promise<void> => {

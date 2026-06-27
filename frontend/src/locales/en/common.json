@@ -2,6 +2,11 @@
   "app": {
     "name": "Inflero"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "body": "The app hit an unexpected error. Reloading usually fixes it.",
+    "reload": "Reload"
+  },
   "auth": {
     "signIn": {
       "title": "Welcome back",
