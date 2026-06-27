@@ -207,11 +207,6 @@
 .lp .upload-strip{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px dashed #C9BCF7;border-radius:16px;padding:14px;margin-bottom:14px}
 .lp .upload-strip .u-ic{width:42px;height:42px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center;flex:none;box-shadow:var(--sh-violet)}
 
-/* bilingual */
-.lp .bi-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.lp .bi-card{background:var(--surface);border-radius:20px;box-shadow:var(--sh-md);padding:16px}
-.lp .bi-card .tag{font-size:11px;font-weight:800;color:var(--ink-3);margin-bottom:12px;letter-spacing:.04em}
-.lp .bi-card[dir=rtl]{font-family:var(--ar)}
 
 /* ============ how it works ============ */
 .lp .how{padding:80px 0;background:linear-gradient(180deg,transparent,var(--violet-50) 40%,transparent)}
@@ -310,7 +305,7 @@
   .lp .cta{padding:16px 0 64px}
   .lp .cta-card .row{flex-direction:column;align-items:stretch}
   .lp .cta-card .row .btn{width:100%}
-  .lp .bi-cards,.lp .snap-stat{grid-template-columns:1fr}
+  .lp .snap-stat{grid-template-columns:1fr}
 }
 /* Small phones (≤360px, e.g. iPhone SE): tighten gutters and scale the fixed
    300px phone mockup so it never clips or forces a horizontal scroll. */
