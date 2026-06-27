@@ -20,6 +20,10 @@ npm-debug.log*
 
 # Supabase CLI temp
 backend/supabase/.temp/
+supabase/.temp/
+
+# TestSprite scratch / credential cache (regenerated per run; contains an API key)
+frontend/testsprite_tests/tmp/
 
 # scratch notes
 *Fix.md
