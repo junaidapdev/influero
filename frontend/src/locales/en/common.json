@@ -2,6 +2,11 @@
   "app": {
     "name": "Inflero"
   },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "body": "The app hit an unexpected error. Reloading usually fixes it.",
+    "reload": "Reload"
+  },
   "auth": {
     "signIn": {
       "title": "Welcome back",
@@ -97,7 +102,8 @@
     },
     "actions": {
       "signOut": "Sign out",
-      "save": "Save changes"
+      "save": "Save changes",
+      "retry": "Try again"
     },
     "support": {
       "title": "Legal & support",

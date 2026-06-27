@@ -61,6 +61,14 @@ function extractKeys(subscription: PushSubscription): WebPushSubscriptionKeys {
   return { endpoint, p256dh, auth };
 }
 
+// This device's existing subscription as the DB-row key shape, or null if not
+// subscribed. Lets the hook reconcile (self-heal) a pruned server row on mount.
+export async function getExistingSubscriptionKeys(): Promise<WebPushSubscriptionKeys | null> {
+  const subscription = await getExistingSubscription();
+  if (!subscription) return null;
+  return extractKeys(subscription);
+}
+
 // VAPID public keys are base64url; the Push API wants a Uint8Array backed by a
 // plain ArrayBuffer (applicationServerKey's BufferSource excludes SharedArrayBuffer).
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {

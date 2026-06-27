@@ -130,6 +130,26 @@ async function syncDealDateReminders(
   const now = new Date().toISOString();
   let reminderFailed = false;
 
+  // A paid/cancelled deal is terminal — it must never arm shoot/post reminders.
+  // Otherwise editing a cancelled deal (e.g. fixing a note) would re-create the
+  // very reminders the cancel flow deleted, reviving it on the Today worklist.
+  // Delete-only and return, so a re-edit also clears any stragglers.
+  if (isLifecycleLocked(deal.status)) {
+    // Attempt BOTH deletes independently — a failure on one must not skip the
+    // other and leave the terminal deal partially armed.
+    const results = await Promise.allSettled([
+      deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id),
+      deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id),
+    ]);
+    for (const result of results) {
+      if (result.status === "rejected") {
+        reminderFailed = true;
+        logger.error("[useDeals] terminal deal reminder clear", result.reason);
+      }
+    }
+    return { reminderFailed };
+  }
+
   try {
     if (deal.shoot_date && deal.shot_at == null) {
       const messages = buildShootReminderMessages(deal.title);

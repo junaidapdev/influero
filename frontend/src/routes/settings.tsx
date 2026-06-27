@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,7 @@ import {
   CHECKOUT_SUCCESS_VALUE,
 } from "@/constants/billing";
 import type { Locale } from "@/constants/locale";
+import type { Entitlement } from "@shared/types/subscription.types";
 import { logger } from "@/lib/logger";
 
 function SettingsSkeleton() {
@@ -64,6 +65,11 @@ export function SettingsRoute() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | undefined>(undefined);
 
+  // Drives the post-checkout entitlement poll (below). Refs, not state, so the
+  // poll survives the re-render that strips the ?checkout param.
+  const checkoutHandledRef = useRef(false);
+  const checkoutPollRef = useRef<number | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -83,17 +89,47 @@ export function SettingsRoute() {
     return () => URL.revokeObjectURL(avatarPreview);
   }, [avatarPreview]);
 
-  // Returning from a successful LS checkout: confirm + nudge entitlement to
-  // refresh (the webhook + realtime are the real flip; this just covers a missed
-  // event), then strip the param so a reload doesn't re-toast.
+  // Returning from a successful LS checkout: confirm, strip the param so a reload
+  // doesn't re-toast, then POLL entitlement until Pro lands. The webhook +
+  // realtime are the real flip, but they can lag a few seconds behind the
+  // redirect — a single invalidate often still reads "Free" right after payment,
+  // which looks like "I paid and got nothing". The poll is capped (~60s) and the
+  // ref guard makes it run once even as the param-strip re-renders.
   useEffect(() => {
+    if (checkoutHandledRef.current) return;
     if (searchParams.get(CHECKOUT_SUCCESS_PARAM) !== CHECKOUT_SUCCESS_VALUE) return;
+    checkoutHandledRef.current = true;
+
     showToast("billing.toast.checkoutSuccess", "success");
-    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ENTITLEMENT });
     const next = new URLSearchParams(searchParams);
     next.delete(CHECKOUT_SUCCESS_PARAM);
     setSearchParams(next, { replace: true });
+
+    let attempts = 0;
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ENTITLEMENT });
+    checkoutPollRef.current = window.setInterval(() => {
+      attempts += 1;
+      const entitlement = queryClient.getQueryData<Entitlement>(QUERY_KEYS.ENTITLEMENT);
+      if (entitlement?.is_pro || attempts >= 30) {
+        if (checkoutPollRef.current !== null) {
+          window.clearInterval(checkoutPollRef.current);
+          checkoutPollRef.current = null;
+        }
+        return;
+      }
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ENTITLEMENT });
+    }, 2000);
   }, [searchParams, setSearchParams, showToast, queryClient]);
+
+  // Stop the checkout poll if the user leaves Settings before Pro lands.
+  useEffect(
+    () => () => {
+      if (checkoutPollRef.current !== null) {
+        window.clearInterval(checkoutPollRef.current);
+      }
+    },
+    [],
+  );
 
   function handleAvatarSelect(file: File): void {
     const error = validateAvatarFile(file);
@@ -169,7 +205,16 @@ export function SettingsRoute() {
           <SettingsSkeleton />
         ) : appUserQuery.isError ? (
           <Card>
-            <p className="text-sm text-error-foreground">{t("settings.loadError")}</p>
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-sm text-error-foreground">{t("settings.loadError")}</p>
+              <Button
+                variant="secondary"
+                onClick={() => void appUserQuery.refetch()}
+                isLoading={appUserQuery.isFetching}
+              >
+                {t("settings.actions.retry")}
+              </Button>
+            </div>
           </Card>
         ) : (
           <>

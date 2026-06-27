@@ -1,12 +1,12 @@
 // delete-account: permanently erases the CALLING user (PDPL/GDPR right to
 // erasure). Order is chosen so the operation is retriable and never reports
-// success with data left behind:
-//   1. Remove storage objects FIRST — it's idempotent and abort-safe, so a storage
-//      failure stops the whole erasure before anything irreversible happens (the
-//      account stays intact; the user retries) rather than orphaning their
-//      uploaded screenshots while we claim the account is gone.
-//   2. Cancel any active LemonSqueezy subscription — abort if it can't be
-//      cancelled, so a deleted account is never left being billed.
+// success — or destroys data — while an abort is still possible:
+//   1. Cancel any active LemonSqueezy subscription FIRST — it's the abortable,
+//      non-destructive precondition. Abort if it can't be cancelled, so a still-
+//      alive account is never left being billed AND its uploaded files are never
+//      wiped while the account survives ("cancel your sub first" stays recoverable).
+//   2. Remove storage objects (idempotent) — not cascaded by the auth.users
+//      delete, so they would orphan otherwise.
 //   3. Delete every owned row in one transaction (delete_my_account RPC).
 //   4. Remove the auth.users row itself.
 //
@@ -89,21 +89,12 @@ Deno.serve(async (req) => {
 
     const admin = createSupabaseAdmin();
 
-    // 1. Remove storage objects first (idempotent, abort-safe). Not cascaded by the
-    //    auth.users delete, so they would orphan otherwise. A failure here stops the
-    //    erasure with nothing irreversible done yet.
-    try {
-      for (const bucket of STORAGE_BUCKETS) {
-        await removeUserFolder(admin, bucket, userId);
-      }
-    } catch (storageErr) {
-      logger.error("[delete-account] storage", storageErr);
-      return fail(ERROR_CODE.INTERNAL, "Unexpected error", HTTP.INTERNAL_SERVER_ERROR);
-    }
-
-    // 2. Cancel an active paid subscription. RLS limits the read to the caller's
-    //    own row. Comp/grant users have no real LS sub (null or comp:*); an
-    //    already-cancelled/expired sub needs no second cancel (keeps retries clean).
+    // 1. Cancel an active paid subscription FIRST — the abortable, non-destructive
+    //    precondition. RLS limits the read to the caller's own row. Comp/grant
+    //    users have no real LS sub (null or comp:*); an already-cancelled/expired
+    //    sub needs no second cancel (keeps retries clean). Doing this before any
+    //    irreversible step means a cancel failure never wipes a still-alive
+    //    account's files.
     const { data: sub, error: subErr } = await supabase
       .from("subscriptions")
       .select("lemonsqueezy_subscription_id, status")
@@ -124,6 +115,18 @@ Deno.serve(async (req) => {
         logger.error("[delete-account] LS cancel", lsErr);
         return fail(ERROR_CODE.CONFLICT, SUBSCRIPTION_ACTIVE, HTTP.CONFLICT);
       }
+    }
+
+    // 2. Remove storage objects (idempotent). Not cascaded by the auth.users
+    //    delete, so they would orphan otherwise. The abortable sub-cancel has
+    //    passed, so the remaining steps are all retry-safe to completion.
+    try {
+      for (const bucket of STORAGE_BUCKETS) {
+        await removeUserFolder(admin, bucket, userId);
+      }
+    } catch (storageErr) {
+      logger.error("[delete-account] storage", storageErr);
+      return fail(ERROR_CODE.INTERNAL, "Unexpected error", HTTP.INTERNAL_SERVER_ERROR);
     }
 
     // 3. Atomically delete every owned row (RESTRICT-safe order), as the caller.

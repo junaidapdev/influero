@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/useToast";
 import { useLocale } from "@/hooks/useLocale";
 import { useExportCardPng } from "@/hooks/useExportCardPng";
 import { logger } from "@/lib/logger";
+import { normalizeDigits } from "@/lib/numbers";
 import {
   formatSnapChangePct,
   formatSnapMetricValue,
@@ -74,7 +75,9 @@ function parseMetricInput(
   raw: string,
   unit: SnapMetricDef["unit"],
 ): { ok: true; value: number | null } | { ok: false } {
-  const trimmed = raw.trim();
+  // Normalize Arabic-Indic / Persian numerals so a value typed on an Arabic
+  // keypad parses like Western input (matches snap.schema + the campaign sheet).
+  const trimmed = normalizeDigits(raw.trim());
   if (trimmed === "") return { ok: true, value: null };
   const pattern = unit === SNAP_METRIC_UNIT.COUNT ? COUNT_PATTERN : DECIMAL_PATTERN;
   if (!pattern.test(trimmed)) return { ok: false };

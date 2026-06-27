@@ -24,16 +24,19 @@ export function formatNumber(value: number, locale: Locale): string {
 }
 
 // Normalizes Arabic-Indic (٠–٩, U+0660–0669) and Extended/Persian (۰–۹,
-// U+06F0–06F9) digits to ASCII 0–9, so a value typed on an Arabic keypad
-// validates and parses like Western input. The edge extraction normalizes the
-// same way — this keeps the manual-entry path in parity. Non-digit characters
-// pass through unchanged.
+// U+06F0–06F9) digits to ASCII 0–9, plus the Arabic decimal separator (٫,
+// U+066B) to a dot — so a decimal value typed on an Arabic keypad (e.g. ١٢٫٥)
+// validates and parses like Western input (12.5). Without the separator step,
+// digit-only normalization left "12٫5", which still failed every numeric
+// pattern. All other characters pass through unchanged.
 export function normalizeDigits(input: string): string {
-  return input.replace(/[٠-٩۰-۹]/g, (char) => {
-    const code = char.charCodeAt(0);
-    const base = code >= 0x06f0 ? 0x06f0 : 0x0660;
-    return String(code - base);
-  });
+  return input
+    .replace(/[٠-٩۰-۹]/g, (char) => {
+      const code = char.charCodeAt(0);
+      const base = code >= 0x06f0 ? 0x06f0 : 0x0660;
+      return String(code - base);
+    })
+    .replace(/٫/g, ".");
 }
 
 // Compact, locale-aware number (20000 → "20K" / "٢٠ ألف"). For dense axes where

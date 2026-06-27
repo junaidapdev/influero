@@ -61,9 +61,21 @@ export function AuthCallbackRoute() {
 
     if (session) {
       handledRef.current = true;
-      ensureAppUser
-        .mutateAsync(session.user)
-        .catch((error: unknown) => logger.error("AuthCallbackRoute", error))
+      const { user } = session;
+      // Bootstrap the profile row, retrying once on a transient failure before
+      // navigating. useAppUser also self-heals a missing row on read, so this is
+      // belt-and-suspenders — but retrying here avoids the first Settings visit
+      // having to do the repair.
+      void ensureAppUser
+        .mutateAsync(user)
+        .catch(async (error: unknown) => {
+          logger.warn("AuthCallbackRoute", "bootstrap retry after failure");
+          await ensureAppUser
+            .mutateAsync(user)
+            .catch((retryError: unknown) =>
+              logger.error("AuthCallbackRoute", retryError ?? error),
+            );
+        })
         .finally(() => navigate(ROUTES.DASHBOARD, { replace: true }));
       return;
     }

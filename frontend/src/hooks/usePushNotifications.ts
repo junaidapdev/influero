@@ -6,7 +6,7 @@ import { useSession } from "@/hooks/useSession";
 import { ENV } from "@/config/env";
 import { logger } from "@/lib/logger";
 import {
-  getExistingSubscription,
+  getExistingSubscriptionKeys,
   getNotificationPermission,
   isPushSupported,
   requestPermissionAndSubscribe,
@@ -28,17 +28,53 @@ export function usePushNotifications() {
   );
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  // Reconcile with the browser's actual subscription on mount.
+  // Reconcile with the browser's actual subscription on mount, and SELF-HEAL the
+  // server row: a device can be subscribed in the browser while its
+  // push_subscriptions row was pruned (or its first write failed) — which shows
+  // "Enabled" while the daily digest reaches nothing. Re-upsert so delivery works.
   useEffect(() => {
     if (!supported) return;
     let active = true;
-    void getExistingSubscription().then((sub) => {
-      if (active) setIsSubscribed(sub !== null);
-    });
+    const userId = session?.user.id;
+
+    async function reconcile(): Promise<void> {
+      try {
+        const keys = await getExistingSubscriptionKeys();
+        if (!active) return;
+        if (!keys || !userId) {
+          // Not subscribed in the browser, or no session yet to reconcile the
+          // server row (the effect re-runs once the session resolves).
+          setIsSubscribed(false);
+          return;
+        }
+        const { error } = await supabase.from("push_subscriptions").upsert(
+          {
+            user_id: userId,
+            endpoint: keys.endpoint,
+            p256dh: keys.p256dh,
+            auth: keys.auth,
+            user_agent: navigator.userAgent,
+            last_seen_at: new Date().toISOString(),
+          },
+          { onConflict: "endpoint" },
+        );
+        if (!active) return;
+        if (error) throw error;
+        // Only now is delivery actually wired (browser sub + server row), so the
+        // toggle can honestly read "Enabled".
+        setIsSubscribed(true);
+      } catch (error) {
+        if (!active) return;
+        setIsSubscribed(false);
+        logger.error("usePushNotifications.reconcile", error);
+      }
+    }
+
+    void reconcile();
     return () => {
       active = false;
     };
-  }, [supported]);
+  }, [supported, session?.user.id]);
 
   const enable = useMutation({
     mutationFn: async (): Promise<void> => {
