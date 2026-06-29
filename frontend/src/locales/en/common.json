@@ -20,7 +20,17 @@
       "email": "Email",
       "emailPlaceholder": "you@example.com",
       "password": "Password",
-      "passwordPlaceholder": "••••••••"
+      "passwordPlaceholder": "••••••••",
+      "phone": "Mobile number",
+      "phonePlaceholder": "05XXXXXXXX"
+    },
+    "identifier": {
+      "label": "Login method",
+      "email": "Email",
+      "phone": "Mobile"
+    },
+    "phone": {
+      "noRecovery": "Keep your password safe — phone accounts can't reset it by SMS yet."
     },
     "actions": {
       "signIn": "Sign in",
@@ -50,7 +60,11 @@
       "emailInvalid": "Enter a valid email address",
       "passwordRequired": "Password is required",
       "passwordMin": "Password must be at least 8 characters",
-      "invalidCredentials": "Wrong email or password",
+      "invalidCredentials": "Incorrect email/phone or password",
+      "phoneRequired": "Mobile number is required",
+      "phoneInvalid": "Enter a valid Saudi mobile number",
+      "phoneTaken": "An account with this mobile number already exists",
+      "phoneUnavailable": "Mobile sign-in isn't available right now. Try email or Google.",
       "emailNotConfirmed": "Please confirm your email first — check your inbox",
       "emailTaken": "An account with this email already exists",
       "oauth": "Could not sign in with Google. Please try again.",

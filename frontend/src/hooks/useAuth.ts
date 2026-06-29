@@ -4,7 +4,11 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/constants/routes";
 import { OAUTH_PROVIDER } from "@/constants/auth";
-import type { SignInInput, SignUpInput } from "@/features/auth/auth.schema";
+import type {
+  PhoneAuthInput,
+  SignInInput,
+  SignUpInput,
+} from "@/features/auth/auth.schema";
 
 type SignUpResult = {
   needsEmailConfirmation: boolean;
@@ -42,6 +46,33 @@ export function useSignUp() {
       // When email confirmation is required, Supabase returns no session until
       // the user clicks the link — that's our cue to show the verify notice.
       return { needsEmailConfirmation: data.session === null, user: data.user };
+    },
+  });
+}
+
+export function useSignInWithPhone() {
+  return useMutation({
+    mutationFn: async ({ phone, password }: PhoneAuthInput): Promise<User> => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        phone,
+        password,
+      });
+      if (error) throw error;
+      return data.user;
+    },
+  });
+}
+
+export function useSignUpWithPhone() {
+  return useMutation({
+    mutationFn: async ({ phone, password }: PhoneAuthInput): Promise<User | null> => {
+      const { data, error } = await supabase.auth.signUp({ phone, password });
+      if (error) throw error;
+      // Phone confirmations are disabled in the dashboard, so signUp returns a
+      // live session and logs the user straight in — there is no OTP step. (The
+      // null-user case only arises if confirmations get re-enabled; the caller
+      // guards on it and the profile bootstrap can't run without a session.)
+      return data.user;
     },
   });
 }

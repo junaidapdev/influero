@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -9,18 +9,32 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { FieldError } from "@/components/ui/FieldError";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { GoogleIcon } from "@/components/auth/GoogleIcon";
 import { VerifyNotice } from "@/components/auth/VerifyNotice";
-import { useSignIn, useSignUp, useSignInWithGoogle } from "@/hooks/useAuth";
+import {
+  useSignIn,
+  useSignUp,
+  useSignInWithPhone,
+  useSignUpWithPhone,
+  useSignInWithGoogle,
+} from "@/hooks/useAuth";
 import { useEnsureAppUser } from "@/hooks/useEnsureAppUser";
-import { signInSchema, signUpSchema } from "@/features/auth/auth.schema";
+import {
+  signInSchema,
+  signUpSchema,
+  signInPhoneSchema,
+  signUpPhoneSchema,
+  toE164Saudi,
+} from "@/features/auth/auth.schema";
 import { authErrorMessageKey } from "@/features/auth/authError";
-import { AUTH_MODE, type AuthMode } from "@/constants/auth";
+import { AUTH_MODE, IDENTIFIER, type AuthMode, type Identifier } from "@/constants/auth";
 import { ROUTES } from "@/constants/routes";
 import { logger } from "@/lib/logger";
 
 type FormValues = {
   email: string;
+  phone: string;
   password: string;
 };
 
@@ -36,32 +50,63 @@ export function LoginForm() {
       ? AUTH_MODE.SIGN_UP
       : AUTH_MODE.SIGN_IN,
   );
+  // Which identifier the password pairs with. Email is primary; phone is the
+  // alternative. Google stays a separate button below.
+  const [identifier, setIdentifier] = useState<Identifier>(IDENTIFIER.EMAIL);
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   const signIn = useSignIn();
   const signUp = useSignUp();
+  const signInPhone = useSignInWithPhone();
+  const signUpPhone = useSignUpWithPhone();
   const googleSignIn = useSignInWithGoogle();
   const ensureAppUser = useEnsureAppUser();
 
   const isSignUp = mode === AUTH_MODE.SIGN_UP;
+  const isPhone = identifier === IDENTIFIER.PHONE;
   const isSubmitting =
-    signIn.isPending || signUp.isPending || ensureAppUser.isPending;
+    signIn.isPending ||
+    signUp.isPending ||
+    signInPhone.isPending ||
+    signUpPhone.isPending ||
+    ensureAppUser.isPending;
+
+  // The active schema follows both axes (identifier × mode). Each schema
+  // validates only its own identifier field; the resolver is recreated on every
+  // render so toggling either axis picks up the right one. Cast to the form's
+  // shape because each schema covers a subset of the fields (email OR phone).
+  const resolver = zodResolver(
+    isPhone
+      ? isSignUp
+        ? signUpPhoneSchema
+        : signInPhoneSchema
+      : isSignUp
+        ? signUpSchema
+        : signInSchema,
+  ) as Resolver<FormValues>;
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(isSignUp ? signUpSchema : signInSchema),
-  });
+  } = useForm<FormValues>({ resolver });
 
   async function onSubmit(values: FormValues): Promise<void> {
     setFormError(null);
     try {
-      if (isSignUp) {
+      if (isPhone) {
+        const phone = toE164Saudi(values.phone);
+        // The schema already rejects an unnormalizable number; this guards the
+        // type narrowing without trusting it.
+        if (phone === null) return;
+        const user = isSignUp
+          ? await signUpPhone.mutateAsync({ phone, password: values.password })
+          : await signInPhone.mutateAsync({ phone, password: values.password });
+        if (user) await ensureAppUser.mutateAsync(user);
+      } else if (isSignUp) {
         const { needsEmailConfirmation, user } = await signUp.mutateAsync(values);
         if (needsEmailConfirmation) {
           setPendingEmail(values.email);
@@ -91,6 +136,13 @@ export function LoginForm() {
 
   function switchMode(): void {
     setMode(isSignUp ? AUTH_MODE.SIGN_IN : AUTH_MODE.SIGN_UP);
+    setFormError(null);
+    reset();
+  }
+
+  function switchIdentifier(next: Identifier): void {
+    if (next === identifier) return;
+    setIdentifier(next);
     setFormError(null);
     reset();
   }
@@ -136,6 +188,16 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
+      <FilterChips<Identifier>
+        label={t("auth.identifier.label")}
+        value={identifier}
+        onChange={switchIdentifier}
+        items={[
+          { value: IDENTIFIER.EMAIL, label: t("auth.identifier.email") },
+          { value: IDENTIFIER.PHONE, label: t("auth.identifier.phone") },
+        ]}
+      />
+
       {formError ? (
         <div
           role="alert"
@@ -146,19 +208,36 @@ export function LoginForm() {
         </div>
       ) : null}
 
-      <div>
-        <Label htmlFor="email">{t("auth.fields.email")}</Label>
-        <Input
-          id="email"
-          type="email"
-          dir="ltr"
-          autoComplete="email"
-          placeholder={t("auth.fields.emailPlaceholder")}
-          hasError={Boolean(errors.email)}
-          {...register("email")}
-        />
-        <FieldError message={errors.email ? t(errors.email.message ?? "") : undefined} />
-      </div>
+      {isPhone ? (
+        <div>
+          <Label htmlFor="phone">{t("auth.fields.phone")}</Label>
+          <Input
+            id="phone"
+            type="tel"
+            dir="ltr"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder={t("auth.fields.phonePlaceholder")}
+            hasError={Boolean(errors.phone)}
+            {...register("phone")}
+          />
+          <FieldError message={errors.phone ? t(errors.phone.message ?? "") : undefined} />
+        </div>
+      ) : (
+        <div>
+          <Label htmlFor="email">{t("auth.fields.email")}</Label>
+          <Input
+            id="email"
+            type="email"
+            dir="ltr"
+            autoComplete="email"
+            placeholder={t("auth.fields.emailPlaceholder")}
+            hasError={Boolean(errors.email)}
+            {...register("email")}
+          />
+          <FieldError message={errors.email ? t(errors.email.message ?? "") : undefined} />
+        </div>
+      )}
 
       <div>
         <Label htmlFor="password">{t("auth.fields.password")}</Label>
@@ -189,6 +268,9 @@ export function LoginForm() {
         <FieldError
           message={errors.password ? t(errors.password.message ?? "") : undefined}
         />
+        {isPhone ? (
+          <p className="mt-2 text-xs text-text-muted">{t("auth.phone.noRecovery")}</p>
+        ) : null}
       </div>
 
       <Button type="submit" className="w-full" isLoading={isSubmitting}>

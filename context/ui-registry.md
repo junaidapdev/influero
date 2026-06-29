@@ -170,6 +170,7 @@ After building any component — update this file with the component name, file 
 
 - **File:** `frontend/src/components/ui/FilterChips.tsx` (Feature 10) — the segmented control as a horizontally scrollable filter row (the All Deals status chips). Generic over string values; props `items` / `value` / `onChange` / `label` (group `aria-label`). Same container/active/inactive classes as `LocaleToggle` (the canonical segmented pattern); scrolls instead of wrapping when chips outgrow 375px. `role="group"`, `aria-pressed` per chip.
 - **Classes:** container `flex overflow-x-auto rounded-md bg-surface-muted p-1`; chip `min-h-11 shrink-0 whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold` — active `bg-surface text-accent shadow-card`, inactive `text-text-secondary`.
+- **Consumers:** All Deals status chips (`DealsFilters`), `InsightsTabs` (Reports↔Snap), `ExpenseForm` category, the Snap report-type chip — and the **`LoginForm` Email⇄Mobile identifier toggle** (phone-login; two segments, `value`/`onChange` drive the local `identifier` state).
 
 ### DealStatusPill
 
