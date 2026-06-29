@@ -156,12 +156,13 @@ export function LandingPage() {
     };
     langBtns.forEach((b) => b.addEventListener("click", onLangClick));
     // Apply the persisted choice on mount — this first call also caches the
-    // English baseline (data-en) for every translatable node.
-    let storedLang: "en" | "ar" = "en";
+    // English baseline (data-en) for every translatable node. Arabic is the
+    // default for first-time visitors; an explicit prior toggle still wins.
+    let storedLang: "en" | "ar" = "ar";
     try {
-      storedLang = localStorage.getItem(LANG_KEY) === "ar" ? "ar" : "en";
+      storedLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "ar";
     } catch {
-      // ignore — default to English
+      // ignore — default to Arabic
     }
     applyLang(storedLang);
 
