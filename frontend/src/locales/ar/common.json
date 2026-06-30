@@ -151,6 +151,7 @@
       "meetingsLoadError": "ما قدرنا نحمّل اجتماعات اليوم.",
       "remindersLoadError": "ما قدرنا نحمّل تذكيرات اليوم.",
       "overdue": "متأخر",
+      "overdueAt": "متأخر · {{time}}",
       "tomorrowTime": "بكرة، {{time}}",
       "openReminderAria": "فتح التذكير: {{title}}",
       "doneAria": "تحديد كمنجز: {{title}}",

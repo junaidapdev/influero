@@ -151,6 +151,7 @@
       "meetingsLoadError": "Couldn't load today's meetings.",
       "remindersLoadError": "Couldn't load today's reminders.",
       "overdue": "Overdue",
+      "overdueAt": "Overdue · {{time}}",
       "tomorrowTime": "Tomorrow, {{time}}",
       "openReminderAria": "Open reminder: {{title}}",
       "doneAria": "Mark done: {{title}}",

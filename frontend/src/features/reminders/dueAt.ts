@@ -16,37 +16,17 @@ export function meetingReminderDueAt(
   ).toISOString();
 }
 
-// "Surface this in Today when it's due": due_at is the target date at the start
-// of the viewer's LOCAL day (the todayIsoLocal convention), falling back to now
-// when the date is null or already past so the reminder appears immediately.
-function dateReminderDueAt(
-  targetDate: string | null,
-  todayLocal: string,
-  nowIso: string,
-): string {
-  if (!targetDate || targetDate <= todayLocal) return nowIso;
-  const [year, month, day] = targetDate.split("-").map(Number);
-  return new Date(year, month - 1, day).toISOString();
-}
-
-// A deal's shoot/post reminder is DAY-GRANULAR: shoot_date / post_date now carry
-// a time, but it's display-only — the reminder still fires at the start of the
-// planned day (or now if past). targetIso is the planned timestamptz; we take
-// its viewer-LOCAL calendar day and apply the same start-of-local-day-or-now
-// rule as the date kinds. Kept import-free (no lib/date) so this stays a pure,
-// deterministic feature module; the two kinds differ only by which timestamp +
-// message the caller passes.
-export function dealDateReminderDueAt(
-  targetIso: string | null,
-  todayLocal: string,
-  nowIso: string,
-): string {
-  if (!targetIso) return nowIso;
-  const planned = new Date(targetIso);
-  const month = String(planned.getMonth() + 1).padStart(2, "0");
-  const day = String(planned.getDate()).padStart(2, "0");
-  const localDay = `${planned.getFullYear()}-${month}-${day}`;
-  return dateReminderDueAt(localDay, todayLocal, nowIso);
+// A deal's shoot/post reminder fires at the EXACT planned time. shoot_date /
+// post_date are full timestamptz instants the user enters, so the reminder's
+// due_at is that instant verbatim — the dashboard Today panel then shows the
+// real time the user set, and a row only reads "Overdue" once that time has
+// actually passed. (Previously these were collapsed to day-granular midnight /
+// creation-time, which hid the planned time and made a same-day task read
+// Overdue the moment it was created.) Normalized to a canonical UTC ISO string.
+// Every call site guards on the date being set; the null branch is defensive.
+export function dealDateReminderDueAt(targetIso: string | null): string {
+  if (!targetIso) return new Date().toISOString();
+  return new Date(targetIso).toISOString();
 }
 
 const MS_PER_HOUR = 3_600_000;
