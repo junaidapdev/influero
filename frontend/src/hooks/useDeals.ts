@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/logActivity";
 import { logger } from "@/lib/logger";
 import { createReminder, deleteReminderForRef } from "@/lib/createReminder";
-import { startOfLocalDayIso, todayIsoLocal } from "@/lib/date";
+import { startOfLocalDayIso } from "@/lib/date";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import {
@@ -126,8 +126,6 @@ async function syncDealDateReminders(
   userId: string,
   deal: Deal,
 ): Promise<{ reminderFailed: boolean }> {
-  const todayLocal = todayIsoLocal();
-  const now = new Date().toISOString();
   let reminderFailed = false;
 
   // A paid/cancelled deal is terminal — it must never arm shoot/post reminders.
@@ -158,7 +156,7 @@ async function syncDealDateReminders(
         kind: REMINDER_KIND.SHOOT,
         refId: deal.id,
         refTable: REMINDER_REF_TABLE.AD_DEALS,
-        dueAt: dealDateReminderDueAt(deal.shoot_date, todayLocal, now),
+        dueAt: dealDateReminderDueAt(deal.shoot_date),
         messageEn: messages.messageEn,
         messageAr: messages.messageAr,
       });
@@ -178,7 +176,7 @@ async function syncDealDateReminders(
         kind: REMINDER_KIND.POST,
         refId: deal.id,
         refTable: REMINDER_REF_TABLE.AD_DEALS,
-        dueAt: dealDateReminderDueAt(deal.post_date, todayLocal, now),
+        dueAt: dealDateReminderDueAt(deal.post_date),
         messageEn: messages.messageEn,
         messageAr: messages.messageAr,
       });
@@ -410,11 +408,7 @@ export function useMarkShot() {
             kind: REMINDER_KIND.SHOOT,
             refId: updated.id,
             refTable: REMINDER_REF_TABLE.AD_DEALS,
-            dueAt: dealDateReminderDueAt(
-              updated.shoot_date,
-              todayIsoLocal(),
-              now,
-            ),
+            dueAt: dealDateReminderDueAt(updated.shoot_date),
             messageEn: messages.messageEn,
             messageAr: messages.messageAr,
           }),
@@ -513,7 +507,7 @@ export function useMarkPosted() {
               kind: REMINDER_KIND.POST,
               refId: updated.id,
               refTable: REMINDER_REF_TABLE.AD_DEALS,
-              dueAt: dealDateReminderDueAt(updated.post_date, todayIsoLocal(), now),
+              dueAt: dealDateReminderDueAt(updated.post_date),
               messageEn: messages.messageEn,
               messageAr: messages.messageAr,
             }),

@@ -274,7 +274,9 @@ export function TodayPanel() {
         <TimePill
           label={
             overdue
-              ? t("dashboard.today.overdue")
+              ? t("dashboard.today.overdueAt", {
+                  time: formatTime(item.dueAt, locale),
+                })
               : upcomingTimeLabel(item.dueAt)
           }
           overdue={overdue}

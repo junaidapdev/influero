@@ -74,7 +74,7 @@ export const dealSchema = z.object({
   // yields YYYY-MM-DDTHH:MM (date + time); the format check guards manual/
   // unsupported-browser entry. shoot_date drives the shoot reminder; post_date
   // (the publish date+time) drives the post reminder + Needs-attention. The time
-  // is stored + displayed; the reminders stay day-granular (see dueAt.ts).
+  // is stored, displayed, AND is the reminder's exact fire time (see dueAt.ts).
   shootDate: z
     .string()
     .trim()
