@@ -13,13 +13,17 @@
 --
 -- Safe + idempotent: due_at is display-only, the `is distinct from` guard makes a
 -- re-run a no-op, and it only touches open (is_done = false) shoot/post reminders
--- that still point at an existing deal with the date set. Note: reminders.ref_id
--- is text while ad_deals.id is uuid, hence the d.id::text cast.
+-- that still point at an existing deal with the date set. Each statement also
+-- requires ref_table = 'ad_deals' to mirror exactly how the app writes these rows
+-- (useDeals.ts: refTable = REMINDER_REF_TABLE.AD_DEALS), so it can never overwrite
+-- a like-kinded reminder owned by another feature. Note: reminders.ref_id is text
+-- while ad_deals.id is uuid, hence the d.id::text cast.
 
 update public.reminders r
    set due_at = d.shoot_date
   from public.ad_deals d
  where r.ref_id = d.id::text
+   and r.ref_table = 'ad_deals'
    and r.kind = 'shoot'
    and r.is_done = false
    and d.shoot_date is not null
@@ -29,6 +33,7 @@ update public.reminders r
    set due_at = d.post_date
   from public.ad_deals d
  where r.ref_id = d.id::text
+   and r.ref_table = 'ad_deals'
    and r.kind = 'post'
    and r.is_done = false
    and d.post_date is not null
