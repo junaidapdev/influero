@@ -829,14 +829,14 @@
     "deals": "الإعلانات",
     "payments": "المدفوعات",
     "insights": "التحليلات",
-    "quickAdd": "إضافة سريعة",
+    "quickAdd": "اضافة سريعة لـ",
     "openMenu": "فتح القائمة",
     "menuTitle": "القائمة",
     "back": "رجوع",
     "barLabel": "التنقل الرئيسي"
   },
   "quickAdd": {
-    "brand": "البراندات",
+    "brand": "براند",
     "deal": "إعلان",
     "meeting": "اجتماع",
     "payment": "مبلغ مستحق",
