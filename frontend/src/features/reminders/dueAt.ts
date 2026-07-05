@@ -28,17 +28,3 @@ export function dealDateReminderDueAt(targetIso: string | null): string {
   if (!targetIso) return new Date().toISOString();
   return new Date(targetIso).toISOString();
 }
-
-const MS_PER_HOUR = 3_600_000;
-// The 24h analytics window (Feature 16B): brands ask for a piece of content's
-// Insights 24 hours after it was posted.
-const SNAP_ANALYTICS_DELAY_HOURS = 24;
-
-// The Snap-analytics reminder fires 24 hours after the deal was marked posted —
-// when the content's 24h Insights window closes and the numbers are worth
-// screenshotting.
-export function snapAnalyticsReminderDueAt(nowIso: string): string {
-  return new Date(
-    new Date(nowIso).getTime() + SNAP_ANALYTICS_DELAY_HOURS * MS_PER_HOUR,
-  ).toISOString();
-}

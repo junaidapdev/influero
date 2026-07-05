@@ -33,15 +33,3 @@ export function buildPostReminderMessages(title: string): ReminderMessages {
     messageAr: `نشر — ${title}`,
   };
 }
-
-// The 24h Snap-analytics nudge (Feature 16B): a deliverable was just marked
-// posted, and the brand will ask for the content's Insights at the 24h mark —
-// this is the reminder to capture the screenshot.
-export function buildSnapAnalyticsReminderMessages(
-  dealTitle: string,
-): ReminderMessages {
-  return {
-    messageEn: `Capture Snap analytics — ${dealTitle}`,
-    messageAr: `التقط تحليلات سناب — ${dealTitle}`,
-  };
-}
