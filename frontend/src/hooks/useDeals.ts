@@ -18,12 +18,8 @@ import {
 import {
   buildPostReminderMessages,
   buildShootReminderMessages,
-  buildSnapAnalyticsReminderMessages,
 } from "@/features/reminders/messages";
-import {
-  dealDateReminderDueAt,
-  snapAnalyticsReminderDueAt,
-} from "@/features/reminders/dueAt";
+import { dealDateReminderDueAt } from "@/features/reminders/dueAt";
 import type { DealFormInput } from "@/features/deals/deal.schema";
 import { ACTIVITY_KIND } from "@shared/types/activity.types";
 import { DEAL_STATUS, type Deal, type Deliverable } from "@shared/types/deal.types";
@@ -478,25 +474,12 @@ export function useMarkPosted() {
         await bestEffortReminder("[useMarkPosted] clear post reminder", () =>
           deleteReminderForRef(userId, REMINDER_KIND.POST, updated.id),
         );
-        // Arm the 24h Snap-analytics reminder (kind='deliverable').
-        const snap = buildSnapAnalyticsReminderMessages(updated.title);
-        await bestEffortReminder("[useMarkPosted] arm snap reminder", () =>
-          createReminder({
-            userId,
-            kind: REMINDER_KIND.DELIVERABLE,
-            refId: updated.id,
-            refTable: REMINDER_REF_TABLE.AD_DEALS,
-            dueAt: snapAnalyticsReminderDueAt(now),
-            messageEn: snap.messageEn,
-            messageAr: snap.messageAr,
-          }),
-        );
       } else {
-        // Unticked → the content is no longer posted: clear the now-stale 24h
-        // Snap-analytics reminder (one per deal in this model; it was armed by
-        // posting), keep the shot stamp, and re-arm the post reminder for the
-        // planned date. Re-ticking Posted re-arms the snap reminder via upsert.
-        await bestEffortReminder("[useMarkPosted] clear snap reminder", () =>
+        // Unticked → the content is no longer posted: keep the shot stamp and
+        // re-arm the post reminder for the planned date. Also delete any legacy
+        // 'deliverable' Snap-analytics reminder — that auto 24h nudge was removed,
+        // so this only clears rows left from before the removal (a no-op otherwise).
+        await bestEffortReminder("[useMarkPosted] clear legacy snap reminder", () =>
           deleteReminderForRef(userId, REMINDER_KIND.DELIVERABLE, updated.id),
         );
         if (updated.post_date) {
@@ -558,21 +541,6 @@ export function useCancelDeal() {
         // for the still-active deal (best-effort), then surface the failure so
         // the cancel toast still fires and the user can retry.
         await syncDealDateReminders(userId, deal);
-        const postedAt = deal.posted_at;
-        if (postedAt != null) {
-          const snap = buildSnapAnalyticsReminderMessages(deal.title);
-          await bestEffortReminder("[useCancelDeal] restore snap reminder", () =>
-            createReminder({
-              userId,
-              kind: REMINDER_KIND.DELIVERABLE,
-              refId: deal.id,
-              refTable: REMINDER_REF_TABLE.AD_DEALS,
-              dueAt: snapAnalyticsReminderDueAt(postedAt),
-              messageEn: snap.messageEn,
-              messageAr: snap.messageAr,
-            }),
-          );
-        }
         throw error;
       }
 
