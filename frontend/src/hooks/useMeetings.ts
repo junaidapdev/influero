@@ -3,14 +3,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/logActivity";
 import { logger } from "@/lib/logger";
-import { createReminder, deleteReminderForRef } from "@/lib/createReminder";
+import { applyReminderOps } from "@/lib/applyReminderOps";
 import { useSession } from "@/hooks/useSession";
 import { useAppUser } from "@/hooks/useAppUser";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { APP_USER_DEFAULTS } from "@/constants/appUser";
 import { monthTimestampRange } from "@/features/meetings/calendar";
-import { meetingReminderDueAt } from "@/features/reminders/dueAt";
-import { buildMeetingReminderMessages } from "@/features/reminders/messages";
+import {
+  diffReminderOps,
+  planMeetingReminderClear,
+  planMeetingReminders,
+} from "@/features/reminders/plan";
 import type { MeetingFormInput } from "@/features/meetings/meeting.schema";
 import { ACTIVITY_KIND } from "@shared/types/activity.types";
 import type { AppUser } from "@shared/types/appUser.types";
@@ -19,7 +22,6 @@ import {
   type Meeting,
   type MeetingAttendee,
 } from "@shared/types/meeting.types";
-import { REMINDER_KIND, REMINDER_REF_TABLE } from "@shared/types/reminder.types";
 
 const ACTIVITY_REF_TABLE = "meetings";
 
@@ -94,28 +96,21 @@ async function resolveLeadMinutes(
   }
 }
 
-// Writes (or moves) the meeting's reminder; reports failure instead of
-// throwing so the already-saved meeting still resolves the mutation.
+// Writes (or moves) the meeting's reminder via the reminder planner —
+// prev=null upserts unconditionally (create has no reminder yet; edit MOVES it
+// and self-heals a failed create-time write). 'swallow' so the already-saved
+// meeting still resolves the mutation, reporting reminderFailed instead.
 async function writeMeetingReminder(
   meeting: Meeting,
   leadMinutes: number,
+  label: string,
 ): Promise<boolean> {
-  try {
-    const messages = buildMeetingReminderMessages(meeting.title);
-    await createReminder({
-      userId: meeting.user_id,
-      kind: REMINDER_KIND.MEETING,
-      refId: meeting.id,
-      refTable: REMINDER_REF_TABLE.MEETINGS,
-      dueAt: meetingReminderDueAt(meeting.scheduled_at, leadMinutes),
-      messageEn: messages.messageEn,
-      messageAr: messages.messageAr,
-    });
-    return false;
-  } catch (err) {
-    logger.error("useMeetings.writeMeetingReminder", err);
-    return true;
-  }
+  const ops = diffReminderOps(null, planMeetingReminders(meeting, leadMinutes));
+  const { reminderFailed } = await applyReminderOps(meeting.user_id, ops, {
+    failure: "swallow",
+    label,
+  });
+  return reminderFailed;
 }
 
 // One LOCAL month, one query — feeds both the list and the calendar grid.
@@ -174,7 +169,11 @@ export function useCreateMeeting() {
 
       const meeting = data as Meeting;
       const leadMinutes = await resolveLeadMinutes(appUser, userId);
-      const reminderFailed = await writeMeetingReminder(meeting, leadMinutes);
+      const reminderFailed = await writeMeetingReminder(
+        meeting,
+        leadMinutes,
+        "[useCreateMeeting]",
+      );
 
       void logActivity({
         kind: ACTIVITY_KIND.MEETING_SCHEDULED,
@@ -220,7 +219,11 @@ export function useUpdateMeeting() {
 
       const meeting = data as Meeting;
       const leadMinutes = await resolveLeadMinutes(appUser, userId);
-      const reminderFailed = await writeMeetingReminder(meeting, leadMinutes);
+      const reminderFailed = await writeMeetingReminder(
+        meeting,
+        leadMinutes,
+        "[useUpdateMeeting]",
+      );
 
       return { meeting, reminderFailed };
     },
@@ -247,7 +250,13 @@ export function useDeleteMeeting() {
       const userId = session?.user.id;
       if (!userId) throw new Error("[useDeleteMeeting] No authenticated user");
 
-      await deleteReminderForRef(userId, REMINDER_KIND.MEETING, meeting.id);
+      // Clear FIRST with 'throw' — a failed clear aborts the delete, so a
+      // stale reminder can never outlive its meeting.
+      await applyReminderOps(
+        userId,
+        diffReminderOps(null, planMeetingReminderClear(meeting.id)),
+        { failure: "throw", label: "[useDeleteMeeting]" },
+      );
 
       const { error } = await supabase
         .from("meetings")

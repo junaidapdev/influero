@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
 import { logActivity } from "@/lib/logActivity";
-import { logger } from "@/lib/logger";
-import { createReminder, deleteReminderForRef } from "@/lib/createReminder";
+import { applyReminderOps } from "@/lib/applyReminderOps";
 import { startOfLocalDayIso } from "@/lib/date";
 import { useSession } from "@/hooks/useSession";
 import { QUERY_KEYS } from "@/constants/queryKeys";
@@ -15,15 +14,10 @@ import {
   togglePosted,
   toggleShot,
 } from "@/features/deals/status";
-import {
-  buildPostReminderMessages,
-  buildShootReminderMessages,
-} from "@/features/reminders/messages";
-import { dealDateReminderDueAt } from "@/features/reminders/dueAt";
+import { diffReminderOps, planDealReminders } from "@/features/reminders/plan";
 import type { DealFormInput } from "@/features/deals/deal.schema";
 import { ACTIVITY_KIND } from "@shared/types/activity.types";
 import { DEAL_STATUS, type Deal, type Deliverable } from "@shared/types/deal.types";
-import { REMINDER_KIND, REMINDER_REF_TABLE } from "@shared/types/reminder.types";
 
 const ACTIVITY_REF_TABLE = "ad_deals";
 
@@ -93,98 +87,22 @@ function toDealColumns(input: DealFormInput): {
   };
 }
 
-// Best-effort reminder side-effect for the toggle paths: a failure to tidy a
-// reminder must never fail the visible checkmark (the snap-reminder stance from
-// 16B — the action is the toggle; the reminder is housekeeping). On create/edit
-// we DO surface failures (see syncDealDateReminders) because there the reminder
-// is the point of setting a date.
-async function bestEffortReminder(
-  label: string,
-  fn: () => Promise<void>,
-): Promise<void> {
-  try {
-    await fn();
-  } catch (error) {
-    logger.error(label, error);
-  }
-}
-
-// Create/edit reminder sync: a shoot reminder exists iff shoot_date is set and
-// the deal isn't already shot; a post reminder iff post_date is set and not yet
-// posted — otherwise the kind's reminder is cleared. createReminder upserts by
-// (kind, ref_id), so editing a date MOVES the reminder rather than stacking.
-// Each kind is guarded independently so one failure still arms the other.
-// NOTE: syncs only SHOOT/POST. A posted deal's +24h snap reminder keeps its
-// creation-time title until dismissed or the deal is re-posted — accepted
-// denormalization drift (re-syncing here would wrongly move its due_at, which
-// is anchored to when the deal was posted, not when it was edited).
-async function syncDealDateReminders(
+// Reminder policy lives in features/reminders/plan (planDealReminders — which
+// reminders a deal in this state should have; diffReminderOps — the ops that
+// get there without resurrecting dismissed reminders); lib/applyReminderOps
+// executes them under the failure stance each mutation picks. The hooks below
+// only choose prev/next states, a stance, and a label.
+async function syncDealReminders(
   userId: string,
-  deal: Deal,
+  prev: Deal | null,
+  next: Deal,
+  label: string,
 ): Promise<{ reminderFailed: boolean }> {
-  let reminderFailed = false;
-
-  // A paid/cancelled deal is terminal — it must never arm shoot/post reminders.
-  // Otherwise editing a cancelled deal (e.g. fixing a note) would re-create the
-  // very reminders the cancel flow deleted, reviving it on the Today worklist.
-  // Delete-only and return, so a re-edit also clears any stragglers.
-  if (isLifecycleLocked(deal.status)) {
-    // Attempt BOTH deletes independently — a failure on one must not skip the
-    // other and leave the terminal deal partially armed.
-    const results = await Promise.allSettled([
-      deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id),
-      deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id),
-    ]);
-    for (const result of results) {
-      if (result.status === "rejected") {
-        reminderFailed = true;
-        logger.error("[useDeals] terminal deal reminder clear", result.reason);
-      }
-    }
-    return { reminderFailed };
-  }
-
-  try {
-    if (deal.shoot_date && deal.shot_at == null) {
-      const messages = buildShootReminderMessages(deal.title);
-      await createReminder({
-        userId,
-        kind: REMINDER_KIND.SHOOT,
-        refId: deal.id,
-        refTable: REMINDER_REF_TABLE.AD_DEALS,
-        dueAt: dealDateReminderDueAt(deal.shoot_date),
-        messageEn: messages.messageEn,
-        messageAr: messages.messageAr,
-      });
-    } else {
-      await deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id);
-    }
-  } catch (error) {
-    reminderFailed = true;
-    logger.error("[useDeals] shoot reminder sync", error);
-  }
-
-  try {
-    if (deal.post_date && deal.posted_at == null) {
-      const messages = buildPostReminderMessages(deal.title);
-      await createReminder({
-        userId,
-        kind: REMINDER_KIND.POST,
-        refId: deal.id,
-        refTable: REMINDER_REF_TABLE.AD_DEALS,
-        dueAt: dealDateReminderDueAt(deal.post_date),
-        messageEn: messages.messageEn,
-        messageAr: messages.messageAr,
-      });
-    } else {
-      await deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id);
-    }
-  } catch (error) {
-    reminderFailed = true;
-    logger.error("[useDeals] post reminder sync", error);
-  }
-
-  return { reminderFailed };
+  const ops = diffReminderOps(
+    prev ? planDealReminders(prev) : null,
+    planDealReminders(next),
+  );
+  return applyReminderOps(userId, ops, { failure: "swallow", label });
 }
 
 // The filtered /deals list, DB-filtered with the filter state in the queryKey so
@@ -313,7 +231,13 @@ export function useCreateDeal() {
         refTable: ACTIVITY_REF_TABLE,
       });
 
-      const { reminderFailed } = await syncDealDateReminders(userId, deal);
+      // prev=null (create): every desired reminder is armed fresh.
+      const { reminderFailed } = await syncDealReminders(
+        userId,
+        null,
+        deal,
+        "[useCreateDeal]",
+      );
       return { deal, reminderFailed };
     },
     onSuccess: () => invalidateDealViews(queryClient),
@@ -349,7 +273,14 @@ export function useUpdateDeal() {
       if (error) throw error;
 
       const deal = data as Deal;
-      const { reminderFailed } = await syncDealDateReminders(userId, deal);
+      // prev=null: the mutation input carries no pre-write row, so every still-
+      // desired reminder is (re)upserted — the pre-refactor edit behavior.
+      const { reminderFailed } = await syncDealReminders(
+        userId,
+        null,
+        deal,
+        "[useUpdateDeal]",
+      );
       return { deal, reminderFailed };
     },
     onSuccess: () => invalidateDealViews(queryClient),
@@ -392,24 +323,13 @@ export function useMarkShot() {
           refId: updated.id,
           refTable: ACTIVITY_REF_TABLE,
         });
-        await bestEffortReminder("[useMarkShot] clear shoot reminder", () =>
-          deleteReminderForRef(userId, REMINDER_KIND.SHOOT, updated.id),
-        );
-      } else if (updated.shoot_date) {
-        // Unticked → re-arm the shoot reminder for the planned date.
-        const messages = buildShootReminderMessages(updated.title);
-        await bestEffortReminder("[useMarkShot] re-arm shoot reminder", () =>
-          createReminder({
-            userId,
-            kind: REMINDER_KIND.SHOOT,
-            refId: updated.id,
-            refTable: REMINDER_REF_TABLE.AD_DEALS,
-            dueAt: dealDateReminderDueAt(updated.shoot_date),
-            messageEn: messages.messageEn,
-            messageAr: messages.messageAr,
-          }),
-        );
       }
+
+      // Ticking clears the shoot reminder (task done); unticking re-arms it
+      // for the planned date — both fall out of the state diff. Best-effort:
+      // a reminder failure must never fail the visible checkmark, so the
+      // returned flag is deliberately ignored.
+      await syncDealReminders(userId, deal, updated, "[useMarkShot]");
       return updated;
     },
     onSuccess: () => invalidateDealViews(queryClient),
@@ -466,37 +386,13 @@ export function useMarkPosted() {
           refId: updated.id,
           refTable: ACTIVITY_REF_TABLE,
         });
-
-        // Posting completes both date tasks → clear shoot + post reminders.
-        await bestEffortReminder("[useMarkPosted] clear shoot reminder", () =>
-          deleteReminderForRef(userId, REMINDER_KIND.SHOOT, updated.id),
-        );
-        await bestEffortReminder("[useMarkPosted] clear post reminder", () =>
-          deleteReminderForRef(userId, REMINDER_KIND.POST, updated.id),
-        );
-      } else {
-        // Unticked → the content is no longer posted: keep the shot stamp and
-        // re-arm the post reminder for the planned date. Also delete any legacy
-        // 'deliverable' Snap-analytics reminder — that auto 24h nudge was removed,
-        // so this only clears rows left from before the removal (a no-op otherwise).
-        await bestEffortReminder("[useMarkPosted] clear legacy snap reminder", () =>
-          deleteReminderForRef(userId, REMINDER_KIND.DELIVERABLE, updated.id),
-        );
-        if (updated.post_date) {
-          const messages = buildPostReminderMessages(updated.title);
-          await bestEffortReminder("[useMarkPosted] re-arm post reminder", () =>
-            createReminder({
-              userId,
-              kind: REMINDER_KIND.POST,
-              refId: updated.id,
-              refTable: REMINDER_REF_TABLE.AD_DEALS,
-              dueAt: dealDateReminderDueAt(updated.post_date),
-              messageEn: messages.messageEn,
-              messageAr: messages.messageAr,
-            }),
-          );
-        }
       }
+
+      // Posting clears shoot + post reminders (both tasks done); unticking
+      // keeps the shot stamp and re-arms the post reminder for the planned
+      // date. The diff also drains any legacy 'deliverable' row (the removed
+      // auto 24h Snap nudge). Best-effort — flag deliberately ignored.
+      await syncDealReminders(userId, deal, updated, "[useMarkPosted]");
       return updated;
     },
     onSuccess: () => invalidateDealViews(queryClient),
@@ -522,9 +418,17 @@ export function useCancelDeal() {
         throw new Error("[useCancelDeal] Deal is already paid or cancelled");
       }
 
-      await deleteReminderForRef(userId, REMINDER_KIND.SHOOT, deal.id);
-      await deleteReminderForRef(userId, REMINDER_KIND.POST, deal.id);
-      await deleteReminderForRef(userId, REMINDER_KIND.DELIVERABLE, deal.id);
+      // Plan for the INTENDED terminal state — desires nothing, so the diff
+      // clears every managed kind — and run it with 'throw' BEFORE the status
+      // flip: a failed clear aborts the cancel.
+      const cancelledPlan = planDealReminders({
+        ...deal,
+        status: DEAL_STATUS.CANCELLED,
+      });
+      await applyReminderOps(userId, diffReminderOps(null, cancelledPlan), {
+        failure: "throw",
+        label: "[useCancelDeal]",
+      });
 
       const { data, error } = await supabase
         .from("ad_deals")
@@ -537,10 +441,15 @@ export function useCancelDeal() {
         .select("*")
         .single();
       if (error) {
-        // Status flip failed but the reminders are already gone — re-arm them
-        // for the still-active deal (best-effort), then surface the failure so
-        // the cancel toast still fires and the user can retry.
-        await syncDealDateReminders(userId, deal);
+        // Status flip failed but the reminders are already gone — diff back
+        // to the still-active deal's plan to re-arm them (best-effort), then
+        // surface the failure so the cancel toast still fires and the user
+        // can retry.
+        await applyReminderOps(
+          userId,
+          diffReminderOps(cancelledPlan, planDealReminders(deal)),
+          { failure: "swallow", label: "[useCancelDeal] rollback" },
+        );
         throw error;
       }
 
