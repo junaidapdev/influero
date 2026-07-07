@@ -425,10 +425,23 @@ export function useCancelDeal() {
         ...deal,
         status: DEAL_STATUS.CANCELLED,
       });
-      await applyReminderOps(userId, diffReminderOps(null, cancelledPlan), {
-        failure: "throw",
-        label: "[useCancelDeal]",
-      });
+      try {
+        await applyReminderOps(userId, diffReminderOps(null, cancelledPlan), {
+          failure: "throw",
+          label: "[useCancelDeal]",
+        });
+      } catch (clearError) {
+        // 'throw' aborts mid-sequence, so earlier deletes may have committed.
+        // Re-arm whatever the still-ACTIVE deal desires (best-effort) before
+        // surfacing the failure — a failed cancel must not strand a live deal
+        // half off the Today worklist. Same recovery as the flip-failure path.
+        await applyReminderOps(
+          userId,
+          diffReminderOps(cancelledPlan, planDealReminders(deal)),
+          { failure: "swallow", label: "[useCancelDeal] preflight rollback" },
+        );
+        throw clearError;
+      }
 
       const { data, error } = await supabase
         .from("ad_deals")

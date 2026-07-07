@@ -165,6 +165,7 @@ export function diffReminderOps(
       (previous) =>
         previous.kind === reminder.kind &&
         previous.refId === reminder.refId &&
+        previous.refTable === reminder.refTable &&
         previous.dueAt === reminder.dueAt &&
         previous.messageEn === reminder.messageEn &&
         previous.messageAr === reminder.messageAr,
