@@ -32,7 +32,7 @@ export type DealFilters = {
 
 // The lightweight unfiltered projection serving the brand-directory counts and
 // the month-filter options — one round-trip, never a per-brand count query.
-export type DealIndexRow = Pick<Deal, "brand_id" | "post_date">;
+export type DealIndexRow = Pick<Deal, "brand_id" | "effective_post_at">;
 
 // The result of a create/edit: the deal plus whether a shoot/post reminder
 // write failed (the deal still saved). The route surfaces the failure as a
@@ -41,10 +41,10 @@ export type DealMutationResult = { deal: Deal; reminderFailed: boolean };
 
 type UpdateDealInput = { dealId: string; input: DealFormInput };
 
-// [start, end) post_date range for a YYYY-MM month filter, as viewer-local
-// (Riyadh) midnight ISO instants — post_date is now a timestamptz, so the
-// bounds are instants, not bare dates, and bucket by the local calendar month
-// (matching the dashboard/reports RPCs) rather than the UTC month.
+// [start, end) effective_post_at range for a YYYY-MM month filter, as
+// viewer-local (Riyadh) midnight ISO instants — the column is a timestamptz, so
+// the bounds are instants, not bare dates, and bucket by the local calendar
+// month (matching the dashboard/reports RPCs) rather than the UTC month.
 function monthRange(month: string): { start: string; end: string } {
   const [year, monthNumber] = month.split("-").map(Number);
   const nextMonthFirst =
@@ -106,9 +106,12 @@ async function syncDealReminders(
 }
 
 // The filtered /deals list, DB-filtered with the filter state in the queryKey so
-// each combination caches independently. post_date ascending, null post dates
-// last, newest-created as the tiebreaker. RLS scopes the read; the user_id
-// filter is convenience.
+// each combination caches independently. effective_post_at ascending (0028 —
+// never null, so no nulls-last hint is needed), newest-created as the
+// tiebreaker. Sorting on the same column the month filter uses is what keeps a
+// filtered month in a sensible order: sorting by the PLANNED date would scatter
+// the many deals that have none. RLS scopes the read; the user_id filter is
+// convenience.
 export function useDeals(filters: DealFilters) {
   const { session } = useSession();
   const userId = session?.user.id;
@@ -123,14 +126,16 @@ export function useDeals(filters: DealFilters) {
         .from("ad_deals")
         .select("*")
         .eq("user_id", userId)
-        .order("post_date", { ascending: true, nullsFirst: false })
+        .order("effective_post_at", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (filters.brandId) query = query.eq("brand_id", filters.brandId);
       if (filters.status) query = query.eq("status", filters.status);
       if (filters.month) {
         const { start, end } = monthRange(filters.month);
-        query = query.gte("post_date", start).lt("post_date", end);
+        query = query
+          .gte("effective_post_at", start)
+          .lt("effective_post_at", end);
       }
 
       const { data, error } = await query;
@@ -141,9 +146,11 @@ export function useDeals(filters: DealFilters) {
   });
 }
 
-// One unfiltered select of brand_id + post_date for every deal the user owns.
-// Serves the directory's per-brand counts (grouped client-side) and the month
-// filter's options — the no-N+1 query from the architecture.
+// One unfiltered select of brand_id + effective_post_at for every deal the user
+// owns. Serves the directory's per-brand counts (grouped client-side) and the
+// month filter's options — the no-N+1 query from the architecture. Reads the
+// generated column so the dropdown offers exactly the months the filter can
+// actually return.
 export function useDealsIndex() {
   const { session } = useSession();
   const userId = session?.user.id;
@@ -156,7 +163,7 @@ export function useDealsIndex() {
 
       const { data, error } = await supabase
         .from("ad_deals")
-        .select("brand_id, post_date")
+        .select("brand_id, effective_post_at")
         .eq("user_id", userId);
       if (error) throw error;
 
@@ -165,7 +172,9 @@ export function useDealsIndex() {
   });
 }
 
-// All deals for one brand — the brand-detail Deals section + count.
+// All deals for one brand — the brand-detail Deals section + count. Same
+// effective_post_at ordering as the main list, so a deal does not sit in a
+// different place depending on which page shows it.
 export function useDealsForBrand(brandId: string | undefined) {
   const { session } = useSession();
   const userId = session?.user.id;
@@ -183,7 +192,7 @@ export function useDealsForBrand(brandId: string | undefined) {
         .select("*")
         .eq("user_id", userId)
         .eq("brand_id", brandId)
-        .order("post_date", { ascending: true, nullsFirst: false })
+        .order("effective_post_at", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) throw error;
 
