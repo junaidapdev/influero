@@ -114,9 +114,11 @@ export function DealsRoute() {
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
     for (const row of indexQuery.data ?? []) {
-      // post_date is a timestamptz — bucket by its viewer-local (Riyadh) month,
-      // matching the dashboard/reports RPCs (not the UTC month a raw slice gives).
-      if (row.post_date) months.add(localDayOfIso(row.post_date).slice(0, 7));
+      // effective_post_at (0028) is a timestamptz — bucket by its viewer-local
+      // (Riyadh) month, matching the dashboard/reports RPCs (not the UTC month a
+      // raw slice gives). Never null, so every deal contributes a month and the
+      // dropdown can no longer omit a month the user actually has deals in.
+      months.add(localDayOfIso(row.effective_post_at).slice(0, 7));
     }
     return [...months].sort((a, b) => b.localeCompare(a));
   }, [indexQuery.data]);
